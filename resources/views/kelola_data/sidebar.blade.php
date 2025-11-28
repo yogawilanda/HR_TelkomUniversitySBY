@@ -1,6 +1,5 @@
 <!-- Menu Kelola Data -->
 
-
 @php
     $sidebars = [
         [
@@ -68,7 +67,7 @@
         ],
         [
             ['Target Kinerja', 'TargetKinerja'],
-                [
+            [
                 ['Daftar Target Kinerja', route('manage.target-kinerja.list'), 'fa-solid fa-bullseye'],
                 ['Tambah Target Kinerja', route('manage.target-kinerja.input'), 'fa-solid fa-plus-circle'],
                 ['Laporan Target Kinerja', route('manage.target-kinerja.laporan'), 'fa-solid fa-chart-bar'],
@@ -110,7 +109,6 @@
                 ['Tambah JFK', route('manage.jfk.new'), 'fa-solid fa-plus-circle'],
             ],
         ],
-
         [
             ['Jabatan Golongan', 'JG'],
             [
@@ -118,7 +116,6 @@
                 ['Tambah Pangkat Golongan', route('manage.pangkat-golongan.new'), 'fa-solid fa-plus-circle'],
             ],
         ],
-
         [
             ['Jenjang Pendidikan', 'JP'],
             [
@@ -126,7 +123,6 @@
                 ['Tambah Jenjang Pendidikan', route('manage.jenjang-pendidikan.new'), 'fa-solid fa-plus-circle'],
             ],
         ],
-
         [
             ['Riwayat Nip Pegawai', 'NIP'],
             [
@@ -154,13 +150,99 @@
     ];
 @endphp
 
+<div class="sticky top-0 w-70">
+    <!-- Search Box -->
+    {{-- <div class="flex items-center w-full px-2 py-1 bg-gray-200 rounded-md mx-3 my-3">
+        <!-- Icon -->
+        <svg class="w-4 h-4 text-[#806767] mr-2" viewBox="0 0 24 24" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 4a6 6 0 104.472 10.472l4.528 4.528a1 1 0 001.414-1.414l-4.528-4.528A6 6 0 0010 4z"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
 
+        <!-- Input -->
+        <input
+            type="text"
+            id="sidebarSearch"
+            placeholder="search"
+            class="w-full bg-transparent text-[#806767] text-xs placeholder-[#806767] focus:outline-none focus:ring-0 border-none py-0 px-1"
+        />
+    </div> --}}
 
-@foreach ($sidebars as $sidebar)
-    <x-sidebar-group title="{{ $sidebar[0][0] }}" hide="{{ $sidebar[0][1] }}" icon="fa-users">
-        @foreach ($sidebar[1] as $i => $button)
-            <x-sidebar-button :isactive="isset($active_sidebar) && $active_sidebar === $button[0] ? 'active-sidebar' : null" href="{{ $button[1] }}" icon="{{ $button[2] }}"
-                label="{{ $button[0] }}" />
+    <!-- Scrollable Menu -->
+    <div class="h-[calc(100vh-135px)] overflow-y-auto" id="sidebarMenu">
+        @foreach ($sidebars as $sidebar)
+            <div class="sidebar-group">
+                <x-sidebar-group title="{{ $sidebar[0][0] }}" hide="{{ $sidebar[0][1] }}" icon="fa-users">
+                    @foreach ($sidebar[1] as $i => $button)
+                        <x-sidebar-button
+                            :isactive="isset($active_sidebar) && $active_sidebar === $button[0] ? 'active-sidebar' : null"
+                            href="{{ $button[1] }}"
+                            icon="{{ $button[2] }}"
+                            label="{{ $button[0] }}"
+                        />
+                    @endforeach
+                </x-sidebar-group>
+            </div>
         @endforeach
-    </x-sidebar-group>
-@endforeach
+    </div>
+
+    <!-- No Results Message -->
+    <div id="noResults" class="hidden p-4 text-center text-gray-500 text-sm">
+        <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 4a6 6 0 104.472 10.472l4.528 4.528a1 1 0 001.414-1.414l-4.528-4.528A6 6 0 0010 4z"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <p>No menu items found</p>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('sidebarSearch');
+    const sidebarMenu = document.getElementById('sidebarMenu');
+    const noResults = document.getElementById('noResults');
+
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+
+        if (searchTerm === '') {
+            showAllItems();
+            return;
+        }
+
+        let hasVisibleItems = false;
+        const groups = sidebarMenu.querySelectorAll('.sidebar-group');
+
+        groups.forEach(group => {
+            const groupText = group.textContent.toLowerCase();
+
+            if (groupText.includes(searchTerm)) {
+                group.style.display = '';
+                hasVisibleItems = true;
+            } else {
+                group.style.display = 'none';
+            }
+        });
+
+        // Show/hide no results message
+        if (hasVisibleItems) {
+            sidebarMenu.style.display = '';
+            noResults.classList.add('hidden');
+        } else {
+            sidebarMenu.style.display = 'none';
+            noResults.classList.remove('hidden');
+        }
+    });
+
+    function showAllItems() {
+        sidebarMenu.style.display = '';
+        noResults.classList.add('hidden');
+
+        const groups = sidebarMenu.querySelectorAll('.sidebar-group');
+        groups.forEach(group => {
+            group.style.display = '';
+        });
+    }
+});
+</script>
