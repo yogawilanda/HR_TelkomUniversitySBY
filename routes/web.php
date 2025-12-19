@@ -295,7 +295,38 @@ Route::middleware('auth')->group(function () {
         Route::resource('coe', \App\Http\Controllers\CoeController::class);
 
 
-        // Target Kinerja Routes
+        // Kontrak Manajemen Routes (menggantikan Target Kinerja)
+        Route::group(['prefix' => 'kontrak-manajemen', 'as' => 'kontrak-manajemen.'], function () {
+            Route::get('/list', [\App\Http\Controllers\KontrakManajemenController::class, 'index'])->name('list');
+            Route::get('/input', [\App\Http\Controllers\KontrakManajemenController::class, 'create'])->name('input');
+            Route::post('/store', [\App\Http\Controllers\KontrakManajemenController::class, 'store'])->name('store');
+            Route::get('/view/{id}', [\App\Http\Controllers\KontrakManajemenController::class, 'show'])->name('view');
+            Route::get('/edit/{id}', [\App\Http\Controllers\KontrakManajemenController::class, 'edit'])->name('edit');
+            Route::put('/update/{id}', [\App\Http\Controllers\KontrakManajemenController::class, 'update'])->name('update');
+            Route::delete('/destroy/{id}', [\App\Http\Controllers\KontrakManajemenController::class, 'destroy'])->name('destroy');
+            Route::get('/laporan', [\App\Http\Controllers\KontrakManajemenController::class, 'laporan'])->name('laporan');
+        });
+
+        // Kontrak Unit Routes
+        Route::group(['prefix' => 'kontrak-unit', 'as' => 'kontrak-unit.'], function () {
+            Route::get('/list', [\App\Http\Controllers\KontrakUnitController::class, 'index'])->name('list');
+            Route::get('/input', [\App\Http\Controllers\KontrakUnitController::class, 'create'])->name('input');
+            Route::post('/store', [\App\Http\Controllers\KontrakUnitController::class, 'store'])->name('store');
+            Route::get('/view/{id}', [\App\Http\Controllers\KontrakUnitController::class, 'show'])->name('view');
+            Route::get('/edit/{id}', [\App\Http\Controllers\KontrakUnitController::class, 'edit'])->name('edit');
+            Route::put('/update/{id}', [\App\Http\Controllers\KontrakUnitController::class, 'update'])->name('update');
+            Route::delete('/destroy/{id}', [\App\Http\Controllers\KontrakUnitController::class, 'destroy'])->name('destroy');
+            Route::get('/assign/{id}', [\App\Http\Controllers\KontrakUnitController::class, 'assign'])->name('assign');
+            Route::post('/assign/{id}', [\App\Http\Controllers\KontrakUnitController::class, 'storeAssignment'])->name('store-assignment');
+            Route::post('/assign/{id}/pegawai/{userId}/status', [\App\Http\Controllers\KontrakUnitController::class, 'updateAssignmentStatus'])->name('update-assignment-status');
+            Route::delete('/assign/{id}/pegawai/{userId}', [\App\Http\Controllers\KontrakUnitController::class, 'detachPegawai'])->name('detach-pegawai');
+            
+            // Pelaporan untuk Kinerja Unit
+            Route::get('/{kinerjaUnitId}/isi-pelaporan', [\App\Http\Controllers\PelaporanPekerjaanController::class, 'createForKinerjaUnit'])->name('isi-pelaporan');
+            Route::post('/{kinerjaUnitId}/submit-pelaporan', [\App\Http\Controllers\PelaporanPekerjaanController::class, 'storeForKinerjaUnit'])->name('submit-pelaporan');
+        });
+
+        // Target Kinerja Routes (untuk backward compatibility)
         Route::group(['prefix' => 'target-kinerja', 'as' => 'target-kinerja.'], function () {
             Route::get('/list', [\App\Http\Controllers\TargetKinerjaController::class, 'index'])->name('list');
             Route::get('/input', [\App\Http\Controllers\TargetKinerjaController::class, 'create'])->name('input');

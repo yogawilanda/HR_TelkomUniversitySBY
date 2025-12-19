@@ -1,0 +1,83 @@
+@php
+    $active_sidebar = 'Kontrak Manajemen';
+@endphp
+
+@extends('kelola_data.base')
+
+@section('page-name')
+    <div class="flex flex-col md:flex-row items-center gap-[11.75px] self-stretch px-1 pt-[14.68px] pb-[13.95px]">
+        <div class="flex w-full flex-col gap-[2.93px] grow">
+            <div class="flex items-center gap-[5.87px] self-stretch">
+                <span class="font-medium text-2xl leading-[20.56px] text-[#101828]">Kontrak Manajemen</span>
+            </div>
+            <span class="font-normal text-[10.28px] leading-[14.68px] text-[#1f2028]">Kelola data kontrak manajemen</span>
+        </div>
+        <div class="flex items-center w-full justify-end gap-[11.75px]">
+            <a href="{{ route('manage.kontrak-manajemen.input') }}" class="flex rounded-[5.87px]">
+                <div class="flex justify-center items-center gap-[5.87px] bg-[#0070ff] px-[11.75px] py-[7.34px] rounded-[5.87px] border border-[#0070ff] hover:bg-[#005fe0] transition">
+                    <i class="bi bi-plus text-sm text-white"></i>
+                    <span class="font-medium text-[10.28px] leading-[14.68px] text-white">Tambah</span>
+                </div>
+            </a>
+        </div>
+    </div>
+@endsection
+
+@section('content-base')
+    <div class="flex flex-grow-0 flex-col gap-2 max-w-100">
+        @if(session('success'))
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <x-tb id="kontrakManajemenTable">
+            <x-slot:table_header>
+                <x-tb-td nama="nama" sorting=true>Nama</x-tb-td>
+                <x-tb-td nama="bobot" sorting=true>Bobot</x-tb-td>
+                <x-tb-td nama="periode">Periode</x-tb-td>
+                <x-tb-td nama="status">Status</x-tb-td>
+                <x-tb-td nama="unit">Unit Penanggung Jawab</x-tb-td>
+                <x-tb-td nama="is_active">Active</x-tb-td>
+                <x-tb-td nama="action">Action</x-tb-td>
+            </x-slot:table_header>
+            <x-slot:table_column>
+                @foreach ($kontrakManajemen as $index => $item)
+                    <x-tb-cl id="{{ $item->id }}">
+                        <x-tb-cl-fill>{{ $item->nama }}</x-tb-cl-fill>
+                        <x-tb-cl-fill>{{ $item->bobot }}</x-tb-cl-fill>
+                        <x-tb-cl-fill>{{ $item->periode ?? '-' }}</x-tb-cl-fill>
+                        <x-tb-cl-fill>
+                            <span class="px-2 py-1 rounded text-xs 
+                                @if($item->status === 'active') bg-green-100 text-green-800 
+                                @elseif($item->status === 'completed') bg-blue-100 text-blue-800 
+                                @else bg-gray-100 text-gray-800 
+                                @endif">
+                                {{ ucfirst($item->status) }}
+                            </span>
+                        </x-tb-cl-fill>
+                        <x-tb-cl-fill>{{ $item->unit_penanggung_jawab ?? '-' }}</x-tb-cl-fill>
+                        <x-tb-cl-fill>{{ $item->is_active ? 'Ya' : 'Tidak' }}</x-tb-cl-fill>
+                        <x-tb-cl-fill>
+                            <div class="flex items-center justify-center gap-3">
+                                <a href="{{ route('manage.kontrak-manajemen.view', $item->id) }}" class="flex items-center justify-center w-7 h-7 rounded-md border border-[#d0d5dd] bg-white hover:bg-[#f9fafb] transition duration-150 ease-in-out text-blue-600" title="View">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{{ route('manage.kontrak-manajemen.edit', $item->id) }}" class="flex items-center justify-center w-7 h-7 rounded-md border border-[#d0d5dd] bg-white hover:bg-[#f9fafb] transition duration-150 ease-in-out text-yellow-600" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form action="{{ route('manage.kontrak-manajemen.destroy', $item->id) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="flex items-center justify-center w-7 h-7 rounded-md border border-[#d0d5dd] bg-white hover:bg-[#f9fafb] transition duration-150 ease-in-out text-red-600" onclick="return confirm('Yakin ingin menghapus data ini?')" title="Hapus">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </x-tb-cl-fill>
+                    </x-tb-cl>
+                @endforeach
+            </x-slot:table_column>
+        </x-tb>
+    </div>
+@endsection

@@ -66,6 +66,21 @@
             ],
         ],
         [
+            ['Kontrak Manajemen', 'KontrakManajemen'],
+            [
+                ['Daftar Kontrak Manajemen', route('manage.kontrak-manajemen.list'), 'fa-solid fa-file-contract'],
+                ['Tambah Kontrak Manajemen', route('manage.kontrak-manajemen.input'), 'fa-solid fa-plus-circle'],
+                ['Laporan Kontrak Manajemen', route('manage.kontrak-manajemen.laporan'), 'fa-solid fa-chart-bar'],
+            ],
+        ],
+        [
+            ['Kontrak Unit', 'KontrakUnit'],
+            [
+                ['Daftar Kontrak Unit', route('manage.kontrak-unit.list'), 'fa-solid fa-clipboard-list'],
+                ['Tambah Kontrak Unit', route('manage.kontrak-unit.input'), 'fa-solid fa-plus-circle'],
+            ],
+        ],
+        [
             ['Target Kinerja', 'TargetKinerja'],
             [
                 ['Daftar Target Kinerja', route('manage.target-kinerja.list'), 'fa-solid fa-bullseye'],
