@@ -85,3 +85,32 @@ catatan ada dalam kolom pengajuan, gunanya adalah untuk admin dapat berkomunikas
 
 flaging hanya dilakukan oleh admin, dan flagging, setiap poin kegiatan.
 
+-------------------
+List yang sudah selesai
+1. Integrasi Seeding Dupak ke aplikasi utama
+2. Migrasi tabel detil pengajuan yang terbaru
+3. Migrasi tabel evaluasi yang isinya komentar/flagging/scoring untuk admin dan TPAK
+4. Migrasi tabel penunjukan tpak 
+5. Seeding adaptif untuk pengisian pengajuan.
+6. mengubah privasi user yang hanya bisa mengakses laman dupak
+7. Membuat seeder untuk pengajuan dengan metode adaptif seeding antar 2 db sekaligus.
+8. Menambahkan kolom evaluasi berupa pesan dari TPAK dan admin kedalam tampilan detail pengajuan per block.
+9. Halaman untuk formulir setiap detil pengajuan di ekstensi url 
+http://127.0.0.1:8000/dupak/detil_pengajuan/penelitian
+http://127.0.0.1:8000/dupak/detil_pengajuan/pendidikan
+http://127.0.0.1:8000/dupak/detil_pengajuan/pengabdian
+http://127.0.0.1:8000/dupak/detil_pengajuan/penunjang
+(kurang 1, yaitu pelaksanaan pendidikan)
+10. registrasi setiap halaman formulir ke web.php dari poin 9
+11. Menyiapkan TPAK controller sebagai controller tunggal untuk keperluan interaksi antar keperluan tabel penunjukan_tpak.
+-----------------
+Aturan bab tanya evi nanti
+5. 
+6. Kesimpulan dan saran
+
+-----------
+tidak perlu memberi limit
+-pak dahliar.
+
+lektor kepala 2  gb 3.
+maksimal 3 jika perlu di limit.

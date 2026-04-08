@@ -141,9 +141,8 @@ class DashboardController extends Controller
         $user = Auth::user();
         $dosen = $this->getDosen($user);
 
-        // Authorization: Only admin or dosen may access
-        if (!$user->is_admin && !$user->is_dosen) {
-            abort(403, 'Akses ditolak');
+        if (!$dosen && !$user->is_admin) {
+            abort(403, 'Akses ditolak. Anda bukan Dosen.');
         }
 
         $jfaData = $this->getJfaAndKumData($dosen, $user->kum ?? 0);

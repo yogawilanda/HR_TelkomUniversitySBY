@@ -25,6 +25,23 @@ $timelineData = [
 			['Kategori: Penelitian'],
 			['Bobot: <span class="font-bold text-emerald-600">3.5 KUM</span>'],
 		],
+		'evaluation' => [
+			[
+				'role' => 'TPAK 1',
+				'status' => 'Verified',
+				'comment' => 'Metodologi sudah sesuai dengan standar JFA Lektor.',
+			],
+			[
+				'role' => 'TPAK 2',
+				'status' => 'Verified',
+				'comment' => 'Bobot sudah tepat, silakan lanjut ke tahap berikutnya.',
+			],
+			[
+				'role' => 'Admin',
+				'status' => 'Revision Needed',
+				'comment' => 'Mohon lampirkan sertifikat pendukung yang lebih jelas pada bagian lampiran.',
+			],
+		],
 	],
 	[
 		'id' => 3,
@@ -66,6 +83,13 @@ $timelineData = [
 
 			<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Detail Pengajuan DUPAK</h1>
 			<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Riwayat dan progres aktivitas pengajuan kenaikan jabatan.</p>
+		</div>
+
+		<!-- tombol tambahkan detil pengajuan di sisi kanan -->
+		<div class="mb-6 flex justify-end">
+			<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+				Tambah Detil Pengajuan
+			</button>
 		</div>
 
 		<!-- Timeline Container -->

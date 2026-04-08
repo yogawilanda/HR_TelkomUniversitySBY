@@ -23,21 +23,44 @@
                         <div class="mb-6">
                             <h3 class="mb-3 font-bold text-xl text-gray-800 text-md ">I. Pendidikan</h3>
                             <div class="space-y-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">A. Pendidikan Formal</label>
-                                    <div class="mt-2 space-y-2">
-                                        <div class="flex items-center gap-4">
-                                            <input type="text" name="education_title" placeholder="Nama Gelar" class="flex-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                            <input type="number" name="education_credit" placeholder="Angka Kredit" class="flex-2 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                <!-- A. Pendidikan Formal -->
+                                <div class="p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
+                                    <label class="block mb-2 text-sm font-semibold text-gray-700">A. Pendidikan Formal</label>
+                                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                                        <div class="md:col-span-4">
+                                            <select name="details[formal][idJenisInput]" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                                <option value="">-- Pilih Jenjang --</option>
+                                                <option value="101">Sarjana (S1)</option>
+                                                <option value="104">Magister (S2) Linier</option>
+                                                <option value="105">Magister (S2) Non-Linier</option>
+                                                <option value="106">Doktor (S3) Linier</option>
+                                                <option value="107">Doktor (S3) Non-Linier</option>
+                                            </select>
+                                        </div>
+                                        <div class="md:col-span-6">
+                                            <input type="text" name="details[formal][deskripsi_kegiatan]" placeholder="Nama PT, Program Studi, & Gelar" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <input type="number" step="0.01" name="details[formal][angka_kredit_total]" placeholder="AK" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                        </div>
+                                        <div class="md:col-span-12">
+                                            <input type="url" name="details[formal][link_bukti_pendukung]" placeholder="Link Bukti Ijazah (Google Drive/URL)" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                         </div>
                                     </div>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">B. Diklat Prajabatan</label>
-                                    <div class="mt-2 space-y-2">
-                                        <div class="flex items-center gap-4">
-                                            <input type="text" name="education_title" placeholder="Nama Gelar" class="flex-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                            <input type="number" name="education_credit" placeholder="Angka Kredit" class="flex-2 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+
+                                <!-- B. Diklat Prajabatan -->
+                                <div class="p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
+                                    <label class="block mb-2 text-sm font-semibold text-gray-700">B. Diklat Prajabatan</label>
+                                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                                        <div class="md:col-span-10">
+                                            <input type="text" name="details[diklat][deskripsi_kegiatan]" placeholder="Nama Diklat Prajabatan" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <input type="number" step="0.01" name="details[diklat][angka_kredit_total]" placeholder="AK" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                        </div>
+                                        <div class="md:col-span-12">
+                                            <input type="url" name="details[diklat][link_bukti_pendukung]" placeholder="Link Bukti Sertifikat (STTPL)" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                         </div>
                                     </div>
                                 </div>

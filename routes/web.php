@@ -397,8 +397,17 @@ Route::middleware('auth')->group(function () {
         Route::resource('validasi', \App\Http\Controllers\Dupak\ValidasiController::class)
             ->only(['index', 'show', 'update']);
 
-        // Pengisian Detil Formulir Pengajuan
-        Route::resource('detil_pengajuan', \App\Http\Controllers\Dupak\DetilPengajuanController::class);
+        // ekstensi dari detil_pengajuan untuk menampilkan form sesuai jenis kegiatan
+        Route::get('detil_pengajuan/pendidikan', [\App\Http\Controllers\Dupak\DetilPengajuanController::class, 'showFormPendidikan'])->name('detil_pengajuan.showFormPendidikan');
+
+        Route::get('detil_pengajuan/penelitian', [\App\Http\Controllers\Dupak\DetilPengajuanController::class, 'showFormPenelitian'])->name('detil_pengajuan.showFormPenelitian');
+
+        Route::get('detil_pengajuan/pengabdian', [\App\Http\Controllers\Dupak\DetilPengajuanController::class, 'showFormPengabdian'])->name('detil_pengajuan.showFormPengabdian');
+
+        Route::get('detil_pengajuan/penunjang', [\App\Http\Controllers\Dupak\DetilPengajuanController::class, 'showFormPenunjang'])->name('detil_pengajuan.showFormPenunjang');
+
+        // Pengisian Detil Formulir Pengajuan (Resource ditaruh setelah rute spesifik)
+        // Route::resource('detil_pengajuan', \App\Http\Controllers\Dupak\DetilPengajuanController::class);
     });
 
     // Kinerja Pegawai Routes (separated from manage)
