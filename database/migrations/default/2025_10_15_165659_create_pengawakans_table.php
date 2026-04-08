@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('users_id')->nullable();
             $table->foreignUuid('formasi_id')->nullable();
+            $table->string('is_main_position')->nullable();
             $table->date('tmt_mulai');
             $table->date('tmt_selesai')->nullable();            
             $table->foreignUuid('sk_ypt_id')->nullable();            

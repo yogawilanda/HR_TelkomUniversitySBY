@@ -18,8 +18,8 @@ class DatabaseSeeder extends Seeder
      */
 public function run(): void
 {
-    
-    
+
+
     $path = database_path('sdm_new.sql');
 
     $sql = File::get($path);
@@ -28,8 +28,12 @@ public function run(): void
 
     $this->call([
         UserSeeder::class,
-        \Database\Seeders\Dupak\PengajuanSeeder::class, // Tambahkan ini agar dijalankan setelah SQL
+        \Database\Seeders\TargetKinerjaSeeder::class,
+        \Database\Seeders\TargetKinerjaHarianSeeder::class,
+        \Database\Seeders\PelaporanPekerjaanSeeder::class,
     ]);
+
+
 }
 
 }

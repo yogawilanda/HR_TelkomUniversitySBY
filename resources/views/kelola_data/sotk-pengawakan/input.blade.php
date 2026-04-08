@@ -1,5 +1,5 @@
 @php
-    $active_sidebar = 'Tambah Formasi';
+    $active_sidebar = 'Tambah Pemetaan';
 @endphp
 @extends('kelola_data.base')
 
@@ -16,8 +16,6 @@
                 color: white;
             }
         }
-
-        
     </style>
 @endsection
 
@@ -27,7 +25,7 @@
         <div class="flex w-full flex-col gap-[2.9373700618743896px] grow">
             <div class="flex items-center gap-[5.874740123748779px] self-stretch">
                 <span class="font-medium text-2xl leading-[20.56159019470215px] text-[#101828]">
-                    Tambah Formasi Baru
+                    Tambah Pemetaan Baru
                 </span>
             </div>
         </div>
@@ -39,14 +37,18 @@
         <div class="grid gap-8 ">
             <!-- Kolom Kiri -->
             <div class="flex flex-col gap-4">
-                <x-islc lbl="Pegawai" nm='users_id'>
+
+                <x-islc lbl="Pegawai" nm="users_id" is_disabled="{{ request()->filled('users_id') }}">
                     <option value="" disabled selected>-- Pilih Data --</option>
+
                     @forelse ($users as $user)
-                        <option value="{{ $user->id }}" {{ old('users_id') == $user->id ? 'selected' : '' }}>
-                            {{ $user->nama_lengkap }}</option>
+                        <option value="{{ $user->id }}" @selected(old('users_id') == $user->id || request('users_id') == $user->id)>
+                            {{ $user->nama_lengkap }}
+                        </option>
                     @empty
                         <option value="-" disabled>-- No Data --</option>
                     @endforelse
+
                 </x-islc>
 
                 <x-islc lbl="Formasi" nm='formasi_id'>
@@ -59,12 +61,47 @@
                     @endforelse
                 </x-islc>
 
+                <div class="space-y-2">
+                    <x-islc lbl="Apakah Ini Divisi Utama Pegawai?" nm='is_main_position'>
+                        <option value="" disabled selected>-- Pilih Data --</option>
+                        <option value="0" {{ old('is_main_position') == "0" ? 'selected' : '' }}>Bukan</option>
+                        <option value="1" {{ old('is_main_position') == "1" ? 'selected' : '' }}>Iya</option>
+                    </x-islc>
+
+                    <div class="text-sm text-gray-600 bg-gray-50 border rounded-md p-3">
+                        <p>
+                            Divisi utama pegawai hanya dapat ditentukan jika sesuai dengan pemetaan berdasarkan tipe
+                            pegawai.
+                        </p>
+
+                        <p class="mt-2">
+                            Contoh:
+                        </p>
+
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>
+                                Jika tipe pegawai adalah <strong>TPA</strong>, maka divisi utama tidak dapat ditetapkan pada
+                                formasi di luar lingkup TPA.
+                            </li>
+                            <li>
+                                Jika tipe pegawai adalah <strong>Dosen</strong>, maka divisi utama harus berada dalam
+                                lingkup
+                                kedosenan.
+                            </li>
+                        </ul>
+
+                        <p class="mt-2">
+                            Namun, pegawai <strong>tetap dapat dipetakan ke divisi di luar lingkup tipe pegawai</strong>,
+                            hanya saja divisi tersebut <strong>tidak dapat dijadikan sebagai divisi utama</strong>.
+                        </p>
+                    </div>
+                </div>
+
                 <x-itxt lbl="TMT Mulai" type="date" plc="dd/mm/yyyy" nm='tmt_mulai'></x-itxt>
 
                 <div class="w-full border border-gray-300 border-1 p-3 gap-3 flex flex-col">
                     <div class="flex flex-row border-b-2 gap-0 justify-between input-sk">
-                        <button type="button"
-                            class="flex flex-grow justify-center items-center py-2 rounded-t-lg active"
+                        <button type="button" class="flex flex-grow justify-center items-center py-2 rounded-t-lg active"
                             id="btn-sk-baru">
                             Input SK Baru
                         </button>

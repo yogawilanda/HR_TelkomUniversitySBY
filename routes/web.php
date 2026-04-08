@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Auth\AllAboutAuthController;
 use App\Http\Controllers\DashboardProdiController;
 use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\FakultasController;
@@ -25,10 +26,16 @@ use App\Models\RiwayatNip;
 use App\Models\riwayatPangkatGolongan;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SendEmail;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
+
+Route::get('/tes', function () {
+    return view('kelola_data.pegawai.import');
+})->name('import');
 
 Route::get('/dashboard', function () {
     $user = Auth::user();
@@ -40,6 +47,11 @@ Route::get('/dashboard', function () {
 
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::group(['prefix' => 'verify-email', 'as' => 'verify-email.'], function () {
+    Route::get('/verify-email-view', [AllAboutAuthController::class, 'go_to_verify_page'])->name('view');
+    Route::post('/verify-email-code', [AllAboutAuthController::class, 'verifiy_code'])->name('send');
+});
 
 Route::middleware('auth')->group(function () {
     // Route::get('/profile/edit', [ProfileController::class, 'profileNormalisasi'])->name('profile.edit');
@@ -61,12 +73,16 @@ Route::middleware('auth')->group(function () {
             Route::get('/list/{id_User}', [EmergencyContactController::class, 'list'])->name('list');
             Route::get('/new/{id_User}', [EmergencyContactController::class, 'new'])->name('new');
             Route::post('/new-data/{id_User}', [EmergencyContactController::class, 'new_data'])->name('new-data');
+            Route::get('/{id_User}/update/{id_emergency_contact}', [EmergencyContactController::class, 'updateView'])->name('updateView');
+            Route::post('/{id_User}/update-data/{id_emergency_contact}', [EmergencyContactController::class, 'updateData'])->name('updateData');
         });
 
         Route::group(['prefix' => 'history', 'as' => 'history.'], function () {
             Route::get('/{id_user}/pemetaan', [PengawakanController::class, 'history_pemetaan'])->name('pemetaan');
+            Route::group(['prefix' => 'pendidikan', 'as' => 'pendidikan.'], function () {
+                Route::get('/{idUser}/index', [RiwayatJenjangPendidikanController::class, 'profileRiwayatPendidikan'])->name('index');
+            });
         });
-
     });
     Route::group(['prefix' => 'manage', 'as' => 'manage.'], function () {
         Route::get('/', function () {
@@ -106,13 +122,22 @@ Route::middleware('auth')->group(function () {
                 Route::get('/{idUser}/change-password', [PegawaiController::class, 'changePassword'])->name('change-password');
                 Route::post('/{idUser}/update-password', [PegawaiController::class, 'updatePassword'])->name('update-password');
             });
+
+            Route::group(['prefix' => 'import', 'as' => 'import.'], function () {
+                Route::get('/add-file/', [PegawaiController::class, 'importAdd'])->name('add-file');
+                Route::post('/validate-file/', [PegawaiController::class, 'importValidateFile'])->name('validate-file');
+                Route::get('/validate-data/', [PegawaiController::class, 'importValidateData'])->name('validate-data');
+                Route::post('/save-data/', [PegawaiController::class, 'importSaveData'])->name('save-data');
+            });
         });
 
         Route::group(['prefix' => 'emergency-contact', 'as' => 'emergency-contact.'], function () {
 
             Route::get('/{id_User}/list', [EmergencyContactController::class, 'list'])->name('list');
-            Route::get('/{id_User}/new', [EmergencyContactController::class, 'new'])->name('emergency-contacts.new');
-            Route::post('/{id_User}/new-data', [EmergencyContactController::class, 'new_data'])->name('emergency-contacts.new-data');
+            Route::get('/{id_User}/new', [EmergencyContactController::class, 'new'])->name('new');
+            Route::post('/{id_User}/new-data', [EmergencyContactController::class, 'new_data'])->name('new-data');
+            Route::get('/{id_User}/update/{id_emergency_contact}', [EmergencyContactController::class, 'updateView'])->name('updateView');
+            Route::post('/{id_User}/update-data/{id_emergency_contact}', [EmergencyContactController::class, 'updateData'])->name('updateData');
         });
 
         // Route::group(['prefix' => 'emergency-contact', 'as' => 'emergency-contact.'], function () {
@@ -161,7 +186,6 @@ Route::middleware('auth')->group(function () {
             Route::get('/update/{id_jfa}', [RiwayatJabatanFungsionalAkademikController::class, 'update'])->name('update');
             Route::post('/update-data/{id_jfa}', [RiwayatJabatanFungsionalAkademikController::class, 'update_data'])->name('update-data');
             Route::post('/store/', [RiwayatJabatanFungsionalAkademikController::class, 'store'])->name('store');
-
         });
 
         Route::group(['prefix' => 'jfk', 'as' => 'jfk.'], function () {
@@ -188,16 +212,18 @@ Route::middleware('auth')->group(function () {
             Route::post('/store/', [RiwayatJenjangPendidikanController::class, 'store'])->name('store');
             Route::get('/update/{id_jp}/', [RiwayatJenjangPendidikanController::class, 'update'])->name('update');
             Route::post('/update-data/{id_jp}/', [RiwayatJenjangPendidikanController::class, 'update_data'])->name('update-data');
+
+
+            Route::get('/{idUser}/index', [RiwayatJenjangPendidikanController::class, 'profileRiwayatPendidikan'])->name('index');
         });
 
         Route::group(['prefix' => 'riwayat-nip', 'as' => 'riwayat-nip.'], function () {
             Route::get('/list/', [RiwayatNipController::class, 'index'])->name('list');
-
         });
 
         Route::group(['prefix' => 'sk', 'as' => 'sk.'], function () {
             Route::get('/list/', [SKController::class, 'index'])->name('list');
-            Route::post('/new/{YptOrDikti}',[SKController::class, 'new'])->name('new');
+            Route::post('/new/{YptOrDikti}', [SKController::class, 'new'])->name('new');
             // Route::get('/new-dikti/',[SKController::class, 'new'])->name('new-dikti');
 
         });
@@ -306,10 +332,34 @@ Route::middleware('auth')->group(function () {
             Route::delete('/destroy/{id}', [\App\Http\Controllers\TargetKinerjaController::class, 'destroy'])->name('destroy');
             Route::get('/assign/{id}', [\App\Http\Controllers\TargetKinerjaController::class, 'assign'])->name('assign');
             Route::post('/assign/{id}', [\App\Http\Controllers\TargetKinerjaController::class, 'storeAssignment'])->name('store-assignment');
+            Route::post('/assign/{id}/pegawai/{userId}/status', [\App\Http\Controllers\TargetKinerjaController::class, 'updateAssignmentStatus'])->name('update-assignment-status');
             Route::delete('/assign/{id}/pegawai/{userId}', [\App\Http\Controllers\TargetKinerjaController::class, 'detachPegawai'])->name('detach-pegawai');
-            Route::get('/settings', [\App\Http\Controllers\TargetKinerjaController::class, 'settings'])->name('settings');
-            Route::post('/settings', [\App\Http\Controllers\TargetKinerjaController::class, 'updateSettings'])->name('update-settings');
+            // settings page removed — configuration is per-target now
             Route::get('/laporan', [\App\Http\Controllers\TargetKinerjaController::class, 'laporan'])->name('laporan');
+
+            // Target Kinerja Harian (set target harian)
+            Route::group(['prefix' => 'harian', 'as' => 'harian.'], function () {
+                Route::get('/list', [\App\Http\Controllers\TargetKinerjaHarianController::class, 'index'])->name('list');
+                Route::get('/input', [\App\Http\Controllers\TargetKinerjaHarianController::class, 'create'])->name('input');
+                Route::post('/store', [\App\Http\Controllers\TargetKinerjaHarianController::class, 'store'])->name('store');
+                Route::get('/view/{id}', [\App\Http\Controllers\TargetKinerjaHarianController::class, 'show'])->name('view');
+                Route::delete('/destroy/{id}', [\App\Http\Controllers\TargetKinerjaHarianController::class, 'destroy'])->name('destroy');
+
+                // Pelaporan (isi target)
+                Route::get('/{id}/isi', [\App\Http\Controllers\PelaporanPekerjaanController::class, 'create'])->name('isi');
+                Route::post('/{id}/submit-report', [\App\Http\Controllers\PelaporanPekerjaanController::class, 'store'])->name('submit-report');
+
+                // Assignment moved to daily target (target_kinerja_harian)
+                Route::get('/{id}/assign', [\App\Http\Controllers\TargetKinerjaHarianController::class, 'assign'])->name('assign');
+                Route::post('/{id}/assign', [\App\Http\Controllers\TargetKinerjaHarianController::class, 'storeAssignment'])->name('store-assignment');
+                Route::post('/{id}/assign/pegawai/{userId}/status', [\App\Http\Controllers\TargetKinerjaHarianController::class, 'updateAssignmentStatus'])->name('update-assignment-status');
+                Route::delete('/{id}/assign/pegawai/{userId}', [\App\Http\Controllers\TargetKinerjaHarianController::class, 'detachPegawai'])->name('detach-pegawai');
+
+                // Approval
+                Route::get('/reports', [\App\Http\Controllers\PelaporanPekerjaanController::class, 'approvalList'])->name('reports');
+                Route::get('/reports/{id}/approval', [\App\Http\Controllers\PelaporanPekerjaanController::class, 'showApproval'])->name('reports.approval');
+                Route::post('/reports/{id}/approve', [\App\Http\Controllers\PelaporanPekerjaanController::class, 'approve'])->name('reports.approve');
+            });
         });
 
         // Studi Lanjut Routes

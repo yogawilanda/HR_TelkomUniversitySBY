@@ -42,7 +42,7 @@
                 Jabatan Struktural Yang Sedang Aktif
             </h2>
             <p class="hidden md:block text-gray-500 text-sm">
-                Urutan kronologis riwayat pemetaan dari awal hingga saat ini.
+                Urutan kronologis riwayat pemetaan saat ini.
             </p>
         </div>
 
@@ -144,7 +144,7 @@
                         @forelse ($user['pengawakans'] as $pemetaan)
                             <article
                                 class="history-item relative pl-8 transition-all duration-200
-                                        {{ $pemetaan->tmt_selesai ? 'opacity-70' : '' }}"
+                                        {{ $pemetaan->tmt_selesai ? 'opacity-30' : '' }}"
                                 data-category="{{ $pemetaan->formasi->bagian->type_work_position }}">
 
                                 <!-- Marker -->

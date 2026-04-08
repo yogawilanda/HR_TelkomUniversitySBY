@@ -9,6 +9,10 @@
     @include('kelola_data.parts.sidebar-profile')
 @endsection
 
+@section('title-page')
+    @yield('title-the-page')
+@endsection
+
 @section('content-base')
     <div
         class="sticky top-0 z-10 mb-4 -mx-4 border-b border-gray-200/70 bg-white/70 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-white/50 dark:border-gray-800 dark:bg-gray-950/60">
@@ -21,15 +25,15 @@
                 </div>
                 <div>
                     <h1 class="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100">Profil
-                        
-                        {{isset($user)?$user['nama_lengkap']:session('account')['nama_lengkap'] }}</h1>
+
+                        {{ isset($user) ? $user['nama_lengkap'] : session('account')['nama_lengkap'] }}</h1>
                     <div class="flex flex-row gap-2 w-full">
-                        @if((isset($user)&&$user['is_admin']==1))
+                        @if (isset($user) && $user['is_admin'] == 1)
                             <span
                                 class="mt-2 inline-flex items-center rounded-full bg-red-50 px-2.5 py-0.5 text-[11px] font-medium text-red-700 ring-1 ring-inset ring-red-200 dark:bg-red-950/40 dark:text-red-200 dark:ring-red-900">
                                 Super Admin
                             </span>
-                        @elseif ((!isset($user))&&session('account')['is_admin'] == 1)
+                        @elseif (!isset($user) && session('account')['is_admin'] == 1)
                             <span
                                 class="mt-2 inline-flex items-center rounded-full bg-red-50 px-2.5 py-0.5 text-[11px] font-medium text-red-700 ring-1 ring-inset ring-red-200 dark:bg-red-950/40 dark:text-red-200 dark:ring-red-900">
                                 Super Admin
@@ -48,14 +52,14 @@
                                 Dosen
                             </span>
                         @endif
-                        
+
                         @foreach ($user['role'] as $user)
-                            @if($user != 'TPA' && $user != 'Dosen')
+                            @if ($user != 'TPA' && $user != 'Dosen')
                                 <span
                                     class="mt-2 inline-flex items-center rounded-full bg-purple-50 px-2.5 py-0.5 text-[11px] font-medium text-purple-700 ring-1 ring-inset ring-purple-200 dark:bg-purple-950/40 dark:text-purple-200 dark:ring-purple-900">
                                     {{ $user }}
                                 </span>
-                                @endif
+                            @endif
                         @endforeach
                         {{-- <span
                             class="mt-2 inline-flex items-center rounded-full bg-purple-50 px-2.5 py-0.5 text-[11px] font-medium text-purple-700 ring-1 ring-inset ring-purple-200 dark:bg-purple-950/40 dark:text-purple-200 dark:ring-purple-900">
@@ -78,6 +82,46 @@
     @yield('content-profile')
 
 
+    <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+@endsection
+
+@section('script-base')
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let toastCount = 0;
+
+        function toast(text = null) {
+
+            console.log('masuk toast', text)
+            toastCount++;
+
+            const toastHTML = `
+            <div class="toast align-items-center text-bg-dark border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+              <div class="d-flex">
+                <div class="toast-body">
+                  ${text}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+              </div>
+            </div>
+          `;
+
+            const container = document.getElementById('toastContainer');
+            container.insertAdjacentHTML('beforeend', toastHTML);
+
+            const toastEl = container.lastElementChild;
+            const toast = new bootstrap.Toast(toastEl, {
+                delay: 2000
+            });
+
+            toast.show();
+
+            // hapus element setelah toast hilang
+            toastEl.addEventListener('hidden.bs.toast', () => {
+                toastEl.remove();
+            });
+        }
+    </script>
     @include('kelola_data.pegawai.js.active-and-nonactive-pegawai')
     @include('kelola_data.pegawai.js.alert-success-from-controller')
 @endsection

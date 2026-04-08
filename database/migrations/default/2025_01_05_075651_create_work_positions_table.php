@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('type_work_position', 50);
             $table->uuid('parent_id')->nullable();
             $table->timestamps();
+            $table->string('type_pekerja', 50);
 
             $table->foreign('type_work_position')->references('position_name')->on('ref_work_positions')->onDelete('cascade');
             $table->foreign('parent_id')->references('id')->on('work_positions')->onDelete('set null');

@@ -17,21 +17,22 @@ class User extends Authenticatable
     protected $connection = 'mysql';
     /**
      * Non-incrementing ID (UUID)
-    */
+     */
     public $incrementing = false;
     protected $keyType = 'string';
-    
+
     /**
      * Fillable attributes
      */
     protected $fillable = [
         'nama_lengkap',
         'telepon',
-        'emergency_contact_phone',
+        // 'emergency_contact_phone',
         'alamat',
         'nik',
         'email_institusi',
         'jenis_kelamin',
+        'tipe_pegawai',
         'tempat_lahir',
         'tgl_lahir',
         'tgl_bergabung',
@@ -40,6 +41,7 @@ class User extends Authenticatable
         'username',
         'password',
         'is_admin',
+        'is_new',
         'remember_token',
     ];
 
@@ -73,12 +75,18 @@ class User extends Authenticatable
 
     public function riwayatNip()
     {
-        return $this->hasMany(RiwayatNip::class, 'users_id','id');
+        return $this->hasMany(RiwayatNip::class, 'users_id', 'id');
     }
 
-    public function active_nip(){
+    public function active_nip()
+    {
         return $this->hasMany(RiwayatNip::class, 'users_id', 'id')
             ->whereNull('tmt_selesai');
+    }
+
+    public function riwayatNipFirst()
+    {
+        return $this->hasOne(RiwayatNip::class, 'users_id');
     }
 
     public function riwayatJenjangPendidikan()
@@ -88,7 +96,7 @@ class User extends Authenticatable
 
     public function jabatan()
     {
-        return $this->hasMany(pengawakan::class, 'users_id','id');
+        return $this->hasMany(pengawakan::class, 'users_id', 'id');
     }
 
     public function tpa()

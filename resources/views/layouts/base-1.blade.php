@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
 @section('header')
+    @once
+        <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+    @endonce
+
     {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"> --}}
     <style>
         .sidebar {
@@ -44,6 +48,10 @@
     @yield('header-base')
 @endsection
 
+@section('title')
+    @yield('title-page')
+@endsection
+
 @section('content')
     {{-- <div id="screen-width">Width: <span id="width-value"></span>px</div> --}}
     <div class="flex max-h-max gap-2 w-full flex-shrink mb-0 bg-gray-100 font-['Poppins']">
@@ -65,7 +73,7 @@
                     </svg>
 
                     <!-- Input -->
-                    <input type="text" placeholder="search"
+                    <input type="text" id="sidebarSearch" placeholder="search" oninput="searchInput(this)"
                         class="w-full bg-transparent text-[#806767] text-xs placeholder-[#806767] focus:outline-none focus:ring-0 border-none py-0 px-1" />
                 </div>
 
@@ -82,7 +90,7 @@
 
         <!-- Main Content -->
         <!-- Main Content -->
-        <div class="flex-grow bg-white" id="wrapper-table">
+        <div class="flex-grow pattern-batik-kawung bg-white" id="wrapper-table">
             <h1 class="text-2xl font-bold mb-4 px-4 pt-4" id="page-name">@yield('page-name')</h1>
             <div class="px-4 pb-4">
                 @yield('content-base')
@@ -91,7 +99,62 @@
     </div>
 @endsection
 @section('script')
+    @once
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        {{-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> --}}
+        <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                console.log('masuk search select');
+
+                document.querySelectorAll(".tom-select").forEach(function(el) {
+                    if (!el.tomselect) { // cegah init dua kali
+                        new TomSelect(el, {
+                            create: false,
+                            sortField: {
+                                field: "text",
+                                direction: "asc"
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+    @endonce
     <script>
+        function Pop_message(title = null, message = null, is_load = false, type = 'save') {
+            if (is_load) {
+
+                // Swal.fire({
+                //     title: title == null ? 'Loading...' : title,
+                //     text: message != null ? message : 'Sedang memproses data',
+                //     allowOutsideClick: false,
+                //     allowEscapeKey: false,
+                //     showConfirmButton: false,
+                //     showCancelButton: false,
+                //     didOpen: () => {
+                //         Swal.showLoading()
+                //     }
+                // });
+                Swal.fire({
+                    title: title == null ? 'Memproses...' : title,
+                    html: 'Mohon tunggu ' + message + '<span class="loading-dots"></span>',
+                    allowOutsideClick: false,
+                    showConfirmButton: false
+                });
+            } else {
+                Swal.fire({
+                    icon: type == 'save' ? 'success' : 'warning',
+                    title: title,
+                    html: message,
+                    confirmButtonText: 'OK'
+                });
+            }
+
+        }
+
         function close_sidebar(wht, elemen) {
             document.getElementById('sidebar').classList.toggle('collapsed')
             if (wht === 'hide') {
@@ -140,7 +203,7 @@
             // Removed width calculation to allow full width
         }
     </script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
+    @include('components.js.route-pop-up-button')
+    @include('components.js.search-sidebar')
     @yield('script-base')
 @endsection

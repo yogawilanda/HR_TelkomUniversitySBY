@@ -19,9 +19,9 @@
             {{-- <x-print-tb target_id="pegawaiTable"></x-print-tb> --}}
             <x-export-csv-tb target_id="pegawaiTable"></x-export-csv-tb>
 
-            <a href="{{ (session('account')['is_admin'] && ($user['id'] != session('account')['id']))
-                    ? route('manage.emergency-contact.emergency-contacts.new', ['id_User' => $user['id']])
-                    : route('profile.emergency-contacts.new', ['id_User' => session('account')['id']]) }}"
+            <a href="{{ session('account')['is_admin'] && $user['id'] != session('account')['id']
+                ? route('manage.emergency-contact.new', ['id_User' => $user['id']])
+                : route('profile.emergency-contacts.new', ['id_User' => session('account')['id']]) }}"
                 class="flex rounded-[5.874740123748779px]">
                 <div
                     class="flex justify-center items-center gap-[5.874740123748779px] bg-[#0070ff] px-[11.749480247497559px] py-[7.343425273895264px] rounded-[5.874740123748779px] border border-[#0070ff] hover:bg-[#005fe0] transition">
@@ -33,7 +33,7 @@
 
     </div>
     <div class="flex flex-grow-0 flex-col gap-2 max-w-100">
-
+        
         <x-tb id="pegawaiTable">
             <x-slot:table_header>
                 <x-tb-td nama="nama" sorting=true>Nama Kontak Darurat</x-tb-td>
@@ -45,23 +45,27 @@
             </x-slot:table_header>
             <x-slot:table_column>
                 @foreach ($kontaks as $contact)
-                    <x-tb-cl id="$i">
+                {{-- {{ dd() }} --}}
+                    <x-tb-cl id="{{ $contact['id'] }}">
                         {{-- <x-tb-cl-fill>jskhjdasljkhDkj</x-tb-cl-fill> --}}
                         {{-- <x-tb-cl-fill>Ortu</x-tb-cl-fill> --}}
-                        <x-tb-cl-fill>{{ $contact['nama_lengkap'] }}</x-tb-cl-fill>
-                        <x-tb-cl-fill>{{ $contact['status_hubungan'] }}</x-tb-cl-fill>
-                        <x-tb-cl-fill>{{ $contact['telepon'] }}</x-tb-cl-fill>
-                        <x-tb-cl-fill>{{ $contact['email'] }}</x-tb-cl-fill>
+                        <x-tb-cl-fill>{{ $contact['nama_lengkap']==''||$contact['nama_lengkap']==null?'Belum Diisi':$contact['nama_lengkap'] }}</x-tb-cl-fill>
+                        <x-tb-cl-fill>{{ $contact['status_hubungan']==''||$contact['status_hubungan']==null?'Belum Diisi':$contact['status_hubungan'] }}</x-tb-cl-fill>
+                        <x-tb-cl-fill>{{ $contact['telepon']==''||$contact['telepon']==null?'Belum Diisi':$contact['telepon'] }}</x-tb-cl-fill>
+                        <x-tb-cl-fill>{{ $contact['email']==''||$contact['email']==null?'Belum Diisi':$contact['email']}}</x-tb-cl-fill>
                         <x-tb-cl-fill>
                             <div class="text-wrap max-w-64">
-                                <p class="text-wrap">{{ $contact['alamat'] }}</p>
+                                <p class="text-wrap">{{ $contact['alamat']==''||$contact['alamat']==null?'Belum Diisi':$contact['alamat'] }}</p>
                             </div>
 
 
                         </x-tb-cl-fill>
+                        {{-- {{ dd($contact['id']) }} --}}
                         <x-tb-cl-fill>
                             <div class="flex items-center justify-center gap-3">
-                                <a
+                                <a href="{{ session('account')['is_admin'] && $user['id'] != session('account')['id']
+                                    ? route('manage.emergency-contact.updateView', ['id_User' => $user['id'],'id_emergency_contact'=>$contact['id']])
+                                    : route('profile.emergency-contacts.updateView', ['id_User' => session('account')['id'],'id_emergency_contact'=>$contact['id']]) }}"
                                     class="px-3 py-1.5 border cursor-pointer border-[#0070ff] text-[#0070ff] rounded-md text-xs font-medium hover:bg-[#0070ff] hover:text-white transition">
                                     Ubah Data
                                 </a>

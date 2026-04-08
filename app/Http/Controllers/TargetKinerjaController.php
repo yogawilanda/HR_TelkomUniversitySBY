@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TargetKinerja;
-use App\Models\KinerjaSetting;
+use App\Models\TargetKinerjaHarian;
+use App\Models\PelaporanPekerjaan;
 use Illuminate\Support\Facades\Redirect;
 
 class TargetKinerjaController extends Controller
@@ -32,11 +33,16 @@ class TargetKinerjaController extends Controller
 
         $targetKinerjaList = $query->get();
 
+        // collect pelaporan (reports) for targets shown so laporan can include submitted reports
+        $targetIds = $targetKinerjaList->pluck('id')->all();
+        $harianIds = TargetKinerjaHarian::whereIn('target_kinerja_id', $targetIds)->pluck('id')->all();
+        $pelaporanItems = PelaporanPekerjaan::with(['targetHarian'])->whereIn('target_harian_id', $harianIds)->orderBy('id', 'desc')->get();
+
         // Untuk filter dropdown
         $allUsers = \App\Models\User::orderBy('nama_lengkap')->get();
         $allTargets = \App\Models\TargetKinerja::orderBy('nama')->get();
 
-        return view('kelola_data.target_kinerja.laporan', compact('targetKinerjaList', 'allUsers', 'allTargets'));
+        return view('kelola_data.target_kinerja.laporan', compact('targetKinerjaList', 'allUsers', 'allTargets', 'pelaporanItems'));
     }
     public function index()
     {
@@ -56,10 +62,18 @@ class TargetKinerjaController extends Controller
             'keterangan' => 'nullable|string',
             'bobot' => 'nullable|integer',
             'is_active' => 'nullable|boolean',
+            'responsibility' => 'nullable|string',
+            'satuan' => 'nullable|string',
+            'target_percent' => 'nullable|integer',
+            'status' => 'nullable|string',
+            'unit_penanggung_jawab' => 'nullable|string',
+            'periode' => 'nullable|string',
+            'start' => 'required|date',
+            'end' => 'required|date|after_or_equal:start',
         ]);
 
         $data['bobot'] = $data['bobot'] ?? 0;
-        $data['is_active'] = $request->has('is_active') ? (bool)$data['is_active'] : true;
+        $data['is_active'] = $request->has('is_active') ? 1 : 0;
 
         TargetKinerja::create($data);
 
@@ -86,6 +100,14 @@ class TargetKinerjaController extends Controller
             'nama' => 'required|string|max:255',
             'keterangan' => 'nullable|string',
             'bobot' => 'nullable|integer',
+            'responsibility' => 'nullable|string',
+            'satuan' => 'nullable|string',
+            'target_percent' => 'nullable|integer',
+            'status' => 'nullable|string',
+            'unit_penanggung_jawab' => 'nullable|string',
+            'periode' => 'nullable|string',
+            'start' => 'required|date',
+            'end' => 'required|date|after_or_equal:start',
         ]);
 
         $data['bobot'] = $data['bobot'] ?? 0;
@@ -119,15 +141,32 @@ class TargetKinerjaController extends Controller
 
         $data = $request->validate([
             'user_id' => 'required|exists:users,id',
-            'tanggal_mulai' => 'nullable|date',
-            'tanggal_selesai' => 'nullable|date',
+            'tanggal_mulai' => 'required|date',
+            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'status' => 'nullable|in:pending,in_progress,completed,cancelled',
             'catatan' => 'nullable|string',
         ]);
 
+        // Jika status target 'pribadi', batasi maksimal 1 orang yang ditugaskan
+        if ($targetKinerja->status === 'pribadi') {
+            $assignedCount = $targetKinerja->pegawai()->count();
+            // jika sudah ada penanggung (lebih dari atau sama dengan 1), batalkan
+            if ($assignedCount >= 1) {
+                return Redirect::route('manage.target-kinerja.assign', $id)
+                    ->with('error', 'Kinerja pribadi hanya boleh memiliki 1 penanggung jawab.');
+            }
+        }
+
+        // Cegah duplikasi assignment untuk user yang sama
+        $alreadyAssigned = $targetKinerja->pegawai()->where('users.id', $data['user_id'])->exists();
+        if ($alreadyAssigned) {
+            return Redirect::route('manage.target-kinerja.assign', $id)
+                ->with('error', 'Pegawai sudah ditugaskan pada target ini.');
+        }
+
         $pivotData = [
-            'tanggal_mulai' => $data['tanggal_mulai'] ?? null,
-            'tanggal_selesai' => $data['tanggal_selesai'] ?? null,
+            'tanggal_mulai' => $data['tanggal_mulai'],
+            'tanggal_selesai' => $data['tanggal_selesai'],
             'status' => $data['status'] ?? 'pending',
             'catatan' => $data['catatan'] ?? null,
         ];
@@ -145,31 +184,30 @@ class TargetKinerjaController extends Controller
         return Redirect::route('manage.target-kinerja.assign', $id)->with('success', 'Pegawai berhasil dihapus');
     }
 
+    public function updateAssignmentStatus(Request $request, $id, $userId)
+    {
+        $data = $request->validate([
+            'status' => 'required|in:pending,in_progress,completed,cancelled',
+        ]);
+
+        $targetKinerja = TargetKinerja::findOrFail($id);
+        $exists = $targetKinerja->pegawai()->where('users.id', $userId)->exists();
+        if (!$exists) {
+            return Redirect::route('manage.target-kinerja.assign', $id)->with('error', 'Pegawai tidak terdaftar untuk target ini.');
+        }
+
+        $targetKinerja->pegawai()->updateExistingPivot($userId, ['status' => $data['status']]);
+
+        return Redirect::route('manage.target-kinerja.assign', $id)->with('success', 'Status pegawai berhasil diperbarui');
+    }
+
     public function settings()
     {
-        $settings = KinerjaSetting::all()->keyBy('key');
-        return view('kelola_data.target_kinerja.settings', compact('settings'));
+        abort(404);
     }
 
     public function updateSettings(Request $request)
     {
-        $data = $request->all();
-
-        // Remove CSRF token
-        unset($data['_token']);
-
-        foreach ($data as $key => $value) {
-            if (strpos($key, '_type') !== false) {
-                continue; // Skip type fields
-            }
-
-            $typeKey = $key . '_type';
-            $type = $data[$typeKey] ?? 'string';
-            $description = $data[$key . '_description'] ?? null;
-
-            KinerjaSetting::set($key, $value, $type, $description);
-        }
-
-        return Redirect::route('manage.target-kinerja.settings')->with('success', 'Pengaturan berhasil disimpan');
+        abort(404);
     }
 }

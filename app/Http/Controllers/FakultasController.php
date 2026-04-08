@@ -13,7 +13,7 @@ class FakultasController extends Controller
      */
     public function index()
     {
-        $fakultas = work_position::where('type_work_position','Fakultas')->withCount('children as prodi_count')->paginate(15);
+        $fakultas = work_position::where('type_work_position', 'Fakultas')->withCount('children as prodi_count')->paginate(15);
         return view('kelola_data.fakultas.index', compact('fakultas'));
     }
 
@@ -30,11 +30,36 @@ class FakultasController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'kode' => 'required|string|max:100|unique:work_positions,kode',
-            'position_name' => 'required|string|max:100',
-            'singkatan' => 'nullable|string|max:20',
-        ]);
+        $validated = $request->validate(
+            [
+                'kode' => [
+                    'required',
+                    'string',
+                    'max:5',
+                    'unique:work_positions,kode'
+                ],
+                'position_name' => [
+                    'required',
+                    'string',
+                    'max:100'
+                ],
+            ],
+            [
+                'required' => ':attribute wajib diisi.',
+                'string'   => ':attribute harus berupa text.',
+                'max'      => ':attribute maksimal :max karakter.',
+                'unique'   => ':attribute sudah digunakan.',
+
+                'kode.required' => 'Kode Posisi wajib diisi.',
+                'kode.unique'   => 'Kode Posisi sudah terdaftar.',
+            ],
+            [
+                'kode' => 'Kode Posisi',
+                'position_name' => 'Nama Posisi',
+            ]
+        );
+
+        $validated['singkatan'] = $validated['kode'];
 
         $validated['type_work_position'] = 'Fakultas';
 
@@ -72,8 +97,10 @@ class FakultasController extends Controller
         $validated = $request->validate([
             'kode' => 'required|string|max:100|unique:work_positions,kode,' . $fakulta->id,
             'position_name' => 'required|string|max:100',
-            'singkatan' => 'nullable|string|max:20',
+            // 'singkatan' => 'nullable|string|max:20',
         ]);
+
+        $validated['singkatan'] = $validated['kode'];
 
         $fakulta->update($validated);
 

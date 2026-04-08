@@ -12,7 +12,7 @@ class riwayatJabatanFungsionalAkademik extends Model
     protected $connection = 'mysql';
 
     protected $table = 'riwayat_jabatan_fungsional_akademiks';
-    
+
     public $incrementing = false;
     protected $keyType = 'string';
 
@@ -23,7 +23,7 @@ class riwayatJabatanFungsionalAkademik extends Model
         'tmt_selesai',
         'sk_llkdikti_id',
         'sk_pengakuan_ypt_id',
-        
+
     ];
 
     protected $casts = [
@@ -34,7 +34,7 @@ class riwayatJabatanFungsionalAkademik extends Model
 
     public function jfa()
     {
-        return $this->belongsTo(refJabatanFungsionalAkademik::class,'ref_jfa_id','id');
+        return $this->belongsTo(RefJabatanFungsionalAkademik::class,'ref_jfa_id','id');
     }
 
     public function dosen()
@@ -51,7 +51,7 @@ class riwayatJabatanFungsionalAkademik extends Model
         return $this->belongsTo(SK::class,'sk_pengakuan_ypt_id','id');
     }
 
-    
+
     protected static function boot()
     {
         parent::boot();

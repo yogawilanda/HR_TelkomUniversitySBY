@@ -10,13 +10,19 @@
             <h2 class="text-2xl font-medium">Assign Target Kinerja</h2>
             <p class="text-sm text-gray-600">{{ $targetKinerja->nama }}</p>
         </div>
+        <div class="flex items-center gap-2">
+            @include('kelola_data.parts.target_kinerja_toolbar')
+        </div>
     </div>
 @endsection
 
 @section('content-base')
-    <div class="max-w-4xl">
+    <div class="bg-white p-4 rounded-lg shadow max-w-4xl">
         @if(session('success'))
             <div class="mb-4 p-3 bg-green-100 text-green-700 rounded">{{ session('success') }}</div>
+        @endif
+        @if(session('error'))
+            <div class="mb-4 p-3 bg-red-100 text-red-700 rounded">{{ session('error') }}</div>
         @endif
 
         <!-- Form Tambah Pegawai -->
@@ -50,12 +56,14 @@
 
                     <div>
                         <label class="block text-sm font-medium mb-1">Tanggal Mulai</label>
-                        <input type="date" name="tanggal_mulai" class="w-full border rounded px-3 py-2">
+                        <input type="date" name="tanggal_mulai" class="w-full border rounded px-3 py-2" required>
+                        @error('tanggal_mulai')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium mb-1">Tanggal Selesai</label>
-                        <input type="date" name="tanggal_selesai" class="w-full border rounded px-3 py-2">
+                        <input type="date" name="tanggal_selesai" class="w-full border rounded px-3 py-2" required>
+                        @error('tanggal_selesai')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
                     </div>
 
                     <div class="md:col-span-2">
@@ -72,7 +80,7 @@
         </div>
 
         <!-- Daftar Pegawai yang Sudah Ditugaskan -->
-        <div class="bg-white p-4 rounded-lg shadow">
+        <div>
             <h3 class="text-lg font-semibold mb-4">Pegawai yang Ditugaskan ({{ $assignedPegawai->count() }})</h3>
 
             @if($assignedPegawai->count() > 0)
@@ -93,14 +101,15 @@
                                 <tr>
                                     <td class="px-4 py-2">{{ $p->nama_lengkap }}</td>
                                     <td class="px-4 py-2">
-                                        <span class="px-2 py-1 text-xs rounded
-                                            @if($p->pivot->status == 'completed') bg-green-100 text-green-800
-                                            @elseif($p->pivot->status == 'in_progress') bg-blue-100 text-blue-800
-                                            @elseif($p->pivot->status == 'cancelled') bg-red-100 text-red-800
-                                            @else bg-gray-100 text-gray-800
-                                            @endif">
-                                            {{ ucfirst(str_replace('_', ' ', $p->pivot->status)) }}
-                                        </span>
+                                        <form action="{{ route('manage.target-kinerja.update-assignment-status', [$targetKinerja->id, $p->id]) }}" method="POST">
+                                            @csrf
+                                            <select name="status" onchange="this.form.submit()" class="border rounded px-2 py-1 text-sm">
+                                                <option value="pending" {{ $p->pivot->status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                                <option value="in_progress" {{ $p->pivot->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                                                <option value="completed" {{ $p->pivot->status == 'completed' ? 'selected' : '' }}>Completed</option>
+                                                <option value="cancelled" {{ $p->pivot->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                            </select>
+                                        </form>
                                     </td>
                                     <td class="px-4 py-2">{{ $p->pivot->tanggal_mulai ? \Carbon\Carbon::parse($p->pivot->tanggal_mulai)->format('d/m/Y') : '-' }}</td>
                                     <td class="px-4 py-2">{{ $p->pivot->tanggal_selesai ? \Carbon\Carbon::parse($p->pivot->tanggal_selesai)->format('d/m/Y') : '-' }}</td>

@@ -12,11 +12,30 @@
             </div>
             <span class="font-normal text-sm text-[#1f2028]">Rekap data target kinerja pegawai/dosen</span>
         </div>
+        <div class="flex items-center gap-2">
+            @include('kelola_data.parts.target_kinerja_toolbar')
+        </div>
     </div>
 @endsection
+    @section('page-name')
+        <div class="flex flex-col md:flex-row items-center gap-[11.75px] self-stretch px-1 pt-[14.68px] pb-[13.95px]">
+            <div class="flex w-full flex-col gap-[2.93px] grow">
+                <div class="flex items-center gap-[5.87px] self-stretch">
+                    <span class="font-medium text-2xl leading-[20.56px] text-[#101828]">Laporan Target Kinerja</span>
+                </div>
+                <span class="font-normal text-[10.28px] leading-[14.68px] text-[#1f2028]">Rekap data target kinerja pegawai/dosen</span>
+            </div>
+            <div class="flex items-center w-full justify-end gap-[11.75px]">
+                <div class="hidden sm:flex items-center gap-2">
+                    @include('kelola_data.parts.target_kinerja_toolbar')
+                </div>
+            </div>
+        </div>
+    @endsection
 
 @section('content-base')
-    <div class="flex flex-col gap-8 w-full max-w-100 mx-auto">
+    <div class="flex flex-grow-0 flex-col gap-2 max-w-100">
+        @if(session('success'))<div class="mb-4 p-3 bg-green-100 text-green-700 rounded">{{ session('success') }}</div>@endif
         <form method="GET" class="flex flex-wrap gap-4 mb-4">
             <div>
                 <label class="block text-xs mb-1">Pegawai</label>
@@ -51,39 +70,68 @@
             </div>
         </form>
 
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 text-sm">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-4 py-2 text-left">Pegawai/Dosen</th>
-                        <th class="px-4 py-2 text-left">Target Kinerja</th>
-                        <th class="px-4 py-2 text-left">Bobot</th>
-                        <th class="px-4 py-2 text-left">Tanggal Mulai</th>
-                        <th class="px-4 py-2 text-left">Tanggal Selesai</th>
-                        <th class="px-4 py-2 text-left">Status</th>
-                        <th class="px-4 py-2 text-left">Catatan</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($targetKinerjaList as $target)
+        @if($targetKinerjaList->isEmpty())
+            <div class="px-4 py-8 text-center text-gray-500">Tidak ada data laporan target kinerja</div>
+        @else
+            <x-tb id="laporanTargetTable">
+                <x-slot:table_header>
+                    <x-tb-td nama="pegawai" sorting=true>Pegawai/Dosen</x-tb-td>
+                    <x-tb-td nama="target_kinerja" sorting=true>Target Kinerja</x-tb-td>
+                    <x-tb-td nama="bobot" sorting=true>Bobot</x-tb-td>
+                    <x-tb-td nama="tanggal_mulai" sorting=true>Tanggal Mulai</x-tb-td>
+                    <x-tb-td nama="tanggal_selesai" sorting=true>Tanggal Selesai</x-tb-td>
+                    <x-tb-td nama="status" sorting=true>Status</x-tb-td>
+                    <x-tb-td nama="catatan" sorting=false>Catatan</x-tb-td>
+                </x-slot:table_header>
+                <x-slot:table_column>
+                    @foreach($targetKinerjaList as $target)
                         @foreach($target->pegawai as $pegawai)
-                            <tr>
-                                <td class="px-4 py-2">{{ $pegawai->nama_lengkap }}</td>
-                                <td class="px-4 py-2">{{ $target->nama }}</td>
-                                <td class="px-4 py-2">{{ $target->bobot }}</td>
-                                <td class="px-4 py-2">{{ $pegawai->pivot->tanggal_mulai }}</td>
-                                <td class="px-4 py-2">{{ $pegawai->pivot->tanggal_selesai }}</td>
-                                <td class="px-4 py-2 capitalize">{{ $pegawai->pivot->status }}</td>
-                                <td class="px-4 py-2">{{ $pegawai->pivot->catatan }}</td>
-                            </tr>
+                            <x-tb-cl id="{{ $target->id }}-{{ $pegawai->id }}">
+                                <x-tb-cl-fill>{{ $pegawai->nama_lengkap }}</x-tb-cl-fill>
+                                <x-tb-cl-fill>{{ $target->nama }}</x-tb-cl-fill>
+                                <x-tb-cl-fill>{{ $target->bobot }}</x-tb-cl-fill>
+                                <x-tb-cl-fill>{{ $pegawai->pivot->tanggal_mulai }}</x-tb-cl-fill>
+                                <x-tb-cl-fill>{{ $pegawai->pivot->tanggal_selesai }}</x-tb-cl-fill>
+                                <x-tb-cl-fill class="capitalize">{{ $pegawai->pivot->status }}</x-tb-cl-fill>
+                                <x-tb-cl-fill>{{ $pegawai->pivot->catatan }}</x-tb-cl-fill>
+                            </x-tb-cl>
                         @endforeach
-                    @empty
-                        <tr>
-                            <td colspan="7" class="px-4 py-8 text-center text-gray-500">Tidak ada data laporan target kinerja</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    @endforeach
+                </x-slot:table_column>
+            </x-tb>
+        @endif
+
+        {{-- Laporan terkini (submitted reports) --}}
+        <div class="mt-6">
+            <h3 class="text-lg font-medium mb-2">Laporan Terkini</h3>
+            @if(isset($pelaporanItems) && $pelaporanItems->isNotEmpty())
+                <x-tb id="laporanTerkiniTable">
+                    <x-slot:table_header>
+                        {{-- <x-tb-td nama="no" sorting=false>No</x-tb-td> --}}
+                        <x-tb-td nama="pekerjaan" sorting=true>Pekerjaan</x-tb-td>
+                        <x-tb-td nama="realisasi" sorting=false>Realisasi</x-tb-td>
+                        <x-tb-td nama="jumlah" sorting=true>Jumlah</x-tb-td>
+                        <x-tb-td nama="waktu" sorting=true>Waktu (menit)</x-tb-td>
+                        <x-tb-td nama="tanggal" sorting=true>Tanggal</x-tb-td>
+                        <x-tb-td nama="status" sorting=true>Status</x-tb-td>
+                    </x-slot:table_header>
+                    <x-slot:table_column>
+                        @foreach($pelaporanItems as $i => $it)
+                            <x-tb-cl id="pel-{{ $it->id }}">
+                                {{-- <x-tb-cl-fill>{{ $i+1 }}</x-tb-cl-fill> --}}
+                                <x-tb-cl-fill>{{ $it->targetHarian->pekerjaan ?? '-' }}</x-tb-cl-fill>
+                                <x-tb-cl-fill>{{ Str::limit($it->realisasi, 60) }}</x-tb-cl-fill>
+                                <x-tb-cl-fill>{{ $it->effective_jumlah ?? '-' }}</x-tb-cl-fill>
+                                <x-tb-cl-fill>{{ $it->effective_waktu_minutes ?? '-' }}</x-tb-cl-fill>
+                                <x-tb-cl-fill>{{ $it->created_at->format('d/m/Y H:i') }}</x-tb-cl-fill>
+                                <x-tb-cl-fill>{{ ucfirst($it->status ?? 'pending') }}</x-tb-cl-fill>
+                            </x-tb-cl>
+                        @endforeach
+                    </x-slot:table_column>
+                </x-tb>
+            @else
+                <div class="px-4 py-4 text-sm text-gray-500">Belum ada laporan yang dikirim.</div>
+            @endif
         </div>
     </div>
 @endsection

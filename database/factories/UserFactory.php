@@ -48,7 +48,7 @@ class UserFactory extends Factory
             // Email pribadi tetap unik (ruang besar)
             'email_pribadi'  => $this->faker->unique()->safeEmail(),
 
-            'email_verified_at' => now(),
+            'email_verified_at' => null,
             'tipe_pegawai'      => $this->faker->randomElement(['TPA','Dosen']),
 
             // Username unik tanpa pool kecil (hindari randomNumber(3))
@@ -57,6 +57,7 @@ class UserFactory extends Factory
             // Password default
             'password'       => 'password123'   ,
             'is_admin'       => $this->faker->boolean(10),
+            'is_new'       => true,
             'remember_token' => Str::random(10),
         ];
     }

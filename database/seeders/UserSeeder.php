@@ -43,7 +43,31 @@ class UserSeeder extends Seeder
         //     'email_institusi' => 'siti.nurhaliza@telkomuniversity.ac.id',
         // ]);
 
-        User::factory()->count(30)->create();
+        // User::create([
+        //     'nama_lengkap' => 'Siti Nurhaliza',
+        //     'telepon' => '087895732155',
+        //     'email_institusi' => 'siti.nurhaliza@telkomuniversity.ac.id',
+        //     'password' => 'password123',
+        // ]);
+
+        // User::create([
+        //     'nama_lengkap' => 'Budi Santoso',
+        //     'telepon' => '084553776814',
+        //     'email_institusi' => 'budi.santoso@telkomuniversity.ac.id',
+        //     'password' => 'password123',
+        // ]);
+
+        User::factory()->create([
+            'nama_lengkap' => 'Admin Telkom University',
+            // 'telepon' => '088193176424',
+            'email_institusi' => 'admin@telkomuniversity.ac.id',
+            // 'password' => 'password123',
+            'is_admin' => 1,
+        ]);
+        User::factory()->count(30)->create([
+            'is_admin'=>0,
+        ]);
+        // User::factory();
 
         $refJenjangPendidikan = \App\Models\RefJenjangPendidikan::all();
         $refPangkatGolongan = \App\Models\RefPangkatGolongan::all();
@@ -66,7 +90,7 @@ class UserSeeder extends Seeder
             // dd($user->id);
 
 
-            $indexRefStatusPegawai = fake()->numberBetween(0, count($refStatusPegawai)-1);
+            $indexRefStatusPegawai = fake()->numberBetween(0, count($refStatusPegawai) - 1);
             // dd($refStatusPegawai[$indexRefStatusPegawai]);
 
             //buat 2 emergency contact
@@ -74,7 +98,7 @@ class UserSeeder extends Seeder
                 'users_id' => $user->id,
             ]);
 
-
+            // Buat history NIP
             RiwayatNip::factory()->create([
                 'users_id' => $user->id,
                 'nip' => fake()->unique()->numerify('##############'),
@@ -83,25 +107,25 @@ class UserSeeder extends Seeder
 
             ]);
 
-            if(fake()->boolean()){
+            if (fake()->boolean()) {
                 riwayatJenjangPendidikan::factory()->create([
                     'users_id' => $user->id,
-                    'jenjang_pendidikan_id' => $refJenjangPendidikan[fake()->numberBetween(0, count($refJenjangPendidikan)-1)]->id,
+                    'jenjang_pendidikan_id' => $refJenjangPendidikan[fake()->numberBetween(0, count($refJenjangPendidikan) - 1)]->id,
                 ]);
-    
-                if(fake()->boolean()){
+
+                if (fake()->boolean()) {
                     riwayatJenjangPendidikan::factory()->create([
                         'users_id' => $user->id,
-                        'jenjang_pendidikan_id' => $refJenjangPendidikan[fake()->numberBetween(0, count($refJenjangPendidikan)-1)]->id,
+                        'jenjang_pendidikan_id' => $refJenjangPendidikan[fake()->numberBetween(0, count($refJenjangPendidikan) - 1)]->id,
                     ]);
                 }
             }
 
-
-            if($user->tipe_pegawai === 'Dosen'){
-                $indexRefPangkatGolongan = fake()->numberBetween(0, count($refPangkatGolongan)-1);
-                $indexRefJFA = fake()->numberBetween(0, count($refJFA)-1);
-                $indexProdi =  fake()->numberBetween(0, count($refProdi)-1);
+            $create_dosen_or_tpa = null;
+            if ($user->tipe_pegawai === 'Dosen') {
+                $indexRefPangkatGolongan = fake()->numberBetween(0, count($refPangkatGolongan) - 1);
+                $indexRefJFA = fake()->numberBetween(0, count($refJFA) - 1);
+                $indexProdi =  fake()->numberBetween(0, count($refProdi) - 1);
                 // dd($refProdi[$indexProdi]->id);
                 $dosen = \App\Models\Dosen::factory()->create([
                     'users_id' => $user->id,
@@ -142,11 +166,9 @@ class UserSeeder extends Seeder
                     'ref_jfa_id' => $refJFA[$indexRefJFA]->id,
                     'sk_llkdikti_id' => $skLLKDIKTI->id,
                     'sk_pengakuan_ypt_id' => $skYPT->id,
-                    'tmt_mulai'=>now(),
+                    'tmt_mulai' => now(),
                 ]);
-
-            }
-            else{
+            } else {
                 $skLLKDIKTI = SK::factory()->create([
                     'users_id' => $user->id,
                     'tipe_sk' => 'Pengakuan YPT',
@@ -157,17 +179,17 @@ class UserSeeder extends Seeder
                 ]);
                 // dd($tpa_models);
 
-                $indexRefJFK = fake()->numberBetween(0, count($refJFK)-1);
+                $indexRefJFK = fake()->numberBetween(0, count($refJFK) - 1);
                 // dD($indexRefJFK);
                 $boolRandom = fake()->boolean();
-                $sk = $boolRandom==true?$skLLKDIKTI->id:null;
+                $sk = $boolRandom == true ? $skLLKDIKTI->id : null;
                 \App\Models\riwayatJabatanFungsionalKeahlian::factory()->create([
                     'tpa_id' => $tpa_models->id,
                     'ref_jfk_id' => $refJFK[$indexRefJFK]->id,
                     // 'sk_llkdikti_id' => $skLLKDIKTI->id,
                     'sk_pengakuan_ypt_id' => $sk,
-                    'tmt_mulai'=>now(),
-                    'tmt_selesai'=>null,
+                    'tmt_mulai' => now(),
+                    'tmt_selesai' => null,
                 ]);
             }
 
@@ -175,61 +197,61 @@ class UserSeeder extends Seeder
             $formasi = [];
             // $bagian = [];
             $count = fake()->numberBetween(1, 3);
-            for($i=0; $i < $count; $i++) {
+            for ($i = 0; $i < $count; $i++) {
 
                 // $bagian = $refbagian[fake()->numberBetween(0, count($refbagian)-1)];
                 // dd($bagian->position_name);
                 $formations = Formation::whereHas('bagian', function ($q) {
-                    $q->where('type_work_position', fake()->randomElement(['Bagian','Fakultas','Program Studi']));
+                    $q->where('type_work_position', fake()->randomElement(['Bagian', 'Fakultas', 'Program Studi']));
                 })->get();
 
-                $indexFormation = fake()->numberBetween(0, count($formations)-1);
+                $indexFormation = fake()->numberBetween(0, count($formations) - 1);
                 $formasi[] = $formations[$indexFormation];
             }
 
             // dd($formasi);
-            for($i=0; $i < count($formasi); $i++) {
+            for ($i = 0; $i < count($formasi); $i++) {
                 $skYPT = SK::factory()->create([
-                        'users_id' => $user->id,
-                        'tipe_sk' => 'Pengakuan YPT',
-                    ]);
+                    'users_id' => $user->id,
+                    'tipe_sk' => 'Pengakuan YPT',
+                ]);
 
-                    $pemetaan = pengawakan::factory()->create([
-                        'users_id' => $user->id,
-                        'formasi_id' => $formasi[$i]->id,
-                        'sk_ypt_id' => $skYPT->id,
-                        'tmt_selesai' => today(),
-                    ]);
+                $pemetaan = pengawakan::factory()->create([
+                    'users_id' => $user->id,
+                    'formasi_id' => $formasi[$i]->id,
+                    'sk_ypt_id' => $skYPT->id,
+                    'tmt_selesai' => today(),
+                ]);
             }
 
             $formasi = [];
             // $bagian = [];
             $count = fake()->numberBetween(1, 3);
-            for($i=0; $i < $count; $i++) {
+            for ($i = 0; $i < $count; $i++) {
 
                 // $bagian = $refbagian[fake()->numberBetween(0, count($refbagian)-1)];
                 // dd($bagian->position_name);
                 $formations = Formation::whereHas('bagian', function ($q) {
-                    $q->where('type_work_position', fake()->randomElement(['Bagian','Fakultas','Program Studi']));
+                    $q->where('type_work_position', fake()->randomElement(['Bagian', 'Fakultas', 'Program Studi']));
                 })->get();
 
-                $indexFormation = fake()->numberBetween(0, count($formations)-1);
+                $indexFormation = fake()->numberBetween(0, count($formations) - 1);
                 $formasi[] = $formations[$indexFormation];
             }
 
             // dd($formasi);
-            for($i=0; $i < count($formasi); $i++) {
+            for ($i = 0; $i < count($formasi); $i++) {
                 $skYPT = SK::factory()->create([
-                        'users_id' => $user->id,
-                        'tipe_sk' => 'Pengakuan YPT',
-                    ]);
+                    'users_id' => $user->id,
+                    'tipe_sk' => 'Pengakuan YPT',
+                ]);
 
-                    $pemetaan = pengawakan::factory()->create([
-                        'users_id' => $user->id,
-                        'formasi_id' => $formasi[$i]->id,
-                        'sk_ypt_id' => $skYPT->id,
-                        'tmt_selesai' => null,
-                    ]);
+                $pemetaan = pengawakan::factory()->create([
+                    'users_id' => $user->id,
+                    'formasi_id' => $formasi[$i]->id,
+                    'sk_ypt_id' => $skYPT->id,
+                    'tmt_selesai' => null,
+                ]);
             }
 
 

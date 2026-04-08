@@ -74,11 +74,11 @@
                         </td>
                         <td class="px-4 py-3 text-center border">
                             <div class="flex gap-2 justify-center">
-                                <a href="{{ route('manage.prodi.show', $prodi->id) }}"
-                                    class="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-600 text-white text-xs font-medium rounded hover:bg-gray-700 transition">
-                                    <i class="bi bi-eye"></i>
-                                    Lihat
-                                </a>
+                                <button type="button"
+                                    onclick="openDetailModal({{ json_encode($prodi->kode) }}, {{ json_encode($prodi->position_name) }}, {{ json_encode($prodi->parent->position_name ?? '-') }})"
+                                    class="px-3 py-1.5 border border-[#1C2762] text-[#1C2762] rounded-md text-xs font-medium hover:bg-[#1C2762] hover:text-white transition duration-200">
+                                    View Details
+                                </button>
                                 <a href="{{ route('manage.prodi.edit', $prodi->id) }}"
                                     class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition">
                                     <i class="bi bi-pencil-square"></i>
@@ -174,4 +174,6 @@
 
     <!-- Include Create Modal -->
     @include('kelola_data.prodi.create')
+    <!-- Include Detail (Show) Modal -->
+    @include('kelola_data.prodi.show')
 @endsection

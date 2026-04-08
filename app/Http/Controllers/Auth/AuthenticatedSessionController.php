@@ -14,62 +14,75 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Display the login view.
-     */
     public function create(): View
     {
         return view('auth.login');
     }
 
-    /**
-     * Handle an incoming authentication request.
-     */
     public function store(LoginRequest $request): RedirectResponse
     {
         try {
-            // Start with a clean session
-            Session::flush();
-            
+
+            // $cek1 = session('account');
+
             // Attempt authentication
             $request->authenticate();
+            // dd($request->authenticate());
 
-            // Force regenerate session
+            // $cek2 = session('account');
+
+            // regenerate session
             $request->session()->regenerate();
-            
+
+            // $cek3 = session('account');
+
             $user = Auth::user();
+
+            // $cek4 = session('account');
+
+            // dd($cek1,$cek2,$cek3,$cek4,'cek ini');
+
             if (!$user) {
+
                 Log::error('No user after authentication');
+
                 return redirect()->route('login');
             }
 
-            // Set role and session data
             $role = \App\Models\Tpa::where('users_id', $user->id)->exists() ? 'TPA' : 'Dosen';
-            $sessionData = array_merge($user->toArray(), ['role' => [$role]]);
-            
-            // Store in session
+
+            $sessionData = array_merge(
+                $user->toArray(),
+                ['role' => [$role]]
+            );
+
             session(['account' => $sessionData]);
-            
-            // Log the successful login
+
             Log::info('Login successful', [
                 'user_id' => $user->id,
                 'session_id' => session()->getId()
             ]);
-
-            // Return to dashboard with session cookie
-            return redirect()->intended(route('home'))
-                ->withCookie(cookie()->forever('auth_check', true));
-                
+            // dd($user,$user->is_new==true ,$user->is_new===1,$user->is_new==1);
+            if ($user->is_new == true || $user->is_new === 1 || $user->is_new == 1) {
+                return redirect(route('profile.change-password', ['idUser' => session('account')['id']]))->with('message', 'Karena akun Anda baru dibuat, silakan ubah kata sandi Anda terlebih dahulu demi keamanan akun Anda.');
+            } else {
+                return redirect()->intended(route('home'))
+                    ->with('message', 'Login Berhasil!')
+                    ->withCookie(cookie()->forever('auth_check', true));
+            }
         } catch (\Exception $e) {
+
             Log::error('Login exception', ['error' => $e->getMessage()]);
+
             return redirect()->route('login')
-                ->withErrors(['email_institusi' => 'Login failed']);
+                ->withErrors([
+                    // 'email_institusi' => 'Login failed',
+                    $e->getMessage(),
+                ])
+                ->withInput();
         }
     }
 
-    /**
-     * Destroy an authenticated session.
-     */
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();

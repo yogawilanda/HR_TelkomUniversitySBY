@@ -25,11 +25,13 @@ return new class extends Migration
             $table->enum('tipe_pegawai', ['TPA','Dosen']);
             $table->date('tgl_bergabung');
             $table->string('email_pribadi')->unique();
+            $table->string('verified_code')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('username');
             $table->string('password_hash')->nullable();
             $table->boolean('is_admin')->default(false);
             $table->boolean('is_active')->default(true);
+            $table->boolean('is_new')->default(true);
             $table->rememberToken();
             $table->timestamps();
 

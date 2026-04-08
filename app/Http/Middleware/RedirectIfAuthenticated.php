@@ -34,7 +34,9 @@ class RedirectIfAuthenticated
             'path' => $request->path(),
             'method' => $request->method()
         ]);
-        
+
         return $next($request);
     }
+
+    
 }

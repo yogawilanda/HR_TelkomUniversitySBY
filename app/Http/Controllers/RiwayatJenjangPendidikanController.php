@@ -223,4 +223,12 @@ class RiwayatJenjangPendidikanController extends Controller
             ], 500);
         }
     }
+
+    public function profileRiwayatPendidikan($idUser){
+        $user = (new ProfileController)->based_user_data($idUser);
+        // $user['pendidikan'] = riwayatJenjangPendidikan::with(['refJenjangPendidikan'])->find($user['id']);
+        $user['pendidikan'] = riwayatJenjangPendidikan::with('refJenjangPendidikan')->where('users_id',$user['id'])->get()->sortBy(fn ($item) => optional($item->refJenjangPendidikan)->urutan);
+        // dd($user['pendidikan'][0]['refJenjangPendidikan']);
+        return view('kelola_data.pegawai.view.history.pendidikan',['user'=>$user]);
+    }
 }

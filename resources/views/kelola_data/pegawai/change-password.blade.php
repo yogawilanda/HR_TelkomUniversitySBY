@@ -61,7 +61,7 @@
                     </div>
 
                     {{-- Error validasi --}}
-                    @if ($errors->any())
+                    {{-- @if ($errors->any())
                         <div
                             class="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-900/40 dark:bg-red-950/40 dark:text-red-200">
                             <div class="font-semibold mb-1">Periksa lagi data yang diisi:</div>
@@ -71,10 +71,11 @@
                                 @endforeach
                             </ul>
                         </div>
-                    @endif
+                    @endif --}}
 
                     {{-- NOTE: action diisi sesuai route handler di controller --}}
-                    <form method="POST" action="{{ route('manage.pegawai.view.update-password',['idUser'=>$user['id']]) }}" class="space-y-6" novalidate>
+                    <form method="POST" action="{{ route('manage.pegawai.view.update-password', ['idUser' => $user['id']]) }}"
+                        class="space-y-6" novalidate>
                         @csrf
 
                         {{-- Jika ada error global --}}

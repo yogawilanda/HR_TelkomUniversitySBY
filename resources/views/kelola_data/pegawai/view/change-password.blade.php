@@ -1,5 +1,5 @@
 @php
-    $active_sidebar = 'Change Password';
+    $active_sidebar = 'Ubah Password';
 @endphp
 
 @extends('kelola_data.base-profile')
@@ -85,26 +85,13 @@
                     <form method="POST" action="{{ route('profile.update-password') }}" class="space-y-6" novalidate>
                         @csrf
 
-                        {{-- Jika ada error global --}}
-                        @if ($errors->any())
-                            <div
-                                class="rounded-xl border border-red-300 bg-red-50 p-4 text-red-800 dark:border-red-600 dark:bg-red-900/30 dark:text-red-200">
-                                <div class="font-semibold mb-1">Ada kesalahan pada input kamu:</div>
-                                <ul class="list-disc ps-5 space-y-1 text-sm">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-
                         {{-- Password Lama --}}
                         <div>
                             <label for="current_password" class="block text-base text-gray-600 dark:text-gray-300">Password
                                 Lama</label>
                             <div class="mt-1 input-with-toggle">
                                 <input id="current_password" name="current_password" type="password"
-                                    value="{{ old('current_password') }}" required autocomplete="current-password"
+                                    value="{{ old('current_password') ?? '' }}" required autocomplete="current-password"
                                     class="block w-full rounded-xl border
                                             @error('current_password')
                                             border-red-500 focus:ring-red-500 focus:border-red-500
@@ -143,8 +130,8 @@
                             <label for="password" class="block text-base text-gray-600 dark:text-gray-300">Password
                                 Baru</label>
                             <div class="mt-1 input-with-toggle">
-                                <input id="password" name="password" value="{{ old('password') }}" type="password" required
-                                    minlength="8" autocomplete="new-password"
+                                <input id="password" name="password" value="{{ old('password') ?? '' }}" type="password"
+                                    required minlength="8" autocomplete="new-password"
                                     class="block w-full rounded-xl border
                        @error('password') border-red-500 focus:ring-red-500 focus:border-red-500
                        @else border-gray-300 focus:ring-blue-500 focus:border-blue-500 @enderror
@@ -185,13 +172,13 @@
                                 class="block text-base text-gray-600 dark:text-gray-300">Ulangi Password Baru</label>
                             <div class="mt-1 input-with-toggle">
                                 <input id="password_confirmation" name="password_confirmation"
-                                    value="{{ old('password_confirmation') }}" type="password" required
+                                    value="{{ old('password_confirmation') ?? '' }}" type="password" required
                                     autocomplete="new-password"
                                     class="block w-full rounded-xl border
-                       @error('password_confirmation') border-red-500 focus:ring-red-500 focus:border-red-500
-                       @else border-gray-300 focus:ring-blue-500 focus:border-blue-500 @enderror
-                       bg-white px-4 py-3 text-lg text-gray-900 placeholder-gray-400 shadow-sm
-                       dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                                    @error('password_confirmation') border-red-500 focus:ring-red-500 focus:border-red-500
+                                    @else border-gray-300 focus:ring-blue-500 focus:border-blue-500 @enderror
+                                    bg-white px-4 py-3 text-lg text-gray-900 placeholder-gray-400 shadow-sm
+                                    dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
                                     placeholder="Ketik ulang password baru">
                                 <button type="button" class="pw-toggle-btn" data-target="password_confirmation"
                                     aria-label="Tampilkan konfirmasi password" title="Tampilkan / sembunyikan password">
@@ -218,8 +205,8 @@
                         </div>
 
                         <div class="flex items-center justify-end gap-3 pt-2">
-                            <button type="submit"
-                                class="rounded-2xl bg-primary-bs px-6 py-2.5 text-base font-semibold text-white shadow hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <button type="submit" id="save_button" onclick="form_loading(this)"
+                                class="rounded-2xl active:scale-85 hover:scale-95 bg-primary-bs px-6 py-2.5 text-base font-semibold text-white shadow hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 Simpan Perubahan
                             </button>
                         </div>
@@ -280,7 +267,7 @@
     </script>
 
     <!-- Tambah CDN SweetAlert2 sekali saja (di layout atau view ini) -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {{-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> --}}
 
     @if (session('success'))
         <script>
@@ -294,6 +281,8 @@
             });
         </script>
     @endif
+    <x-js.save_form_pop_up id_button="save_button" />
+
 
 
 @endsection

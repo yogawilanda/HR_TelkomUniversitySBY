@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dosen;
-use App\Models\refJabatanFungsionalAkademik;
+use App\Models\RefJabatanFungsionalAkademik;
 use App\Models\riwayatJabatanFungsionalAkademik;
 use App\Models\SK;
 use Illuminate\Http\Request;
@@ -29,7 +29,7 @@ class RiwayatJabatanFungsionalAkademikController extends Controller
                 ->values(); // reset index
                 // dd($dosens);
 
-        $jfas = refJabatanFungsionalAkademik::all()->sortBy('nama_jabatan')->values();
+        $jfas = RefJabatanFungsionalAkademik::all()->sortBy('nama_jabatan')->values();
         $sk_diktis = SK::Sk_Dikti();
         $sk_ypts = SK::Sk_Ypt();
         return view('kelola_data.jfa.input', compact('dosens', 'jfas', 'sk_diktis', 'sk_ypts'));
@@ -100,7 +100,7 @@ class RiwayatJabatanFungsionalAkademikController extends Controller
                     $validated['no_sk'] = $validated['no_sk_dikti'];
                     $validated['tipe_sk'] = 'LLDIKTI';
                     // DB::commit();
-                    
+
                     $validated['users_id'] = Dosen::find($validated['dosen_id'])->users_id;
                     $sk = SK::create($validated);
                     $validated['sk_llkdikti_id'] = $sk->id;
@@ -114,7 +114,7 @@ class RiwayatJabatanFungsionalAkademikController extends Controller
                         'error' => $e->getMessage()
                     ], 500);
                 }
-                
+
             }
             // dd($isset_ypt);
             if(isset($validated['sk_pengakuan_ypt_id'])||isset($validated['no_sk_ypt'])){
@@ -123,26 +123,26 @@ class RiwayatJabatanFungsionalAkademikController extends Controller
                 }
                 if((!isset($validated['sk_pengakuan_ypt_id']))){
                     // dd('masuk');
-    
+
                     try {
                         $validated['no_sk'] = $validated['no_sk_ypt'];
                         $validated['tipe_sk'] = 'Pengakuan YPT';
                         // DB::commit();
-                        
+
                         $validated['users_id'] = Dosen::find($validated['dosen_id'])->users_id;
                         $sk = SK::create($validated);
                         $validated['sk_pengakuan_ypt_id'] = $sk->id;
-    
+
                     } catch (\Exception $e) {
                         // DB::rollBack();
-    
+
                         return response()->json([
                             'success' => false,
                             'message' => 'Gagal membuat SK LLDIKTI',
                             'error' => $e->getMessage()
                         ], 500);
                     }
-                    
+
                 }
             }else{
                 $validated['sk_pengakuan_ypt_id'] = null;
@@ -162,8 +162,8 @@ class RiwayatJabatanFungsionalAkademikController extends Controller
             // dd($old_jfa);
             riwayatJabatanFungsionalAkademik::create($validated);
 
-            
-            
+
+
             DB::commit();
             // dD($old_jfa,$oldesst);
             // dd('ypt',$validated['sk_pengakuan_ypt_id'],'dikti',$validated['sk_llkdikti_id']);
@@ -182,7 +182,7 @@ class RiwayatJabatanFungsionalAkademikController extends Controller
     }
 
     public function update($id_jfa)
-    {   
+    {
         $jfa_data = riwayatJabatanFungsionalAkademik::find($id_jfa);
         // dd($jfa_data->dosen->pegawai);
 
@@ -263,7 +263,7 @@ class RiwayatJabatanFungsionalAkademikController extends Controller
                     $validated['no_sk'] = $validated['no_sk_dikti'];
                     $validated['tipe_sk'] = 'LLDIKTI';
                     // DB::commit();
-                    
+
                     $validated['users_id'] = Dosen::find($validated['dosen_id'])->users_id;
                     $sk = SK::create($validated);
                     $validated['sk_llkdikti_id'] = $sk->id;
@@ -277,7 +277,7 @@ class RiwayatJabatanFungsionalAkademikController extends Controller
                         'error' => $e->getMessage()
                     ], 500);
                 }
-                
+
             }
             // dd($isset_ypt);
             if(isset($validated['sk_pengakuan_ypt_id'])||isset($validated['no_sk_ypt'])){
@@ -286,26 +286,26 @@ class RiwayatJabatanFungsionalAkademikController extends Controller
                 }
                 if((!isset($validated['sk_pengakuan_ypt_id']))){
                     // dd('masuk');
-    
+
                     try {
                         $validated['no_sk'] = $validated['no_sk_ypt'];
                         $validated['tipe_sk'] = 'Pengakuan YPT';
                         // DB::commit();
-                        
+
                         $validated['users_id'] = Dosen::find($validated['dosen_id'])->users_id;
                         $sk = SK::create($validated);
                         $validated['sk_pengakuan_ypt_id'] = $sk->id;
-    
+
                     } catch (\Exception $e) {
                         // DB::rollBack();
-    
+
                         return response()->json([
                             'success' => false,
                             'message' => 'Gagal membuat SK LLDIKTI',
                             'error' => $e->getMessage()
                         ], 500);
                     }
-                    
+
                 }
             }else{
                 $validated['sk_pengakuan_ypt_id'] = null;
@@ -319,7 +319,7 @@ class RiwayatJabatanFungsionalAkademikController extends Controller
             // riwayatJabatanFungsionalAkademik::create($validated);
             $jfa_update = riwayatJabatanFungsionalAkademik::findOrFail($id_jfa);
             $jfa_update->update($validated);
-            
+
             DB::commit();
             // dd('ypt',$validated['sk_pengakuan_ypt_id'],'dikti',$validated['sk_llkdikti_id']);
             // DD('DONE');

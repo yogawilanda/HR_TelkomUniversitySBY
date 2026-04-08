@@ -20,6 +20,7 @@ class pengawakan extends Model
         'users_id',
         'formasi_id',
         'sk_ypt_id',
+        'is_main_position',
         'tmt_mulai',
         'tmt_selesai',
     ];

@@ -13,6 +13,15 @@ class TargetKinerja extends Model
         'keterangan',
         'bobot',
         'is_active',
+        'responsibility',
+        'satuan',
+        'target_percent',
+        'status',
+        'unit_penanggung_jawab',
+        // 'evidence' and 'pencapaian' moved to pelaporan_pekerjaan per requirements
+        'periode',
+        'start', // Added new field
+        'end',   // Added new field
     ];
 
     public function pegawai()

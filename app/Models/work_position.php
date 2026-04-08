@@ -20,6 +20,7 @@ class work_position extends Model
         'position_name',
         'type_work_position',
         'parent_id',
+        'type_pekerja',
     ];
     public function refWorkPosition()
     {

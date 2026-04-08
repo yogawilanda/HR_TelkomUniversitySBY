@@ -8,6 +8,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth; // Jangan lupa import Auth
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Log;
 
 class AdminMiddleware
 {
@@ -22,4 +23,6 @@ class AdminMiddleware
         // Jika tidak, redirect ke halaman home dengan pesan error
         return redirect('/')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
     }
+
+    
 }

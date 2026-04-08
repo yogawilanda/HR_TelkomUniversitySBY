@@ -1,4 +1,4 @@
-<!-- Detail Modal (Tailwind - Style Sama dengan Tambah Prodi) -->
+<!-- Detail Modal (Tailwind - Style Sama dengan Tambah Fakultas) -->
 <div id="detailModal" class="fixed inset-0 z-50 hidden flex items-center justify-center">
     <div id="detailModalBackdrop" class="absolute inset-0 bg-black bg-opacity-50"></div>
     <div class="relative bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 overflow-hidden z-10">
@@ -11,7 +11,7 @@
         <div class="p-6 space-y-4">
             <!-- Kode Prodi -->
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Kode Program Studi</label>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Kode Prodi</label>
                 <div id="detail_kode_prodi"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-800">
                     -
@@ -20,7 +20,7 @@
 
             <!-- Nama Prodi -->
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Program Studi</label>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Prodi</label>
                 <div id="detail_nama_prodi"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-800">
                     -
@@ -29,7 +29,7 @@
 
             <!-- Fakultas -->
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Fakultas</label>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Fakultas</label>
                 <div id="detail_fakultas"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-800">
                     -
@@ -49,10 +49,10 @@
 
 <script>
     // Detail Modal logic
-    function openDetailModal(kodeProdi, namaProdi, namaFakultas) {
-        document.getElementById('detail_kode_prodi').textContent = kodeProdi || '-';
+    function openDetailModal(kode, namaProdi, fakultas) {
+        document.getElementById('detail_kode_prodi').textContent = kode || '-';
         document.getElementById('detail_nama_prodi').textContent = namaProdi || '-';
-        document.getElementById('detail_fakultas').textContent = namaFakultas || '-';
+        document.getElementById('detail_fakultas').textContent = fakultas || '-';
 
         const modal = document.getElementById('detailModal');
         modal.classList.remove('hidden');

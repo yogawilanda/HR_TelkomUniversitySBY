@@ -1,5 +1,5 @@
-@props(['id' => null, 'cls' => null])
-@aware(['table_header', 'table_column', 'put_something'])
+@props(['id' => null, 'cls' => null,'search_status'=>true])
+@aware(['table_header', 'table_column', 'put_something','search_status'])
 
 <style>
     .search-input {
@@ -29,6 +29,8 @@
     }
 </style>
 
+@if($search_status==true)
+
 <div class="h-auto max-h-fit w-full flex flex-row justify-center items-center gap-2.5 rounded-[6px] mb-1">
     <div
         class="flex items-center gap-[6px] self-stretch bg-white px-[12px] py-[8px] rounded-lg border border-[#d0d5dd] flex-grow sm:w-1/3">
@@ -39,6 +41,7 @@
     </div>
     {{ $put_something }}
 </div>
+@endif
 
 <div class="overflow-hidden pb-2 pt-0 w-full">
     <div class="overflow-x-auto border border-gray-200 rounded-lg">
@@ -48,7 +51,8 @@
                     data-search-selector="#customSearchInput" data-filter-control="true" data-show-loading="false"
                     class="min-w-full table-auto border border-gray-200 rounded-lg text-sm text-blue-900 border-collapse {{ $cls }}">
 
-                    <thead class="bg-blue-50 rounded-lg text-center align-middle">
+                    {{-- <thead class="bg-blue-50 bg-[f4f4f5]  rounded-lg text-center align-middle"> --}}
+                    <thead class="bg-[f4f4f5]  rounded-lg text-center align-middle">
                         <th data-formatter="indexFormatter" data-align="center" width="5%">No</th>
                         {{ $table_header }}
                     </thead>

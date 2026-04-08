@@ -57,7 +57,7 @@
                 </div>
 
                 <!-- Singkatan -->
-                <div class="mb-4">
+                {{-- <div class="mb-4">
                     <label for="singkatan" class="block text-sm font-semibold text-gray-700 mb-2">
                         Singkatan
                     </label>
@@ -68,7 +68,7 @@
                     @error('singkatan')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
-                </div>
+                </div> --}}
 
                 <!-- Tombol Action -->
                 <div class="flex items-center justify-end gap-3 mt-6">

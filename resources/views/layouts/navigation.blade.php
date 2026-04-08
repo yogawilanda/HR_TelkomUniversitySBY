@@ -4,7 +4,7 @@
         <div class="flex justify-between h-16">
             <!-- Left: Logo -->
             <div class="flex items-center">
-                <div class="flex items-center shrink-0">
+                <div class="flex items-center shrink-0 active:scale-90">
                     <a href="{{ route('home') }}">
                         <x-application-logo class="block w-auto text-white fill-current h-9 dark:text-gray-200" />
                     </a>
@@ -46,7 +46,7 @@
                         <x-dropdown align="right" width="48">
                             <x-slot name="trigger">
                                 <button
-                                    class="inline-flex items-center px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out bg-white border border-transparent rounded-md dark:text-gray-400 dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none">
+                                    class="inline-flex active:scale-95 items-center px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out bg-white border border-transparent rounded-md dark:text-gray-400 dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none">
                                     <div>{{ Auth::user()->nama_lengkap ?? "Dev" }}</div>
 
 
@@ -174,3 +174,4 @@
             </div>
         @endauth
 </nav>
+

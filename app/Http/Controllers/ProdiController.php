@@ -55,8 +55,9 @@ class ProdiController extends Controller
      */
     public function show($id)
     {
+        $fakultas = work_position::where('type_work_position', 'Fakultas')->get();
         $prodi = work_position::where('id', $id)->where('type_work_position', 'Program Studi')->with(['parent', 'dosen'])->firstOrFail();
-        return view('kelola_data.prodi.show', compact('Program Studi'));
+        return view('kelola_data.prodi.show', compact('prodi', 'fakultas'));
     }
 
     /**
@@ -66,7 +67,7 @@ class ProdiController extends Controller
     {
         $prodi = work_position::where('id', $id)->where('type_work_position', 'Program Studi')->firstOrFail();
         $fakultas = work_position::where('type_work_position', 'Fakultas')->get();
-        return view('kelola_data.prodi.edit', compact('Program Studi', 'fakultas'));
+        return view('kelola_data.prodi.edit', compact('prodi', 'fakultas'));
     }
 
     /**

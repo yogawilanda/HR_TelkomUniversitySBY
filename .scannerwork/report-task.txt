@@ -1,0 +1,6 @@
+projectKey=PPL
+serverUrl=http://localhost:9099
+serverVersion=25.2.0.102705
+dashboardUrl=http://localhost:9099/dashboard?id=PPL
+ceTaskId=15d24194-f914-424c-b4ca-e4e2a6d6e466
+ceTaskUrl=http://localhost:9099/api/ce/task?id=15d24194-f914-424c-b4ca-e4e2a6d6e466
