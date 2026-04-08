@@ -38,7 +38,9 @@ class PengajuanController extends Controller
         $pengajuan = $pengajuanQuery;
 
         // 3. Pass the Paginator object to the view
-        return view('dupak.pengajuan.index', compact('pengajuan', 'user', 'pengajuanTerbaru'));
+        return view('dupak.pengajuan.index', compact('pengajuan', 'user',
+        //  'pengajuanTerbaru'
+         ));
     }
 
     // Peta urutan Jabatan Fungsional Akademik (UUID ke Nama Jabatan)

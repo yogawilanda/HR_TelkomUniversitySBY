@@ -28,9 +28,8 @@ public function run(): void
 
     $this->call([
         UserSeeder::class,
+        \Database\Seeders\Dupak\PengajuanSeeder::class, // Tambahkan ini agar dijalankan setelah SQL
     ]);
-
-    
 }
 
 }

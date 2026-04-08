@@ -60,6 +60,26 @@
                         </div>
                     @endif
                 @endif
+
+                {{-- Slot Evaluasi dari TPAK / Admin --}}
+                @if (isset($item['evaluation']) && count($item['evaluation']) > 0)
+                    <div class="mt-4 space-y-3">
+                        @foreach($item['evaluation'] as $eval)
+                            <div class="p-3 rounded-md bg-blue-50 dark:bg-blue-900/20 border-l-4 {{ $eval['role'] === 'Admin' ? 'border-amber-400' : 'border-blue-400' }}">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-xs font-bold uppercase tracking-wider {{ $eval['role'] === 'Admin' ? 'text-amber-700 dark:text-amber-400' : 'text-blue-700 dark:text-blue-400' }}">
+                                        <i class="fas {{ $eval['role'] === 'Admin' ? 'fa-user-shield' : 'fa-user-check' }} mr-1"></i>
+                                        Catatan {{ $eval['role'] }}
+                                    </span>
+                                    <span class="text-[10px] px-2 py-0.5 rounded-full {{ $eval['status'] === 'Verified' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                                        {{ $eval['status'] }}
+                                    </span>
+                                </div>
+                                <p class="text-sm italic text-gray-700 dark:text-gray-300">"{{ $eval['comment'] }}"</p>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
     </div>

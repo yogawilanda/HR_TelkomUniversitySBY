@@ -20,7 +20,6 @@ return new class extends Migration
             $table->id(); // Primary key for the table
 
             // Data fields from the Model's $fillable array
-            // CORRECTED: Changed from unsignedBigInteger to uuid to match dosens.id
             $table->uuid('idDosen')->comment('Foreign key to the Dosen table (which uses UUIDs) in the main database');
             $table->date('start')->comment('Start date of the application period');
             $table->date('end')->comment('End date of the application period');
@@ -36,6 +35,7 @@ return new class extends Migration
             $table->uuid('jfaTujuan')->comment('ID of the target JFA');
 
             $table->string('status', 30)->default('Draft')->comment('Current status of the application');
+
 
             // Timestamps
             $table->timestamps();
