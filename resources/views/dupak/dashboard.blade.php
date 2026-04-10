@@ -72,8 +72,13 @@
 
                     {{-- Action Buttons - Flex (Horizontal) --}}
                     <div class="flex gap-2 mt-4">
-                        <!-- Detail Kegiatan berdasarkan pengajuan riwayat paling baru  : Jika button ini tidak dapat dipencet -->
-                        <a href="{{ route('dupak.pengajuan.show', $submissions['latest'] ?? 'null') }}" class="px-4 py-2 text-sm text-white bg-blue-900 rounded hover:bg-blue-950">Detail Kegiatan</a>
+                        @if($submissions['latest'])
+                            <a href="{{ route('dupak.pengajuan.show', $submissions['latest']->id) }}" 
+                            class="px-4 py-2 text-sm text-white bg-blue-900 rounded hover:bg-blue-950">Detail Kegiatan</a>
+                        @else
+                            <button disabled title="Anda belum memiliki pengajuan"
+                            class="px-4 py-2 text-sm text-white bg-gray-400 rounded cursor-not-allowed">Detail Kegiatan</button>
+                        @endif
 
                         <!-- Tambahkan Kegiatan : Jika belum memiliki pengajuan button dan modal di disable -->
                         <a onclick="openModal()" class="px-4 py-2 text-sm text-blue-900 border border-blue-900 rounded hover:bg-indigo-50">Tambahkan Kegiatan</a>

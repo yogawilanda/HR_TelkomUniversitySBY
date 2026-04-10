@@ -72,7 +72,9 @@ class DashboardController extends Controller
 
     private function submissions(User $user, ?string $dosenId)
     {
-        $q = Pengajuan::with(['dosen', 'dosen.pegawai'])->orderBy('id', 'desc');
+        // $q = Pengajuan::with(['dosen', 'dosen.pegawai'])->orderBy('id', 'desc');
+        // get the latest submissions for the current user (if not admin) or all submissions (if admin)
+        $q = Pengajuan::with(['dosen', 'dosen.pegawai'])->latest();
 
         if (!$user->is_admin) {
             $q->where('idDosen', $dosenId ?? '___INVALID___');
@@ -106,9 +108,9 @@ class DashboardController extends Controller
             return $query->latest()->first();
         }
 
-        // For non-admin, get their latest submission that is still being processed.
+        // Ambil pengajuan terakhir milik dosen tersebut tanpa mempedulikan statusnya
+        // agar tombol "Detail Kegiatan" selalu mengarah ke aktivitas terbaru.
         return $query->where('idDosen', $dosen?->id)
-            ->whereIn('status', ['pending', 'submitted', 'reviewed'])
             ->latest()
             ->first();
     }

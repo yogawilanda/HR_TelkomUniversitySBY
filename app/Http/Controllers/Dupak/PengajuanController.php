@@ -22,25 +22,20 @@ class PengajuanController extends Controller
         // If admin open this, then admin can see all submission which called pengajuan.
         // If user which is have to be dosen, then he/she can only his/her own submission.
         $user = Auth::user();
+        $dosen = Dosen::where('users_id', $user->id)->first();
+        $dosenId = $dosen ? $dosen->id : null;
 
-        if ($user->is_admin) {
-            $pengajuan = Pengajuan::all();
-        } else if ($user->is_dosen) {
-            $pengajuan = Pengajuan::where('idDosen', $user->id);
+        $pengajuanQuery = Pengajuan::with('dosen')->orderBy('id', 'desc');
+
+        if (!$user->is_admin) {
+            // Hanya tampilkan pengajuan milik dosen yang sedang login
+            $pengajuanQuery->where('idDosen', $dosenId);
         }
 
-
-        // 1. Define the base query: fetch all submissions and eager load the cross-DB relationship ('dosen')
-        $pengajuanQuery = Pengajuan::with('dosen') // Eager load the Dosen
-            ->orderBy('id', 'desc');
-
-        // 2. Execute the query and paginate the results
-        $pengajuan = $pengajuanQuery;
+        $pengajuan = $pengajuanQuery->paginate(10);
 
         // 3. Pass the Paginator object to the view
-        return view('dupak.pengajuan.index', compact('pengajuan', 'user',
-        //  'pengajuanTerbaru'
-         ));
+        return view('dupak.pengajuan.index', compact('pengajuan', 'user', 'dosenId'));
     }
 
     // Peta urutan Jabatan Fungsional Akademik (UUID ke Nama Jabatan)
@@ -197,15 +192,95 @@ class PengajuanController extends Controller
 
     public function show(string $id)
     {   
-        // get pengajuan by id
-        $pengajuan = Pengajuan::find($id);
+        // get riwayat jfa dosen
+        $pengajuan = Pengajuan::with(['dosen', 'details.komponen', 'details.evaluations'])->findOrFail($id);
+    
+        // Mapping UUID ke Label Nama Jabatan
+        $jfaAsalLabel = $this->aturanPengajuanJFA[$pengajuan->jfaAsal] ?? 'Tidak Diketahui';
+        $jfaTujuanLabel = $this->aturanPengajuanJFA[$pengajuan->jfaTujuan] ?? 'Tidak Diketahui';
 
-        if (!$pengajuan) {
-            return redirect()->route('dupak.dashboard')->with('error', 'Pengajuan tidak ditemukan.');
+        $riwayatJFA = RiwayatJabatanFungsionalAkademik::where('dosen_id', $pengajuan->idDosen)->latest()->get();
+
+        // Mockup data timeline (Nantinya ambil dari tabel detail_pengajuan & evaluasi)
+        $timelineData = [
+            /**
+             * TAHAP 1: PENGAJUAN DIBUAT
+             */
+            [
+                'id' => 1,
+                'title' => 'Pengajuan Dibuat',
+                'date' => $pengajuan->created_at->format('d F Y'),
+                'content' => "Draft pengajuan DUPAK dari <strong>{$jfaAsalLabel}</strong> ke <strong>{$jfaTujuanLabel}</strong>.",
+                'border_color' => 'border-blue-600',
+                'is_expanded' => true,
+                'details' => null,
+            ],
+        ];
+
+        // --- ALTERNATE FLOW: Cek apakah sudah ada detail kegiatan ---
+        if ($pengajuan->details && $pengajuan->details->count() > 0) {
+            $totalKum = $pengajuan->details->sum('angka_kredit_total');
+            
+            $activityDetails = ['Daftar Kegiatan:'];
+            $allEvaluations = [];
+
+            foreach ($pengajuan->details as $detail) {
+                $activityDetails[] = [
+                    "<strong>{$detail->deskripsi_kegiatan}</strong> (" . number_format($detail->angka_kredit_total, 2) . " KUM)"
+                ];
+
+                // Ambil evaluasi untuk detail ini
+                foreach ($detail->evaluations as $eval) {
+                    $pemeriksa = $evaluatorNames[$eval->idUserPemeriksa] ?? 'Pemeriksa Terdaftar';
+                    $allEvaluations[] = [
+                        'role' => "{$eval->peran_pemeriksa} ({$pemeriksa})",
+                        'status' => $eval->status_evaluasi,
+                        'comment' => $eval->catatan,
+                    ];
+                }
+            }
+
+            $timelineData[] = [
+                'id' => 2,
+                'title' => 'Proses Penilaian Kegiatan',
+                'date' => $pengajuan->updated_at->format('d F Y'),
+                'content' => "Terdapat <strong>{$pengajuan->details->count()} kegiatan</strong> yang sedang diproses dengan total <strong>" . number_format($totalKum, 2) . " KUM</strong>.",
+                'border_color' => 'border-emerald-500',
+                'is_expanded' => true,
+                'details' => $activityDetails,
+                'evaluation' => $allEvaluations
+            ];
+        } else {
+            // Tampilkan informasi jika data masih kosong (Alternate Flow)
+            $timelineData[] = [
+                'id' => 2,
+                'title' => 'Menunggu Input Detail Kegiatan',
+                'date' => '-',
+                'content' => 'Belum ada detail kegiatan (Pendidikan, Penelitian, dll) yang ditambahkan ke dalam pengajuan ini.',
+                'border_color' => 'border-gray-400',
+                'is_expanded' => false,
+                'details' => null,
+            ];
         }
 
-        
+        // Tahap Akhir jika status sudah Diterima
+        if ($pengajuan->status === 'Diterima') {
+            $timelineData[] = [
+                'id' => 3,
+                'title' => 'Pengajuan Disetujui & Selesai',
+                'date' => $pengajuan->updated_at->format('d F Y'),
+                'content' => "Selamat! Pengajuan Anda telah disetujui. Anda sekarang menjabat sebagai <strong>{$jfaTujuanLabel}</strong>.",
+                'dot_color' => 'bg-green-500',
+                'border_color' => 'border-purple-600',
+                'is_expanded' => true,
+                'details' => [
+                    'type' => 'button',
+                    'label' => 'Unduh SK Jabatan',
+                    'button_color' => 'bg-purple-600',
+                ],
+            ];
+        }
 
-        return view('dupak.pengajuan.show');
+        return view('dupak.pengajuan.show', compact('pengajuan', 'timelineData'));
     }
 }

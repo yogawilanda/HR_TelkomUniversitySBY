@@ -65,6 +65,8 @@ class UserSeeder extends Seeder
             'is_admin' => 1,
         ]);
         User::factory()->count(30)->create([
+            'password' => 'password123',
+            'tipe_pegawai' => 'Dosen',
             'is_admin'=>0,
         ]);
         // User::factory();

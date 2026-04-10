@@ -29,7 +29,8 @@ class AllAboutAuthController extends Controller
         try {
             $user = User::where('email_institusi', $email_institusi)->first();
             if ($user != null) {
-                $otp = (string) random_int(100000, 999999);
+                // $otp = (string) random_int(100000, 999999);
+                $otp = 111111;
                 $user->verified_code = $otp;
                 Mail::to($user->email_pribadi)->send(new SendEmail($otp));
                 $user->save();

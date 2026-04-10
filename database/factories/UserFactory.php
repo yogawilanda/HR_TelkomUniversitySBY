@@ -42,8 +42,9 @@ class UserFactory extends Factory
             'tgl_lahir'      => $this->faker->dateTimeBetween('-40 years', '-18 years')->format('Y-m-d'),
             'tgl_bergabung'  => $this->faker->dateTimeBetween('-3 years', 'now')->format('Y-m-d'),
 
-            // Email institusi: domain tetap, lokal part unik & panjang
-            'email_institusi'=> Str::slug($nama).'.'.$this->faker->unique()->bothify('########').'@telkomuniversity.ac.id',
+            // Email institusi: nama depan + @telkomuniversity.ac.id
+            'email_institusi'=> Str::slug($nama).'@telkomuniversity.ac.id',
+            // 'email_institusi'=> Str::slug($nama).'.'.$this->faker->unique()->bothify('########').'@telkomuniversity.ac.id',
 
             // Email pribadi tetap unik (ruang besar)
             'email_pribadi'  => $this->faker->unique()->safeEmail(),

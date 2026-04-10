@@ -30,7 +30,7 @@ return new class extends Migration
             $table->string('link_bukti_pendukung')->nullable()->comment('URL ke dokumen/drive sesuai catatan pengerjaan');
             
             // Status Flagging (Sesuai catatan pengerjaan: flaging hanya dilakukan oleh admin)
-            $table->boolean('is_verified')->default(false);
+            $table->boolean('is_verified')->nullable()->comment('Apakah detil pengajuan sudah diverifikasi oleh admin?');
             $table->text('catatan_pemeriksa')->nullable()->comment('Catatan revisi per poin kegiatan');
 
             $table->timestamps();
@@ -38,6 +38,7 @@ return new class extends Migration
             // Foreign Keys
             $table->foreign('pengajuan_id')->references('id')->on('pengajuan')->onDelete('cascade');
             $table->foreign('idKomponen')->references('id')->on('ref_kegiatan_komponen');
+            $table->foreign('idJenisInput')->references('id')->on('ref_jenis_input');
         });
     }
 
