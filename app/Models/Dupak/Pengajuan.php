@@ -79,4 +79,9 @@ class Pengajuan extends DupakModel
     {
         return $this->belongsTo(RefJabatanFungsionalAkademik::class, 'jfaTujuan');
     }
+
+    public function details()
+    {
+        return $this->hasMany(PengajuanDetail::class, 'pengajuan_id');
+    }
 }

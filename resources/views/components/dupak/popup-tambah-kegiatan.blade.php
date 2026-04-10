@@ -24,7 +24,7 @@
 
 				<!-- Modal Body (Form) -->
 				<!-- route : kegiatan.store -->
-				<form action="#" method="POST" enctype="multipart/form-data" class="mt-4 space-y-4">
+				<form id="kegiatan-form" action="#" method="POST" enctype="multipart/form-data" class="mt-4 space-y-4">
 					@csrf
 
 					<div>
@@ -38,7 +38,7 @@
 						</select>
 					</div>
 
-					<div>
+					<!-- <div>
 						<label for="deskripsi" class="block text-sm font-medium text-gray-700">Deskripsi/Nama Kegiatan</label>
 						<input type="text" name="deskripsi" id="deskripsi" required class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 p-2 border" placeholder="Contoh: Menulis Jurnal Internasional Q1">
 					</div>
@@ -50,8 +50,8 @@
 
 					<div>
 						<label for="file_bukti" class="block text-sm font-medium text-gray-700">Unggah File Bukti (PDF/Gambar)</label>
-						<input type="text" name="deskripsi" id="file_bukti" required class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 p-2 border" placeholder="contoh bitly/MK23_pengajuan_rangga">
-					</div>
+						<input type="text" name="file_bukti" id="file_bukti" required class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 p-2 border" placeholder="contoh bitly/MK23_pengajuan_rangga">
+					</div> -->
 
 					<!-- Footer Tombol -->
 					<div class="mt-6 flex justify-end gap-3">
@@ -86,6 +86,31 @@
 		modal.classList.add('hidden');
 		document.body.style.overflow = ''; // Mengembalikan scroll pada body
 	}
+
+	/**
+	 * Menangani pengiriman form dan melakukan redirect berdasarkan kategori.
+	 */
+	document.getElementById('kegiatan-form').addEventListener('submit', function(e) {
+		// Jika Anda ingin melewati proses simpan ke database untuk sementara dan langsung redirect:
+		e.preventDefault();
+		
+		const kategori = document.getElementById('kategori').value;
+		
+		if (kategori) {
+			// Mengubah string menjadi lowercase untuk pathing (misal: Pendidikan -> pendidikan)
+			const path = kategori.toLowerCase();
+
+			// ubah value kategori menjadi format yang sesuai untuk URL (misal: "Pengabdian Kepada Masyarakat" -> "pengabdian")
+			if (path === 'pengabdian kepada masyarakat') {
+				path = 'pengabdian';
+			} else if (path === 'penunjang tridharma') {
+				path = 'penunjang';
+			}
+		
+			// Melakukan redirect ke halaman detail sesuai kategori
+			window.location.href = `detil_pengajuan/${path}`;
+		}
+	});
 
 	// Menutup modal jika tombol ESC ditekan
 	document.addEventListener('keydown', function(event) {

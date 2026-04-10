@@ -114,3 +114,7 @@ tidak perlu memberi limit
 
 lektor kepala 2  gb 3.
 maksimal 3 jika perlu di limit.
+
+
+-----------
+12. integrasi button untuk redirect menuju laman form pengisian detil pengajuan per masing masing jenis detil pengajuan.

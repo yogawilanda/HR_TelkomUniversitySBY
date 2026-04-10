@@ -33,26 +33,32 @@ class DetilPengajuanController extends Controller
     // show form pengajuan pendidikan, penelitian, pengabdian, penunjang
     public function showFormPendidikan()
     { 
+        // $pengajuan = Pengajuan::findOrFail($id);
         // jika pengajuan pendidikan, maka tampilkan form pendidikan
-        return view('dupak.pengisian_detil_pengajuan.form_pendidikan');
+        return view('dupak.pengisian_detil_pengajuan.form_pendidikan', 
+            // compact('pengajuan')
+            );
     }
 
-    public function showFormPenelitian()
+    public function showFormPenelitian($id)
     { 
+        $pengajuan = Pengajuan::findOrFail($id);
         // jika pengajuan penelitian, maka tampilkan form penelitian
-        return view('dupak.pengisian_detil_pengajuan.form_penelitian');
+        return view('dupak.pengisian_detil_pengajuan.form_penelitian', compact('pengajuan'));
     }
 
-    public function showFormPengabdian()
+    public function showFormPengabdian($id)
     { 
+        $pengajuan = Pengajuan::findOrFail($id);
         // jika pengajuan pengabdian, maka tampilkan form pengabdian
-        return view('dupak.pengisian_detil_pengajuan.form_pengabdian');
+        return view('dupak.pengisian_detil_pengajuan.form_pengabdian', compact('pengajuan'));
     }
 
-    public function showFormPenunjang()
+    public function showFormPenunjang($id)
     { 
+        $pengajuan = Pengajuan::findOrFail($id);
         // jika pengajuan penunjang, maka tampilkan form penunjang
-        return view('dupak.pengisian_detil_pengajuan.form_penunjang');
+        return view('dupak.pengisian_detil_pengajuan.form_penunjang', compact('pengajuan'));
     }
 
     /**

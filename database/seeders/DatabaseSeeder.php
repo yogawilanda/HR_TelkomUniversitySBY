@@ -31,6 +31,11 @@ public function run(): void
         \Database\Seeders\TargetKinerjaSeeder::class,
         \Database\Seeders\TargetKinerjaHarianSeeder::class,
         \Database\Seeders\PelaporanPekerjaanSeeder::class,
+        // pengajuan seeder dupak
+        \Database\Seeders\Dupak\PengajuanSeeder::class,
+        \Database\Seeders\Dupak\PenunjukanTpakSeeder::class,
+        \Database\Seeders\Dupak\DetailPengajuanSeeder::class,
+        \Database\Seeders\Dupak\HasilEvaluasiSeeder::class,
     ]);
 
 

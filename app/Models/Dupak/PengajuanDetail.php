@@ -2,24 +2,48 @@
 
 namespace App\Models\Dupak;
 
+/**
+ * Model untuk menyimpan detail setiap butir kegiatan yang diajukan dalam DUPAK.
+ * Tabel ini menyimpan deskripsi kegiatan dan angka kredit (KUM) yang diinput dosen.
+ */
 class PengajuanDetail extends DupakModel
 {
-    protected $table = 'pengajuan_detail';
-    protected $fillable = [
-        'pengajuan_id',
-        'kegiatan_id',
-        'bukti',
-        'angka_kredit',
-        'angka_kredit_disetujui'
-    ];
+	protected $table = 'detail_pengajuan';
 
-    public function pengajuan()
-    {
-        return $this->belongsTo(Pengajuan::class);
-    }
+	protected $fillable = [
+		'pengajuan_id',
+		'idKomponen',
+		'idJenisInput',
+		'deskripsi_kegiatan',
+		'angka_kredit_murni',
+		'angka_kredit_total',
+		'volume',
+		'link_bukti_pendukung',
+		'is_verified',
+		'catatan_pemeriksa',
+	];
 
-    public function kegiatan()
-    {
-        return $this->belongsTo(Kegiatan::class);
-    }
+	/**
+	 * Relasi ke Header Pengajuan (Parent)
+	 */
+	public function pengajuan()
+	{
+		return $this->belongsTo(Pengajuan::class, 'pengajuan_id');
+	}
+
+	/**
+	 * Relasi ke Master Komponen Kegiatan (Referensi)
+	 */
+	public function komponen()
+	{
+		return $this->belongsTo(RefKegiatanKomponen::class, 'komponen_id');
+	}
+
+	/**
+	 * Relasi ke Hasil Evaluasi (Feedback dari Admin dan TPAK)
+	 */
+	public function evaluations()
+	{
+		return $this->hasMany(HasilEvaluasi::class, 'detail_pengajuan_id');
+	}
 }

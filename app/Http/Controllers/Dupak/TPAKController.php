@@ -28,12 +28,18 @@ class TPAKController extends Controller
     {
         $user = Auth::user();
 
-        $allTPAK = $user->tpak()->get();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        return response()->json($user->tpak()->get());
     }
 
     public function limitTPAK()
     {
         $user = Auth::user();
+
+        if (!$user) return response()->json(['message' => 'Unauthorized'], 401);
 
         // if the assigned TPAk is more than 2, return response of restriction
         if ($user->tpak()->count() > 2) {
@@ -50,6 +56,8 @@ class TPAKController extends Controller
         ]);
 
         $user = Auth::user();
+
+        if (!$user) return response()->json(['message' => 'Unauthorized'], 401);
 
         // check if the dupak has already been assigned to 2 TPAK
         if ($user->tpak()->count() >= 2) {

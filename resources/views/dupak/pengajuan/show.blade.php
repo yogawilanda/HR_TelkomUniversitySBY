@@ -1,76 +1,7 @@
-<?php
-// Mendefinisikan struktur data untuk timeline.
-// Di lingkungan Laravel/Blade yang sesungguhnya, data ini biasanya diambil dari Controller.
-$timelineData = [
-	[
-		'id' => 1,
-		'title' => 'Pengajuan Dibuat',
-		'date' => '01 Januari 2024',
-		'content' => 'Anda telah berhasil membuat draf pengajuan DUPAK untuk kenaikan jabatan fungsional dari <strong>Asisten Ahli</strong> ke <strong>Lektor</strong>.',
-		'border_color' => 'border-blue-600', // Warna untuk border kartu
-		'is_expanded' => true, // Item pertama terbuka secara default
-		'details' => null,
-	],
-	[
-		'id' => 2,
-		'title' => 'Input Kegiatan Pendidikan & Penelitian',
-		'date' => '05 Januari 2024',
-		'content' => 'Anda telah menambahkan kegiatan pendidikan dan penelitian.', // Konten utama null
-
-		'border_color' => 'border-emerald-500',
-		'is_expanded' => false,
-		'details' => [
-			'Rincian Kegiatan:',
-			['Judul: "Peningkatan Kualitas Pembelajaran Melalui Metode XYZ"'],
-			['Kategori: Penelitian'],
-			['Bobot: <span class="font-bold text-emerald-600">3.5 KUM</span>'],
-		],
-		'evaluation' => [
-			[
-				'role' => 'TPAK 1',
-				'status' => 'Verified',
-				'comment' => 'Metodologi sudah sesuai dengan standar JFA Lektor.',
-			],
-			[
-				'role' => 'TPAK 2',
-				'status' => 'Verified',
-				'comment' => 'Bobot sudah tepat, silakan lanjut ke tahap berikutnya.',
-			],
-			[
-				'role' => 'Admin',
-				'status' => 'Revision Needed',
-				'comment' => 'Mohon lampirkan sertifikat pendukung yang lebih jelas pada bagian lampiran.',
-			],
-		],
-	],
-	[
-		'id' => 3,
-		'title' => 'Pengajuan Disetujui',
-		'date' => '15 Januari 2024',
-		'content' => 'Pengajuan telah divalidasi dan dinyatakan <strong class="text-green-600">DITERIMA</strong> oleh Tim Penilai Angka Kredit.',
-		'border_color' => 'border-amber-500',
-		'is_expanded' => false,
-		'details' => null,
-	],
-	[
-		'id' => 4,
-		'title' => 'Kenaikan Jabatan Resmi',
-		'date' => '01 Februari 2024',
-		'content' => 'Selamat! Anda telah resmi naik jabatan menjadi Lektor. SK Digital Anda tersedia di sini:',
-		'dot_color' => 'bg-green-500',
-		'border_color' => 'border-purple-600',
-		'is_expanded' => false,
-		'details' => [
-			'type' => 'button',
-			'label' => 'Unduh SK Jabatan',
-			'button_color' => 'bg-purple-600',
-		],
-	],
-];
-?>
 @extends('layouts.app')
 
 @section('content')
+<x-dupak.popup-tambah-kegiatan :pengajuanId="$pengajuan->id" />
 <div class="mt-16 px-4 pb-12">
 	<div class="mx-auto max-w-3xl">
 
@@ -87,9 +18,10 @@ $timelineData = [
 
 		<!-- tombol tambahkan detil pengajuan di sisi kanan -->
 		<div class="mb-6 flex justify-end">
-			<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+			<!-- fix the styling -->
+			<a href="javascript:void(0)" onclick="openModal()" id="tambah-detil-btn" class="bg-blue-900 focus:ring-4 focus:outline-none focus:ring-blue-900 text-white font-bold py-2 px-4 rounded hover:bg-blue-950 hover:text-white transition-colors">
 				Tambah Detil Pengajuan
-			</button>
+			</a>
 		</div>
 
 		<!-- Timeline Container -->

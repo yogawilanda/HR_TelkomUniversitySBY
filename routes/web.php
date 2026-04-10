@@ -386,8 +386,7 @@ Route::middleware('auth')->group(function () {
             ->name('dashboard');
 
         // Pengajuan DUPAK
-        Route::resource('pengajuan', \App\Http\Controllers\Dupak\PengajuanController::class)
-            ->except(['edit', 'update', 'destroy']);
+        Route::resource('pengajuan', \App\Http\Controllers\Dupak\PengajuanController::class);
 
         // Riwayat DUPAK
         Route::resource('riwayat', \App\Http\Controllers\Dupak\RiwayatController::class)
@@ -398,9 +397,9 @@ Route::middleware('auth')->group(function () {
             ->only(['index', 'show', 'update']);
 
         // ekstensi dari detil_pengajuan untuk menampilkan form sesuai jenis kegiatan
-        Route::get('detil_pengajuan/pendidikan', [\App\Http\Controllers\Dupak\DetilPengajuanController::class, 'showFormPendidikan'])->name('detil_pengajuan.showFormPendidikan');
+        Route::get('pengajuan/detil_pengajuan/pendidikan/', [\App\Http\Controllers\Dupak\DetilPengajuanController::class, 'showFormPendidikan'])->name('detil_pengajuan.showFormPendidikan');
 
-        Route::get('detil_pengajuan/penelitian', [\App\Http\Controllers\Dupak\DetilPengajuanController::class, 'showFormPenelitian'])->name('detil_pengajuan.showFormPenelitian');
+        Route::get('pengajuan/detil_pengajuan/penelitian', [\App\Http\Controllers\Dupak\DetilPengajuanController::class, 'showFormPenelitian'])->name('detil_pengajuan.showFormPenelitian');
 
         Route::get('detil_pengajuan/pengabdian', [\App\Http\Controllers\Dupak\DetilPengajuanController::class, 'showFormPengabdian'])->name('detil_pengajuan.showFormPengabdian');
 
