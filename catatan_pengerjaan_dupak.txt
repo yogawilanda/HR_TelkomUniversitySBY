@@ -118,3 +118,75 @@ maksimal 3 jika perlu di limit.
 
 -----------
 12. integrasi button untuk redirect menuju laman form pengisian detil pengajuan per masing masing jenis detil pengajuan.
+13. Perbaikan error fatal "Call to a member function count() on null" dengan mendefinisikan relasi `details` pada model Pengajuan dan menambahkan pengecekan null-safety.
+14. Optimasi performa pada PengajuanController menggunakan Eager Loading (`with`) untuk memuat data komponen dan evaluasi sekaligus (mencegah N+1 query).
+15. Perbaikan bug pada DashboardController dimana Admin melihat total KUM pengajuan user lain; sekarang perhitungan KUM dipisahkan secara ketat antara data personal dosen dan ringkasan admin.
+16. Implementasi logika pengambilan nama pemeriksa (evaluator) yang mendukung pencarian lintas tabel antara `users` (Admin) dan `dosens` (TPAK/Pegawai) dengan metode array merging.
+17. Penambahan fitur breakdown KUM pada Dashboard (Base KUM dari profil + Pending KUM dari detail pengajuan) untuk transparansi progress dosen.
+18. Penambahan guard autentikasi pada TPAKController untuk mencegah crash aplikasi saat sesi user berakhir atau tidak terdeteksi.
+
+--- Belum Dibuat
+19. Halaman List Penunjukan TPAK
+20. Halaman Penilaian dan evaluasi dari TPAK dan Admin
+21. Halaman Dosen menjadi mode TPAK/ fitur untuk membuat dosen yang menjadi TPAK dapat melakukan pekerjaan sebagai TPAK.
+*22. Fitur "Kirim Pengajuan": Mengubah status pengajuan dari Draft menjadi "Submitted" agar bisa mulai diverifikasi oleh Admin.
+*23. Fitur Verifikasi Admin: Tahap awal pengecekan kelengkapan dokumen sebelum masuk ke penilaian angka kredit oleh TPAK.
+*24. Fitur Rekapitulasi Akhir & Export PDF: Generate formulir DUPAK otomatis berdasarkan detail kegiatan yang sudah disetujui.
+
+--- Yang perlu di tanyakan
+1. Apakah proses menjadi TPAK itu perlu rekrutmen, atau penunjukan secara langsung oleh Admin SDM?
+- pak Dahliar memberi informasi bahwa limit TPAK sementara dihilangkan dahulu, jaga jaga karena untuk tingkat atas biasanya butuh lebih dari 2 TPAK.
+Dilimit 5 TPAK per dupak.
+
+2. Bagaimana prosedur jika terdapat perbedaan nilai (discrepancy) yang signifikan antara TPAK 1 dan TPAK 2? Apakah ada peran TPAK ke-3 (Ketua TPAK/Verifier Akhir)?
+
+Bisa jadi berbeda pengakuannya. 1 Review pengakuan AK kredit catatan.
+Kegiatan Salah kamar jadi, perhitungannya sudah fix. jadi ketika ada sub pengajuan detil yang tidak sesuai maka TPAK memberi catatan kepada pengaju sedangkan yang bisa mengubah sub kategorinya itu adalah dari pengaju atau pihak SDM.
+
+
+3. Apakah Admin memiliki wewenang untuk mengubah nilai angka kredit secara langsung, atau Admin hanya bertugas memverifikasi kelengkapan dokumen (berkas valid/tidak)?
+Menyesuaikan sub kategori. pihak SDM saja dan pengaju yang dapat mengupdate nilai dari pengajuan yang dimaksud.
+
+7. Apakah perlu ada fitur untuk mengatur/mengubah kalkulasi dari nilai AK dari per masing masing poin detail pengajuan?
+2 kolom lagi standar minimal 
+
+ada sub total per masing masing kategori bisa di visualisasi.
+angka saja, tidak perlu visualisasinya.
+
+
+Bisa mengubah persentase dari jumlah AKK minimal (Angka kredit kumulatif)
+
+User bisa melihat target persentase tidak hanya total dari keselurahan
+namun juga berdasarkan kategori kegiatan.
+
+Sembunyikan nama TPAK ke Pengaju.
+
+4. Apakah ada periode waktu tertentu (masa sanggah) bagi dosen jika keberatan dengan hasil evaluasi dari TPAK?
+5. Terkait Jabatan NJAD (Non JFA): Apakah mereka memiliki skema target KUM yang berbeda, atau tetap mengikuti standar minimal kenaikan ke Asisten Ahli?
+6. Apakah sistem perlu membatasi jumlah SKS pengajaran per semester sesuai dengan aturan BKD agar tidak terjadi over-claim KUM di bagian pendidikan?
+
+--------------
+Yang sudah dikerjakan
+
+1. Penyamaan kelas, nama views, dan controller untuk Penunjukan TPAK
+2. Komponen View untuk melihat Angka Kredit Spesifik untuk pengaju Dupak
+3. Paginasi Tabel Penunjukan TPAK
+4. Update untuk halaman form pengisian detail komponen pendidikan.
+5. 
+
+--------------
+Yang belum dikerjakan
+Halaman Validasi Detail Pengajuan
+1. Admin dan TPAK akan memiliki fitur Validasi Pengajuan dari pengaju, fungsinya adalah melihat apa saja komponen pengajuan yang sudah di submit oleh pengaju, disitu Pihak TPAK dan Admin bisa memberikan komentar dan memberikan nilai terhadap pengajuan yang diperlukan.
+
+isinya apa saja?
+isinya adalah record dari komponen kegiatan yang telah disubmisi oleh pengaju, semuanya dikumpulkan dalam 1 tabel, dimana terdapat informasi seperti No., Pengaju,  Komponen/Detail Pengajuan, Tombol untuk melihat isi dari komponen Pengajuan secara detail, lalu ada textbox/paragraf untuk berkomentar, dan status untuk memberikan flagging, jika flagging approved, maka akan diproses untuk memberikan nilai yang sudah ditetapkan valuenya oleh sistem, jika tidak, maka statusnya ada reject/ditolak, setelah itu jika statusnya adalah need revision/revision saja, maka set status komponen tadi untuk dapat diedit oleh pengaju dan admin.
+
+batasan TPAK, hanya bisa memberikan komentar/pesan, memberi flagging status, dan submit untuk memberi nilai.
+
+batasan Admin, hanya bisa memberikan komentar,flagging status, dan submit, namun tidak akan berpengaruh ke pemberian nilai.
+
+batasan Pengaju, hanya bisa membuat dan melihat submisi untuk komponen kegiatanya sendiri, dan jika sudah disubmit HARUS menunggu pihak TPAK/Admin untuk mengupdate komponen kegiatan.
+
+-----------------------------------
+Komponen Untuk melihat ringkasan siapa saja yang sudah membuat dupak, jumlah tpak, jumlah komponen kegiatan yang sudah diajukan.

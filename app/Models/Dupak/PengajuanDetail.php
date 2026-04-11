@@ -36,7 +36,7 @@ class PengajuanDetail extends DupakModel
 	 */
 	public function komponen()
 	{
-		return $this->belongsTo(RefKegiatanKomponen::class, 'komponen_id');
+		return $this->belongsTo(RefKegiatanKomponen::class, 'idKomponen');
 	}
 
 	/**

@@ -115,7 +115,7 @@ class DashboardController extends Controller
             ->first();
     }
 
-    private function getJfaAndKumData(?Dosen $dosen, int $currentKum)
+    private function getJfaAndKumData(?Dosen $dosen, float $currentKum)
     {
         $riwayat = $this->getCurrentJFA($dosen);
         $jfaAsal = $riwayat?->ref_jfa_id;
@@ -147,7 +147,20 @@ class DashboardController extends Controller
             abort(403, 'Akses ditolak. Anda bukan Dosen.');
         }
 
-        $jfaData = $this->getJfaAndKumData($dosen, $user->kum ?? 0);
+        // Ambil pengajuan terbaru untuk menghitung KUM yang sedang diajukan
+        $latestSubmission = $this->getLatestSubmission($user, $dosen);
+        
+        // FIX: Hanya hitung KUM pengajuan jika user adalah Dosen, dan pastikan hanya mengambil milik sendiri.
+        $kumPengajuan = 0;
+        if ($dosen) {
+            $personalSubmission = Pengajuan::where('idDosen', $dosen->id)->latest()->first();
+            $kumPengajuan = $personalSubmission ? $personalSubmission->details()->sum('angka_kredit_total') : 0;
+        }
+
+        // KUM saat ini adalah gabungan KUM di profil + KUM yang sedang diproses dalam pengajuan
+        $totalKumSaatIni = ($user->kum ?? 0) + $kumPengajuan;
+
+        $jfaData = $this->getJfaAndKumData($dosen, $totalKumSaatIni);
         $progress = $jfaData['progress'];
 
         $viewData = [
@@ -160,6 +173,8 @@ class DashboardController extends Controller
                 'target' => $progress['goal'],
                 'remaining' => $progress['remaining'],
                 'percent' => $progress['percent'],
+                'base_kum' => number_format($user->kum ?? 0, 2), // KUM dari profil
+                'pending_kum' => number_format($kumPengajuan, 2), // KUM dari detail pengajuan
                 'statusColor' => $progress['statusColor'],
                 'updatedAtFormatted' => $user->kum_updated_at ? Carbon::parse($user->kum_updated_at)->diffForHumans() : 'Belum pernah diperbarui',
             ],
@@ -172,7 +187,7 @@ class DashboardController extends Controller
             'submissions' => [
                 'list' => $this->submissions($user, $dosen?->id)->paginate(10),
                 'has_pending' => $this->hasPendingSubmission($dosen?->id),
-                'latest' => $this->getLatestSubmission($user, $dosen),
+                'latest' => $latestSubmission,
             ],
         ];
 

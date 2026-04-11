@@ -221,14 +221,36 @@ class PengajuanController extends Controller
         if ($pengajuan->details && $pengajuan->details->count() > 0) {
             $totalKum = $pengajuan->details->sum('angka_kredit_total');
             
+            // Ambil semua nama pemeriksa untuk menghindari undefined variable dan query berulang
+            $evaluatorIds = $pengajuan->details->flatMap->evaluations->pluck('idUserPemeriksa')->unique();
+
+            // Ambil nama dari tabel User (untuk Admin yang bukan Dosen)
+            $namesFromUsers = \App\Models\User::whereIn('id', $evaluatorIds)
+                ->get()
+                ->mapWithKeys(fn($user) => [
+                    $user->id => $user->nama_lengkap ?? $user->nama ?? 'Pemeriksa'
+                ])->toArray();
+
+            // Ambil nama dari tabel Dosen (untuk TPAK). idUserPemeriksa merujuk ke ID Dosen.
+            $namesFromDosens = Dosen::whereIn('id', $evaluatorIds)
+                ->with('pegawai')
+                ->get()
+                ->mapWithKeys(fn($dosen) => [
+                    $dosen->id => $dosen->pegawai->nama_lengkap ?? $dosen->pegawai->nama ?? 'Pemeriksa'
+                ])->toArray();
+
+            // Gabungkan kedua hasil pencarian. 
+            // Menggunakan operator + memastikan key (UUID) tetap terjaga.
+            $evaluatorNames = $namesFromDosens + $namesFromUsers;
+
             $activityDetails = ['Daftar Kegiatan:'];
             $allEvaluations = [];
 
             foreach ($pengajuan->details as $detail) {
+                // Display setiap detail kegiatan dengan format yang lebih menarik
                 $activityDetails[] = [
                     "<strong>{$detail->deskripsi_kegiatan}</strong> (" . number_format($detail->angka_kredit_total, 2) . " KUM)"
                 ];
-
                 // Ambil evaluasi untuk detail ini
                 foreach ($detail->evaluations as $eval) {
                     $pemeriksa = $evaluatorNames[$eval->idUserPemeriksa] ?? 'Pemeriksa Terdaftar';

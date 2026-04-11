@@ -1,28 +1,45 @@
-<!-- TPAK Controller -->
-<!-- TPAK : Tenaga penilaian angka kredit 
-TPAK merupakan badan yang memiliki tugas untuk melakukan penilaian angka kredit bagi guru yang mengajukan kenaikan pangkat. TPAK bertanggung jawab untuk mengevaluasi dan menilai kinerja guru berdasarkan kriteria yang telah ditetapkan, serta memberikan rekomendasi terkait kenaikan pangkat. TPAK juga berperan dalam memastikan bahwa proses penilaian berjalan dengan adil dan transparan, serta memberikan masukan untuk perbaikan sistem penilaian di masa depan.
-
-Dalam konteks aplikasi, TPAKController dapat digunakan untuk mengelola data terkait penilaian angka kredit, seperti menyimpan hasil penilaian, menampilkan daftar guru yang telah dinilai, dan memberikan akses kepada pengguna untuk melihat hasil penilaian mereka. TPAKController juga dapat berfungsi sebagai penghubung antara model data
-
-Aturan TPAK :
-1. TPAK memberikan penilaian dari dupak yang telah diajukan oleh dosen, dengan memberikan nilai berupa angka kredit dan catatan.
-2. 1 Dupak akan dikelola oleh 2 TPAK.
-3. Kriteria menjadi TPAK ditentukan oleh pihak SDM universitas terkait, berdasarkan kualifikasi dan pengalaman yang setara dengan tugas penilaian angka kredit.
-4. Untuk sementara, penunjukan TPAK dalam sistem yang sedang dikembangkan menggunakan bukti penunjukan yang perlu diunggah oleh pihak SDM universitas.
--->
-
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Dupak;
 
+use App\Http\Controllers\Controller;
+use App\Models\Dosen;
 use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
-class TPAKController extends Controller
+class PenunjukanTPAKController extends Controller
 {
     // get all TPAK
-    public function index() {}
+    public function index(Request $request)
+    {
+        $search = $request->input('search');
+
+        // get all current dosen users_id from the main DB, then display them in the view, with the option to assign them as TPAK for a specific pengajuan. the users_id is exist on the dosens table, but the name is exist on the users table, so we need to join the two tables to get the name of the dosen.
+        // Using paginate(10) to support large datasets and provide pagination links in the view.
+        $dosens = Dosen::join('users', 'dosens.users_id', '=', 'users.id')
+            ->select('dosens.id', 'users.nama_lengkap')
+            ->when($search, function ($query, $search) {
+                return $query->where('users.nama_lengkap', 'like', '%' . $search . '%');
+            })
+            ->paginate(5)
+            ->withQueryString();
+
+        $user = Auth::user();
+        $pengajuan = DB::connection('dupak')->table('pengajuan')->get();
+        $penunjukanTpak = DB::connection('dupak')->table('penunjukan_tpak')->paginate(5);
+
+        return view(
+            'dupak.penunjukan_tpak.show',
+            compact('dosens', 'user', 'pengajuan', 'penunjukanTpak')
+        );
+    }
+
+    public function create()
+    {
+        return view('dupak.penunjukan_tpak.create');
+    }
 
     public function getAllTPAK()
     {
