@@ -8,7 +8,7 @@
         <a href="{{ route('home') }}" class="inline-flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 mb-2">
             <i class="fas fa-arrow-left mr-2"></i> Kembali
         </a>
-     
+
         <div class="bg-white shadow rounded-lg p-6">
             <h1 class="text-2xl font-semibold mb-6">Selamat Datang Di Dasbor DUPAK</h1>
 
@@ -35,9 +35,11 @@
             </div>
             @endif
 
-               {{-- CARD: Informasi KUM --}}
+            {{-- CARD: Informasi KUM --}}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {{-- Informasi Kum Container --}}
+
+                <!-- Jika User belum membuat pengajuan maka ganti dengan "Anda Belum Mengajukan pengajuan -->
                 <!-- jika user adalah admin, tapi bukan dosen -->
                 @if (!$userIsAdminButNotDosen)
                 <div class="md:col-span-2 p-6 border rounded-lg">
@@ -108,6 +110,7 @@
                     </div>
                 </div>
                 @endif
+
 
                 <!-- Informasi Spesifik KUM Berdasarkan Detil Kegiatan -->
                 <div class="border rounded-lg p-4 bg-gray-50 text-sm text-gray-700">

@@ -15,6 +15,7 @@ use App\Models\User;
 class DashboardController extends Controller
 {
     protected $aturanPengajuanJFA = [
+        // '8a7c0b44-2c2e-4a16-a4df-111111111111' => 'Non JAD',
         'b467678d-8e9f-4453-bb76-f0cba91468dc' => 'Asisten Ahli',
         'f6890047-b0ea-4b45-a9f9-b0584c65bdd6' => 'Lektor',
         '21ac00aa-1f19-4347-84c1-9e70413209ab' => 'Lektor Kepala',
@@ -93,7 +94,7 @@ class DashboardController extends Controller
         // Anda perlu menyesuaikan array status ini dengan nilai yang ada di kolom 'status'
         // tabel 'dupak_pengajuan'. Contoh di sini: draft, submitted, dan reviewed.
         $pendingStatuses = ['draft', 'submitted', 'reviewed', 'pending'];
-        
+
         return Pengajuan::where('idDosen', $dosenId)
             ->whereIn('status', $pendingStatuses)
             ->exists();
@@ -103,6 +104,7 @@ class DashboardController extends Controller
     {
         $query = Pengajuan::query();
 
+        // dd($query);
         if ($user->is_admin) {
             // For admin, get the absolute latest submission in the system.
             return $query->latest()->first();
@@ -113,6 +115,7 @@ class DashboardController extends Controller
         return $query->where('idDosen', $dosen?->id)
             ->latest()
             ->first();
+
     }
 
     private function getJfaAndKumData(?Dosen $dosen, float $currentKum)
@@ -122,7 +125,12 @@ class DashboardController extends Controller
         $refJfa = $jfaAsal ? refJabatanFungsionalAkademik::find($jfaAsal) : null;
 
         $minimalKum = $refJfa->minimal_kum ?? 0;
-        $jabatanSaatIniNama = $refJfa->nama_jabatan ?? 'Anda bukan dosen';
+
+        $namaJabatanSaatIni = $refJfa->nama_jabatan ?? 'Anda bukan dosen';
+        // JANGAN DIHAPUS/DONT DELETE !
+        // dd($jfaAsal, $riwayat);
+
+
 
         $jfaTujuan = $this->getJfaTujuan($jfaAsal);
         $jfaTujuanNama = $jfaTujuan ? $this->aturanPengajuanJFA[$jfaTujuan] : 'Tidak Ada (Jabatan Tertinggi)';
@@ -132,7 +140,7 @@ class DashboardController extends Controller
         $progress = $this->buildProgress($currentKum, $targetKum);
 
         return [
-            'jabatanSaatIniNama' => $jabatanSaatIniNama,
+            'namaJabatanSaatIni' => $namaJabatanSaatIni,
             'jfaTujuanNama' => $jfaTujuanNama,
             'progress' => $progress,
         ];
@@ -149,7 +157,7 @@ class DashboardController extends Controller
 
         // Ambil pengajuan terbaru untuk menghitung KUM yang sedang diajukan
         $latestSubmission = $this->getLatestSubmission($user, $dosen);
-        
+
         // FIX: Hanya hitung KUM pengajuan jika user adalah Dosen, dan pastikan hanya mengambil milik sendiri.
         $kumPengajuan = 0;
         if ($dosen) {
@@ -180,7 +188,7 @@ class DashboardController extends Controller
             ],
 
             'jfa' => [
-                'current' => $jfaData['jabatanSaatIniNama'],
+                'current' => $jfaData['namaJabatanSaatIni'],
                 'next' => $jfaData['jfaTujuanNama'],
             ],
 
@@ -190,6 +198,7 @@ class DashboardController extends Controller
                 'latest' => $latestSubmission,
             ],
         ];
+        // dd($jfaData, $jfaData['namaJabatanSaatIni']);
 
         return view('dupak.dashboard', $viewData);
     }

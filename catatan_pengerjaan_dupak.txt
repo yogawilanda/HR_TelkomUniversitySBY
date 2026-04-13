@@ -190,3 +190,7 @@ batasan Pengaju, hanya bisa membuat dan melihat submisi untuk komponen kegiatany
 
 -----------------------------------
 Komponen Untuk melihat ringkasan siapa saja yang sudah membuat dupak, jumlah tpak, jumlah komponen kegiatan yang sudah diajukan.
+
+Big BUG.
+
+Jika user belum memiliki pengajuan harusnya tampilkan "Anda belum mengajukan pengajuan" di Informasi KUM Card dan Angka Kredit Spesifik
