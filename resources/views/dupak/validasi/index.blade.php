@@ -74,34 +74,51 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    Example row, replace with actual data
+                    @forelse($detailPengajuan as $index => $item)
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            DUPAK-2024-001
+                            {{-- Mengambil No Pengajuan dari relasi pengajuan --}}
+                            {{ $item->pengajuan_id ?? 'DUPAK-' . $item->pengajuan_id }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            Dr. Ahmad Santoso
+                            {{-- Asumsi relasi: detail -> pengajuan -> dosen -> user --}}
+                            {{ $item->nama ?? 'Nama Tidak Ditemukan' }}
+                        </td>
+                        <!-- wrap this later -->
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-wrap">
+                            {{ $item->link_bukti_pendukung ?? '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            Fakultas Teknik
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            Jan - Jun 2024
+                            {{ $item->deskripsi_kegiatan ?? '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                Menunggu Validasi
+                            @php
+                            $statusColor = [
+                            'pending' => 'bg-yellow-100 text-yellow-800',
+                            'approved' => 'bg-green-100 text-green-800',
+                            'rejected' => 'bg-red-100 text-red-800',
+                            ][$item->status ?? 'pending'];
+                            @endphp
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusColor }}">
+                                {{ ucfirst($item->status ?? 'Menunggu Validasi') }}
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            15 Jan 2024
+                            {{ $item->created_at ? $item->created_at->format('d M Y') : '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{{ route('dupak.validasi.show', 'DUPAK-2024-001') }}" class="text-indigo-600 hover:text-indigo-900">
+                            <a href="{{ route('dupak.validasi.show', $item->id) }}" class="text-indigo-600 hover:text-indigo-900">
                                 Validasi
                             </a>
                         </td>
                     </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
+                            Tidak ada data pengajuan yang perlu divalidasi.
+                        </td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>

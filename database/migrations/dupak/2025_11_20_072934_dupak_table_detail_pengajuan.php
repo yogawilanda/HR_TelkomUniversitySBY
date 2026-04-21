@@ -25,6 +25,9 @@ return new class extends Migration
             $table->decimal('volume', 8, 2)->default(0)->nullable()->comment('Jumlah SKS/Kegiatan/Bulan');
             $table->decimal('angka_kredit_murni', 8, 2)->nullable()->comment('Nilai KUM sebelum dikalikan volume');
             $table->decimal('angka_kredit_total', 8, 2)->nullable()->comment('Hasil akhir (volume * murni)');
+
+            // status
+            $table->string('status')->nullable();
             
             // Bukti Fisik
             $table->string('link_bukti_pendukung')->nullable()->comment('URL ke dokumen/drive sesuai catatan pengerjaan');

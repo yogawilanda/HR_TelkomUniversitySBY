@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dupak;
 
 use App\Http\Controllers\Controller;
+use App\Models\Dupak\DetailPengajuan;
 use App\Models\Dupak\Pengajuan;
 use Illuminate\Http\Request;
 
@@ -13,13 +14,12 @@ class ValidasiController extends Controller
      */
     public function index()
     {
-        $pengajuan = Pengajuan::with(['dosen'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $detailPengajuan = DetailPengajuan::all();
 
-            // dd($pengajuan);
+
+        // dd($detailPengajuan);
         // $pengajuan = Pengajuan::all();
-        return view('dupak.validasi.index', compact('pengajuan'));
+        return view('dupak.validasi.index', compact('detailPengajuan'));
     }
 
     /**
@@ -44,7 +44,7 @@ class ValidasiController extends Controller
         ]);
 
         $pengajuan = Pengajuan::findOrFail($id);
-        
+
         // Update pengajuan status
         $pengajuan->update([
             'status' => $request->status,

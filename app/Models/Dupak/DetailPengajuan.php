@@ -18,6 +18,7 @@ class DetailPengajuan extends DupakModel
 		'angka_kredit_murni',
 		'angka_kredit_total',
 		'volume',
+		'status',
 		'link_bukti_pendukung',
 		'is_verified',
 		'catatan_pemeriksa',

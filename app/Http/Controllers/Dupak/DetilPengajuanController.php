@@ -107,6 +107,7 @@ class DetilPengajuanController extends Controller
         $detail->deskripsi_kegiatan = $request->deskripsi_kegiatan;
         $detail->angka_kredit_murni = $nilaiBaku;
         $detail->angka_kredit_total = $nilaiBaku * $volume;
+        $detail->status = 'pending';
         $detail->link_bukti_pendukung = $request->link_bukti_pendukung;
         $detail->volume = $volume;
         $detail->save();
