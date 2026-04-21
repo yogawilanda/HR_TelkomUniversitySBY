@@ -4,6 +4,12 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Auth\AllAboutAuthController;
 use App\Http\Controllers\DashboardProdiController;
+use App\Http\Controllers\Dupak\DashboardController;
+use App\Http\Controllers\Dupak\DetilPengajuanController;
+use App\Http\Controllers\Dupak\PengajuanController;
+use App\Http\Controllers\Dupak\PenunjukanTPAKController;
+use App\Http\Controllers\Dupak\RiwayatController;
+use App\Http\Controllers\Dupak\ValidasiController;
 use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\FakultasController;
 use App\Http\Controllers\FormationController;
@@ -379,34 +385,40 @@ Route::middleware('auth')->group(function () {
     Route::group([
         'prefix' => 'dupak',
         'as' => 'dupak.',
-        // 'middleware' => ['auth'],
     ], function () {
         // Dashboard
-        Route::get('/dashboard', [App\Http\Controllers\Dupak\DashboardController::class, 'index'])
+        Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
 
         // Pengajuan DUPAK
-        Route::resource('pengajuan', \App\Http\Controllers\Dupak\PengajuanController::class);
+        Route::resource('pengajuan', PengajuanController::class);
 
         // Riwayat DUPAK
-        Route::resource('riwayat', \App\Http\Controllers\Dupak\RiwayatController::class)
+        Route::resource('riwayat', RiwayatController::class)
             ->only(['index', 'show']);
 
         // Validasi DUPAK (for admin/validator)
-        Route::resource('validasi', \App\Http\Controllers\Dupak\ValidasiController::class)
+        Route::resource('validasi', ValidasiController::class)
             ->only(['index', 'show', 'update']);
 
-        // ekstensi dari detil_pengajuan untuk menampilkan form sesuai jenis kegiatan
-        Route::get('pengajuan/detil_pengajuan/pendidikan/', [\App\Http\Controllers\Dupak\DetilPengajuanController::class, 'showFormPendidikan'])->name('detil_pengajuan.showFormPendidikan');
-
-        Route::get('pengajuan/detil_pengajuan/penelitian', [\App\Http\Controllers\Dupak\DetilPengajuanController::class, 'showFormPenelitian'])->name('detil_pengajuan.showFormPenelitian');
-
-        Route::get('detil_pengajuan/pengabdian', [\App\Http\Controllers\Dupak\DetilPengajuanController::class, 'showFormPengabdian'])->name('detil_pengajuan.showFormPengabdian');
-
-        Route::get('detil_pengajuan/penunjang', [\App\Http\Controllers\Dupak\DetilPengajuanController::class, 'showFormPenunjang'])->name('detil_pengajuan.showFormPenunjang');
+        // Rute Dinamis untuk Input Form Detail Pengajuan
+        Route::get('detil_pengajuan/{category}/{id}', [DetilPengajuanController::class, 'showForm'])
+            ->name('dupak.detil_pengajuan.form');
+        
+        // Rute untuk menyimpan data detail pengajuan
+        Route::post('detil_pengajuan/{category}/{id}', [DetilPengajuanController::class, 'store'])
+            ->name('dupak.detil_pengajuan.store');
 
         // Pengisian Detil Formulir Pengajuan (Resource ditaruh setelah rute spesifik)
         // Route::resource('detil_pengajuan', \App\Http\Controllers\Dupak\DetilPengajuanController::class);
+
+        // route penunjukan_tpak, tanpa id, karena sistemnya SDM akan menunjuk TPAK berdasarkan kebutuhan, bukan berdasarkan pengajuan tertentu
+        Route::group(['prefix' => 'penunjukan-tpak', 'as' => 'penunjukan-tpak.'], function () {
+            Route::get('/', [PenunjukanTPAKController::class, 'index'])->name('index');
+            Route::get('/input', [PenunjukanTPAKController::class, 'create'])->name('create');
+            // Route::post('/store', [\App\Http\Controllers\Dupak\TPAKController::class, 'store'])->name('store');
+            // Route::delete('/destroy/{id}', [\App\Http\Controllers\Dupak\PenunjukanTpakController::class, 'destroy'])->name('destroy');
+        });
     });
 
     // Kinerja Pegawai Routes (separated from manage)

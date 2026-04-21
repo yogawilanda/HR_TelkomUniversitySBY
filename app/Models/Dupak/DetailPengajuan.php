@@ -6,7 +6,7 @@ namespace App\Models\Dupak;
  * Model untuk menyimpan detail setiap butir kegiatan yang diajukan dalam DUPAK.
  * Tabel ini menyimpan deskripsi kegiatan dan angka kredit (KUM) yang diinput dosen.
  */
-class PengajuanDetail extends DupakModel
+class DetailPengajuan extends DupakModel
 {
 	protected $table = 'detail_pengajuan';
 
@@ -36,7 +36,7 @@ class PengajuanDetail extends DupakModel
 	 */
 	public function komponen()
 	{
-		return $this->belongsTo(RefKegiatanKomponen::class, 'komponen_id');
+		return $this->belongsTo(RefKegiatanKomponen::class, 'idKomponen');
 	}
 
 	/**
