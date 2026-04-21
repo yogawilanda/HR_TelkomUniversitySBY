@@ -140,7 +140,8 @@
 			const name = utama.nama.toLowerCase();
 			let path = '';
 
-			if (name.includes('pendidikan')) path = 'pendidikan';
+			if (name.includes('pelaksanaan pendidikan')) path = 'pelaksanaan_pendidikan';
+			else if (name.includes('pendidikan')) path = 'pendidikan';
 			else if (name.includes('penelitian')) path = 'penelitian';
 			else if (name.includes('pengabdian')) path = 'pengabdian';
 			else if (name.includes('penunjang')) path = 'penunjang';

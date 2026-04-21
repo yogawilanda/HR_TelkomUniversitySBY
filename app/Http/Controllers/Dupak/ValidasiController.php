@@ -14,9 +14,11 @@ class ValidasiController extends Controller
     public function index()
     {
         $pengajuan = Pengajuan::with(['dosen'])
-            ->orderBy('tanggal_pengajuan', 'desc')
+            ->orderBy('created_at', 'desc')
             ->paginate(10);
 
+            // dd($pengajuan);
+        // $pengajuan = Pengajuan::all();
         return view('dupak.validasi.index', compact('pengajuan'));
     }
 

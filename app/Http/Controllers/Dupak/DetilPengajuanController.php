@@ -45,7 +45,7 @@ class DetilPengajuanController extends Controller
         // Mapping category slugs to idKegiatanUtama
         $categoryMap = [
             'pendidikan' => 1,
-            'pelaksanaan-pendidikan' => 2,
+            'pelaksanaan_pendidikan' => 2,
             'penelitian' => 3,
             'pengabdian' => 4,
             'penunjang' => 5
@@ -61,11 +61,12 @@ class DetilPengajuanController extends Controller
             ->where('idKegiatanUtama', $idUtama)
             ->firstOrFail();
 
-        // Ambil model input (S1, S2, dsb) dari ref_jenis_input di database dupak
+        // Fetch specific activity items (S1, S2, etc.) based on the component ID
         $jenisInputs = DB::connection('dupak')
             ->table('ref_jenis_input')
             ->where('idKomponen', $komponen->id)
-            ->get();
+            ->get(); // This populates the "Detail Butir Kegiatan" dropdown
+        // dd($jenisInputs);
 
         return view('dupak.pengisian_detil_pengajuan.generic_form', compact('pengajuan', 'komponen', 'jenisInputs', 'category'));
     }
@@ -110,10 +111,11 @@ class DetilPengajuanController extends Controller
         $detail->volume = $volume;
         $detail->save();
 
+        // return redirect()->route('dupak.pengajuan.show', $id)
+        // ->with('success', 'Detail kegiatan berhasil ditambahkan.');
 
-
-        return redirect()->route('dupak.pengajuan.show', $id)
-            ->with('success', 'Detail kegiatan berhasil ditambahkan.');
+        // return to dashboard.dupak
+        return redirect()->route('dupak.dashboard')->with('success', 'Detail kegiatan berhasil ditambahkan.');
     }
 
     /**

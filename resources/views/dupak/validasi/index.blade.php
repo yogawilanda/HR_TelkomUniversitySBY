@@ -1,4 +1,4 @@
-@extends('dupak.layout')
+@extends('layouts.app')
 
 @section('content')
 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -74,7 +74,7 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    <!-- Example row, replace with actual data -->
+                    Example row, replace with actual data
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             DUPAK-2024-001

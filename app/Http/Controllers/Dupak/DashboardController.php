@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Dupak;
 use App\Http\Controllers\Controller;
 use App\Models\Dupak\Pengajuan;
 use App\Models\Dosen;
+use App\Models\Dupak\RefJenisInput;
+use App\Models\Dupak\RefKegiatanKomponen;
 use App\Models\Dupak\RefTargetJabatanPengajuan;
 use App\Models\refJabatanFungsionalAkademik;
 use App\Models\Dupak\RefKegiatanUtama;
@@ -12,6 +14,7 @@ use App\Models\riwayatJabatanFungsionalAkademik;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\User;
+use Illuminate\Container\Attributes\DB;
 
 class DashboardController extends Controller
 {
@@ -186,6 +189,18 @@ class DashboardController extends Controller
             }])
             ->where('status', 1)
             ->get();
+
+
+        // Mengambil data untuk form detil input
+        // contoh Mengambil data dari RefKomponen->id/id dari RefKomponen di modelnya lalu digunakan untuk mencari  
+        // 1. Pendidikan -> 1. A. Pendidikan Formal, maka mengambil dari id
+        // $inputFromUser 
+        // $jenisInput = RefJenisInput::select('id', 'nama')
+        //     ->where('idKomponen', $inputFromUser->idKomponen)
+        //     ->get();
+
+        // // dd($jenisInput);
+
 
 
         $viewData = [

@@ -205,6 +205,17 @@ Data statistik untuk Dupak khusus tampilan admin sudah diupdate dan mengambil da
 Merapikan Tampilan Dashboard lagi karena ada tambahan card untuk data statistik.
 Done
 -------------
-Detail Pengajuan - Pendidikan Store
-Detail Pengajuan - Penelitian Store
+Detail Pengajuan - Pendidikan Store done
+Detail Pengajuan - Penelitian Store done
+Detail Pengajuan - Pengabdian Store done
+Detail Pengajuan - Penunjang Store done
 
+View untuk detail diupdate done
+
+Generate secara dinamis kolom input detail pendidikan done
+------------
+Penyesuaian data migrasi awal untuk dupak di ref jenis input
+
+seluruh redireksi ke halaman detil pengajuan selesai
+
+halaman validasi sudah ada masih belum 100% selesai
