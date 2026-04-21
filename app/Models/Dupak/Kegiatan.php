@@ -15,6 +15,6 @@ class Kegiatan extends DupakModel
 
     public function details()
     {
-        return $this->hasMany(PengajuanDetail::class);
+        return $this->hasMany(DetailPengajuan::class);
     }
 }

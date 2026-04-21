@@ -7,6 +7,7 @@ use App\Models\Dupak\Pengajuan;
 use App\Models\Dosen;
 use App\Models\Dupak\RefTargetJabatanPengajuan;
 use App\Models\refJabatanFungsionalAkademik;
+use App\Models\Dupak\RefKegiatanUtama;
 use App\Models\riwayatJabatanFungsionalAkademik;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -15,7 +16,7 @@ use App\Models\User;
 class DashboardController extends Controller
 {
     protected $aturanPengajuanJFA = [
-        // '8a7c0b44-2c2e-4a16-a4df-111111111111' => 'Non JAD',
+        '8a7c0b44-2c2e-4a16-a4df-111111111111' => 'Non JAD', // if i add this, it's error without a proper debugging and i dont know why, check why.
         'b467678d-8e9f-4453-bb76-f0cba91468dc' => 'Asisten Ahli',
         'f6890047-b0ea-4b45-a9f9-b0584c65bdd6' => 'Lektor',
         '21ac00aa-1f19-4347-84c1-9e70413209ab' => 'Lektor Kepala',
@@ -52,7 +53,7 @@ class DashboardController extends Controller
             ->where('jfaTujuan', $tujuan)
             ->first();
 
-        return $record->kumTarget;
+        return $record->kumTarget ?? $minimal;
     }
 
     private function buildProgress($current, $goal)
@@ -73,7 +74,6 @@ class DashboardController extends Controller
 
     private function submissions(User $user, ?string $dosenId)
     {
-        // $q = Pengajuan::with(['dosen', 'dosen.pegawai'])->orderBy('id', 'desc');
         // get the latest submissions for the current user (if not admin) or all submissions (if admin)
         $q = Pengajuan::with(['dosen', 'dosen.pegawai'])->latest();
 
@@ -115,7 +115,6 @@ class DashboardController extends Controller
         return $query->where('idDosen', $dosen?->id)
             ->latest()
             ->first();
-
     }
 
     private function getJfaAndKumData(?Dosen $dosen, float $currentKum)
@@ -124,9 +123,9 @@ class DashboardController extends Controller
         $jfaAsal = $riwayat?->ref_jfa_id;
         $refJfa = $jfaAsal ? refJabatanFungsionalAkademik::find($jfaAsal) : null;
 
-        $minimalKum = $refJfa->minimal_kum ?? 0;
+        $minimalKum = $refJfa?->minimal_kum ?? 0;
 
-        $namaJabatanSaatIni = $refJfa->nama_jabatan ?? 'Anda bukan dosen';
+        $namaJabatanSaatIni = $refJfa?->nama_jabatan ?? 'Anda bukan dosen';
         // JANGAN DIHAPUS/DONT DELETE !
         // dd($jfaAsal, $riwayat);
 
@@ -171,10 +170,31 @@ class DashboardController extends Controller
         $jfaData = $this->getJfaAndKumData($dosen, $totalKumSaatIni);
         $progress = $jfaData['progress'];
 
+        // check if dosen has no pengajuan
+        $hasNoPengajuan = $dosen ? !Pengajuan::where('idDosen', $dosen->id)->exists() : true;
+
+        // count total pengajuan for the current dosen
+        $totalPengajuanMandiri = $dosen ? Pengajuan::where('idDosen', $dosen->id)->count() : 0;
+
+        // check total all submissions for admin
+        $totalSeluruhPengajuan = Pengajuan::count();
+
+        // Mengambil hanya kolom yang diperlukan (id dan nama) untuk kategori utama dan komponennya
+        $kegiatanUtama = RefKegiatanUtama::select('id', 'nama')
+            ->with(['komponens' => function ($query) {
+                $query->select('id', 'nama', 'idKegiatanUtama');
+            }])
+            ->where('status', 1)
+            ->get();
+
+
         $viewData = [
             'user' => $user,
             'dosen' => $dosen,
             'userIsAdminButNotDosen' => $user->is_admin && is_null($dosen),
+            'hasNoPengajuan' => $hasNoPengajuan,
+            'totalPengajuanMandiri' => $totalPengajuanMandiri,
+            'totalSeluruhPengajuan' => $totalSeluruhPengajuan,
 
             'kum' => [
                 'current' => $progress['current'],
@@ -197,9 +217,12 @@ class DashboardController extends Controller
                 'has_pending' => $this->hasPendingSubmission($dosen?->id),
                 'latest' => $latestSubmission,
             ],
+            'kegiatanUtama' => $kegiatanUtama,
         ];
         // dd($jfaData, $jfaData['namaJabatanSaatIni']);
-
+        // dd to check current JFA ID of the dosen
+        // dd($dosen, $this->getCurrentJFA($dosen)?->ref_jfa_id);
+        // dd($totalPengajuanMandiri, $totalSeluruhPengajuan);
         return view('dupak.dashboard', $viewData);
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Dupak\Pengajuan;
 use App\Models\Dosen;
 use App\Models\refJabatanFungsionalAkademik;
+use App\Models\Dupak\RefKegiatanUtama;
 use App\Models\RiwayatJabatanFungsional;
 use App\Models\riwayatJabatanFungsionalAkademik;
 use Illuminate\Http\Request;
@@ -34,24 +35,29 @@ class PengajuanController extends Controller
 
         $pengajuan = $pengajuanQuery->paginate(10);
 
+        $kegiatanUtama = RefKegiatanUtama::with('komponens')->where('status', 1)->get();
+
         // 3. Pass the Paginator object to the view
-        return view('dupak.pengajuan.index', compact('pengajuan', 'user', 'dosenId'));
+        return view('dupak.pengajuan.index', compact('pengajuan', 'user', 'dosenId', 'kegiatanUtama'));
     }
 
     // Peta urutan Jabatan Fungsional Akademik (UUID ke Nama Jabatan)
     // URUTAN INI HARUS SESUAI DENGAN KENAIKAN JABATAN YANG SAH.
     // Pastikan UUID di bawah ini sesuai dengan data di tabel ref_jfa Anda!
     protected $aturanPengajuanJFA = [
-        // ID Asisten Ahli (Contoh: b467678d-8e9f-4453-bb76-f0cba91468dc)
+        // ID NJAD (8a7c0b44-2c2e-4a16-a4df-111111111111)
+        '8a7c0b44-2c2e-4a16-a4df-111111111111' => 'Non JAD',
+
+        // ID Asisten Ahli (b467678d-8e9f-4453-bb76-f0cba91468dc)
         'b467678d-8e9f-4453-bb76-f0cba91468dc' => 'Asisten Ahli',
 
-        // ID Lektor (Contoh: f6890047-b0ea-4b45-a9f9-b0584c65bdd6)
+        // ID Lektor (f6890047-b0ea-4b45-a9f9-b0584c65bdd6)
         'f6890047-b0ea-4b45-a9f9-b0584c65bdd6' => 'Lektor',
 
-        // ID Lektor Kepala (Contoh: 21ac00aa-1f19-4347-84c1-9e70413209ab)
+        // ID Lektor Kepala (21ac00aa-1f19-4347-84c1-9e70413209ab)
         '21ac00aa-1f19-4347-84c1-9e70413209ab' => 'Lektor Kepala',
 
-        // ID Guru Besar (Contoh: d6418a5e-b76f-4d67-9990-056e1acabe66)
+        // ID Guru Besar (d6418a5e-b76f-4d67-9990-056e1acabe66)
         'd6418a5e-b76f-4d67-9990-056e1acabe66' => 'Guru Besar (Profesor)',
 
         // Anda bisa tambahkan jabatan fungsional lain di sini, pastikan urut!
@@ -239,7 +245,7 @@ class PengajuanController extends Controller
                     $dosen->id => $dosen->pegawai->nama_lengkap ?? $dosen->pegawai->nama ?? 'Pemeriksa'
                 ])->toArray();
 
-            // Gabungkan kedua hasil pencarian. 
+            // Gabungkan kedua hasil pencarian.
             // Menggunakan operator + memastikan key (UUID) tetap terjaga.
             $evaluatorNames = $namesFromDosens + $namesFromUsers;
 

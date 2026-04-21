@@ -82,6 +82,6 @@ class Pengajuan extends DupakModel
 
     public function details()
     {
-        return $this->hasMany(PengajuanDetail::class, 'pengajuan_id');
+        return $this->hasMany(DetailPengajuan::class, 'pengajuan_id');
     }
 }

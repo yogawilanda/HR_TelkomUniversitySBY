@@ -385,7 +385,6 @@ Route::middleware('auth')->group(function () {
     Route::group([
         'prefix' => 'dupak',
         'as' => 'dupak.',
-        // 'middleware' => ['auth'],
     ], function () {
         // Dashboard
         Route::get('/dashboard', [DashboardController::class, 'index'])
@@ -402,14 +401,13 @@ Route::middleware('auth')->group(function () {
         Route::resource('validasi', ValidasiController::class)
             ->only(['index', 'show', 'update']);
 
-        // ekstensi dari detil_pengajuan untuk menampilkan form sesuai jenis kegiatan
-        Route::get('pengajuan/detil_pengajuan/pendidikan/', [DetilPengajuanController::class, 'showFormPendidikan'])->name('detil_pengajuan.showFormPendidikan');
-
-        Route::get('pengajuan/detil_pengajuan/penelitian', [DetilPengajuanController::class, 'showFormPenelitian'])->name('detil_pengajuan.showFormPenelitian');
-
-        Route::get('detil_pengajuan/pengabdian', [DetilPengajuanController::class, 'showFormPengabdian'])->name('detil_pengajuan.showFormPengabdian');
-
-        Route::get('detil_pengajuan/penunjang', [DetilPengajuanController::class, 'showFormPenunjang'])->name('detil_pengajuan.showFormPenunjang');
+        // Rute Dinamis untuk Input Form Detail Pengajuan
+        Route::get('detil_pengajuan/{category}/{id}', [DetilPengajuanController::class, 'showForm'])
+            ->name('dupak.detil_pengajuan.form');
+        
+        // Rute untuk menyimpan data detail pengajuan
+        Route::post('detil_pengajuan/{category}/{id}', [DetilPengajuanController::class, 'store'])
+            ->name('dupak.detil_pengajuan.store');
 
         // Pengisian Detil Formulir Pengajuan (Resource ditaruh setelah rute spesifik)
         // Route::resource('detil_pengajuan', \App\Http\Controllers\Dupak\DetilPengajuanController::class);

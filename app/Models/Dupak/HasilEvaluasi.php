@@ -23,7 +23,7 @@ class HasilEvaluasi extends DupakModel
      */
     public function detail()
     {
-        return $this->belongsTo(PengajuanDetail::class, 'detail_pengajuan_id');
+        return $this->belongsTo(DetailPengajuan::class, 'detail_pengajuan_id');
     }
 
     // Catatan: idUserPemeriksa merujuk pada tabel users di database utama (sdm_tus).

@@ -194,3 +194,17 @@ Komponen Untuk melihat ringkasan siapa saja yang sudah membuat dupak, jumlah tpa
 Big BUG.
 
 Jika user belum memiliki pengajuan harusnya tampilkan "Anda belum mengajukan pengajuan" di Informasi KUM Card dan Angka Kredit Spesifik
+
+-----------
+Small bug Jika NJAD, tidak muncul pengajuan untuk tingkat lanjutannya, sudah fix.
+
+NJAD pengajuan menjadi Asisten Ahli, untuk sementara.
+
+Data statistik untuk Dupak khusus tampilan admin sudah diupdate dan mengambil data dari DB.
+
+Merapikan Tampilan Dashboard lagi karena ada tambahan card untuk data statistik.
+Done
+-------------
+Detail Pengajuan - Pendidikan Store
+Detail Pengajuan - Penelitian Store
+
