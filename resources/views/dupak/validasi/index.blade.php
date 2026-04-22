@@ -82,11 +82,16 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {{-- Asumsi relasi: detail -> pengajuan -> dosen -> user --}}
-                            {{ $item->nama ?? 'Nama Tidak Ditemukan' }}
+                            {{ $item->nama_lengkap ?? 'Nama Tidak Ditemukan' }}
                         </td>
-                        <!-- wrap this later -->
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-wrap">
-                            {{ $item->link_bukti_pendukung ?? '-' }}
+                            @if($item->link_bukti_pendukung)
+                            <a href="{{ $item->link_bukti_pendukung }}" target="_blank" class="text-indigo-600 hover:underline">
+                                {{ $item->link_bukti_pendukung }}
+                            </a>
+                            @else
+                            -
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {{ $item->deskripsi_kegiatan ?? '-' }}

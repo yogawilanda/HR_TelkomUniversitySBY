@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dupak;
 
 use App\Http\Controllers\Controller;
+use App\Models\Dosen;
 use App\Models\Dupak\DetailPengajuan;
 use App\Models\Dupak\Pengajuan;
 use Illuminate\Http\Request;
@@ -14,7 +15,24 @@ class ValidasiController extends Controller
      */
     public function index()
     {
+        // get all current dosen users_id from the main DB, then display them in the view, with the option to assign them as TPAK for a specific pengajuan. the users_id is exist on the dosens table, but the name is exist on the users table, so we need to join the two tables to get the name of the dosen.
+        // Using paginate(10) to support large datasets and provide pagination links in the view.
+
+
         $detailPengajuan = DetailPengajuan::all();
+        // dd($detailPengajuan);
+
+        // $detailPengajuan = DetailPengajuan::all()->with(['pengajuan.dosen.users']);
+
+        // $dosens = Dosen::join('users', 'dosens.users_id', '=', 'users.id')
+        //     ->select('dosens.id', 'users.nama_lengkap')
+        //     ->when($search, function ($query, $search) {
+        //         return $query->where('users.nama_lengkap', 'like', '%' . $search . '%');
+        //     })
+        //     ->paginate(5)
+        //     ->withQueryString();
+
+
 
 
         // dd($detailPengajuan);
@@ -26,9 +44,12 @@ class ValidasiController extends Controller
      * Display the specified resource.
      */
     public function show($id)
-    {
-        $pengajuan = Pengajuan::with(['details.kegiatan', 'dosen'])
-            ->findOrFail($id);
+    {   
+
+        // Hasil akhir /dupak/pengajuan/validate/<userid>/<pengajuanid>
+        $pengajuan = Pengajuan::with(['details.kegiatan', 'dosen'])->findOrFail($id);
+
+        // dd($pengajuan);
 
         return view('dupak.validasi.show', compact('pengajuan'));
     }

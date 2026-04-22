@@ -176,6 +176,17 @@
                             Kelola TPAK
                         </a>
                     </div>
+
+                    @elseif (isset($user) && isset($dosen))
+                    <div class="p-6 border rounded-lg bg-white shadow-sm">
+                        <h3 class="mb-6">
+                            <i class="fas fa-user-circle mr-2 text-blue-900"></i>
+                            Anda saat ini masuk sebagai Pengaju DUPAK
+                        </h3>
+                        <a href="" class="px-4 py-2 text-sm text-white bg-blue-900 rounded hover:bg-blue-950">
+                            Menjadi TPAK
+                        </a>
+                    </div>
                     @endif
                 </div>
             </div>

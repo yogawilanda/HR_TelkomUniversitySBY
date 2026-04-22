@@ -221,3 +221,5 @@ seluruh redireksi ke halaman detil pengajuan selesai
 halaman validasi sudah ada masih belum 100% selesai
 
 detail pengajuan butuh attribut status, sudah ditambahkan ke model, migration, dan juga viewnya
+
+touchscreen mode berjalan dengan lancar namun bukan fitur utama.
