@@ -2,7 +2,7 @@
 
 @section('content')
 <x-dupak.popup-tambah-kegiatan :pengajuanId="$pengajuan->id" />
-<div class="mt-16 px-4 pb-12">
+<div class="pt-16 px-4 pb-12">
 	<div class="mx-auto max-w-3xl">
 
 		<!-- Header Section -->
