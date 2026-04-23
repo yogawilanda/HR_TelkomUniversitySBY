@@ -239,3 +239,58 @@ fieldnya semester, tahun awal/akhir, SKS, Kelas
 
 -------------- Fitur Penunjukan TPAK ------------------
 Alur pengerjaan
+
+-------------- Catatan Pengerjaan Terbaru (dari TODO files) --------------
+
+[Tanggal: sesi terbaru]
+
+1. Validasi Controller - Eager Loading DetailPengajuan
+   - File: app/Http/Controllers/Dupak/ValidasiController.php
+   - Perubahan: Update with(['pengajuan']) menjadi with(['pengajuan.details'])
+   - Tujuan: Memuat semua detail pengajuan secara eager loading untuk menghindari N+1 query saat menampilkan data validasi TPAK.
+   - Hasil: Endpoint validasi sekarang memuat data pengajuan beserta detail-detailnya secara efisien.
+
+2. Validasi Controller - Query DetailPengajuan Langsung (revisi dari feedback)
+   - File: app/Http/Controllers/Dupak/ValidasiController.php
+   - Perubahan: Query diubah dari PenunjukanTPAKModel menjadi DetailPengajuan dengan JOIN ke pengajuan, penunjukan_tpak, dan dosens.
+   - Tujuan: Menampilkan semua detail pengajuan (piece by piece) per baris di tabel validasi TPAK, bukan hanya ringkasan per pengajuan.
+   - Eager load: pengajuan.dosen, komponen
+   - Filter: WHERE dosens.users_id = user yang login (TPAK)
+   - Paginasi: 15 per halaman
+   - Hasil: TPAK dapat melihat setiap butir/detail kegiatan yang perlu divalidasi secara individual.
+
+3. Validasi View - Tabel Detail Pengajuan
+   - File: resources/views/dupak/validasi/index.blade.php
+   - Perubahan: Loop variabel dari $pengajuanTPAK menjadi $detailPengajuanTPAK
+   - Kolom baru: Detail ID, Nama Dosen, Komponen, Deskripsi Kegiatan, Angka Kredit, JFA, Status, Aksi
+   - Stats card diupdate untuk menampilkan jumlah detail pengajuan (bukan jumlah pengajuan)
+   - Pagination: Menggunakan $detailPengajuanTPAK->links()
+
+4. Penunjukan TPAK - Perbaikan Gap Fitur + Negative Cases
+   - File: app/Http/Controllers/Dupak/PenunjukanTPAKController.php
+   - Perubahan:
+     a. Tambah method getJfaLevel() untuk mapping level JFA (Asisten Ahli=1, Lektor=2, Lektor Kepala=3, Guru Besar=4)
+     b. Validasi JFA: TPAK harus memiliki JFA aktif, dan level JFA TPAK harus >= level JFA Tujuan Pengaju
+     c. Try-catch di store() dan destroy() untuk menangani error database secara graceful
+     d. destroy() sekarang cek data exists sebelum delete
+   - Negative cases yang ditangani:
+     - Dosen menilai pengajuannya sendiri
+     - Duplikasi penunjukan TPAK
+     - Melebihi 5 TPAK per pengajuan
+     - TPAK tanpa JFA aktif
+     - JFA TPAK lebih rendah dari JFA Tujuan Pengaju
+     - Data tidak ditemukan saat hapus
+     - Error teknis database
+
+5. Penunjukan TPAK - Perbaikan View
+   - File: resources/views/dupak/penunjukan_tpak/index.blade.php
+   - Perubahan:
+     a. Search form di "Daftar Penugasan Aktif" dibungkus dalam form GET dengan name="search" (sudah fungsional)
+     b. Link "Lihat Detail" diarahkan ke route('dupak.validasi.show', $item->pengajuan_id) bukan #
+     c. Tambah tampilan session error dan success message
+   - File: resources/views/dupak/penunjukan_tpak/create.blade.php
+     - Redirect ke index (form penunjukan sudah inline di index)
+   - File: resources/views/dupak/penunjukan_tpak/show.blade.php
+     - Redirect ke index (detail pengajuan dilihat via validasi.show)
+
+-------------- Status Semua TODO Selesai --------------

@@ -6,45 +6,50 @@ use App\Http\Controllers\Controller;
 use App\Models\Dosen;
 use App\Models\Dupak\DetailPengajuan;
 use App\Models\Dupak\Pengajuan;
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ValidasiController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+
+    public function index(Request $request)
     {
-        // get all current dosen users_id from the main DB, then display them in the view, with the option to assign them as TPAK for a specific pengajuan. the users_id is exist on the dosens table, but the name is exist on the users table, so we need to join the two tables to get the name of the dosen.
-        // Using paginate(10) to support large datasets and provide pagination links in the view.
+        $search = $request->input('search');
+        $userId = Auth::id();
 
+        // Ambil nama database dari config secara langsung untuk keamanan
+        $dbSdm = config('database.connections.mysql.database'); // sdm_tus
 
-        $detailPengajuan = DetailPengajuan::all();
-        // dd($detailPengajuan);
+        // Query dari DetailPengajuan, filter by TPAK user via JOINs
+        $query = \App\Models\Dupak\DetailPengajuan::with(['pengajuan.dosen', 'komponen'])
+            ->join('pengajuan', 'detail_pengajuan.pengajuan_id', '=', 'pengajuan.id')
+            ->join('penunjukan_tpak', 'pengajuan.id', '=', 'penunjukan_tpak.pengajuan_id')
+            ->join("$dbSdm.dosens", 'penunjukan_tpak.idDosenTpak', '=', "$dbSdm.dosens.id")
+            ->where("$dbSdm.dosens.users_id", $userId)
+            ->select('detail_pengajuan.*');
 
-        // $detailPengajuan = DetailPengajuan::all()->with(['pengajuan.dosen.users']);
+        // Handle search on dosen name
+        if ($search) {
+            $query->whereHas('pengajuan', function ($q) use ($search) {
+                $q->where('nama_dosen', 'LIKE', "%$search%");
+            });
+        }
 
-        // $dosens = Dosen::join('users', 'dosens.users_id', '=', 'users.id')
-        //     ->select('dosens.id', 'users.nama_lengkap')
-        //     ->when($search, function ($query, $search) {
-        //         return $query->where('users.nama_lengkap', 'like', '%' . $search . '%');
-        //     })
-        //     ->paginate(5)
-        //     ->withQueryString();
+        $detailPengajuanTPAK = $query->orderBy('detail_pengajuan.created_at', 'desc')->paginate(15);
 
-
-
-
-        // dd($detailPengajuan);
-        // $pengajuan = Pengajuan::all();
-        return view('dupak.validasi.index', compact('detailPengajuan'));
+        return view('dupak.validasi.index', compact('detailPengajuanTPAK'));
     }
+
 
     /**
      * Display the specified resource.
      */
     public function show($id)
-    {   
+    {
 
         // Hasil akhir /dupak/pengajuan/validate/<userid>/<pengajuanid>
         $pengajuan = Pengajuan::with(['details.kegiatan', 'dosen'])->findOrFail($id);

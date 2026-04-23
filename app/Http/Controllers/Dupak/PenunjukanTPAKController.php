@@ -23,8 +23,15 @@ class PenunjukanTPAKController extends Controller
             ->orderBy('users.nama_lengkap', 'asc')
             ->get();
 
-        // 2. Ambil data Pengajuan DUPAK yang belum selesai (Pending/Submitted) untuk dropdown form
-        $pengajuan = Pengajuan::whereIn('status', ['Pending', 'Submitted'])->get();
+        // 2. Ambil data Pengajuan DUPAK yang belum mencapai batas limit TPAK (5 orang)
+        // Kita gunakan subquery untuk menghitung jumlah TPAK yang sudah ditunjuk per pengajuan
+        $pengajuan = Pengajuan::whereIn('status', ['Pending', 'Submitted'])
+            ->where(function($q) {
+                $q->selectRaw('count(*)')
+                  ->from('penunjukan_tpak')
+                  ->whereColumn('penunjukan_tpak.pengajuan_id', 'pengajuan.id');
+            }, '<', 5)
+            ->get();
 
         // 3. Ambil Riwayat Penunjukan TPAK dari database dupak
         $penunjukanQuery = PenunjukanTPAKModel::orderBy('created_at', 'desc');
@@ -71,6 +78,27 @@ class PenunjukanTPAKController extends Controller
         return view('dupak.penunjukan_tpak.index', compact('dosens', 'pengajuan', 'penunjukanTpak'));
     }
 
+    /**
+     * Mapping level JFA untuk validasi.
+     * Semakin tinggi angka, semakin tinggi jabatannya.
+     */
+    private function getJfaLevel($namaJfa)
+    {
+        $map = [
+            'asisten ahli' => 1,
+            'asisten_ahli' => 1,
+            'lektor' => 2,
+            'lektor kepala' => 3,
+            'lektor_kepala' => 3,
+            'guru besar' => 4,
+            'guru_besar' => 4,
+            'profesor' => 4,
+            'professor' => 4,
+        ];
+        $nama = strtolower(trim($namaJfa ?? ''));
+        return $map[$nama] ?? 0; // 0 = tidak dikenali
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -79,39 +107,90 @@ class PenunjukanTPAKController extends Controller
             'catatan' => 'nullable|string',
         ]);
 
-        // 1. Validasi: Dosen tidak boleh menilai pengajuannya sendiri
-        $pengajuan = Pengajuan::findOrFail($request->pengajuan_id);
-        if ($pengajuan->idDosen == $request->idDosenTpak) {
-            return redirect()->back()->with('error', 'Dosen tidak diperbolehkan menjadi penilai (TPAK) untuk pengajuannya sendiri.');
+        try {
+            // 1. Validasi: Dosen tidak boleh menilai pengajuannya sendiri
+            $pengajuan = Pengajuan::findOrFail($request->pengajuan_id);
+            if ($pengajuan->idDosen == $request->idDosenTpak) {
+                return redirect()->back()->with('error', 'Dosen tidak diperbolehkan menjadi penilai (TPAK) untuk pengajuannya sendiri.');
+            }
+
+            // 2. Validasi: Cek apakah sudah pernah ditunjuk (duplikasi)
+            $isDuplicate = PenunjukanTPAKModel::where('pengajuan_id', $request->pengajuan_id)
+                ->where('idDosenTpak', $request->idDosenTpak)
+                ->exists();
+            if ($isDuplicate) {
+                return redirect()->back()->with('error', 'Dosen tersebut sudah ditunjuk sebagai TPAK untuk pengajuan ini.');
+            }
+
+            // 3. Validasi: Maksimal 5 TPAK (Sesuai kebijakan)
+            $tpakCount = PenunjukanTPAKModel::where('pengajuan_id', $request->pengajuan_id)->count();
+            if ($tpakCount >= 5) {
+                return redirect()->back()->with('error', 'Maksimal jumlah TPAK untuk satu pengajuan adalah 5 orang.');
+            }
+
+            // 4. Validasi: JFA TPAK harus >= JFA Tujuan Pengaju
+            // Ambil JFA aktif TPAK dari database sdm_tus
+            $tpakJfa = DB::connection('mysql')
+                ->table('riwayat_jabatan_fungsional_akademiks')
+                ->join('ref_jabatan_fungsional_akademiks', 'riwayat_jabatan_fungsional_akademiks.ref_jfa_id', '=', 'ref_jabatan_fungsional_akademiks.id')
+                ->where('riwayat_jabatan_fungsional_akademiks.dosen_id', $request->idDosenTpak)
+                ->whereNull('riwayat_jabatan_fungsional_akademiks.tmt_selesai')
+                ->orderBy('riwayat_jabatan_fungsional_akademiks.tmt_mulai', 'desc')
+                ->select('ref_jabatan_fungsional_akademiks.nama_jabatan')
+                ->first();
+
+            if (!$tpakJfa || empty($tpakJfa->nama_jabatan)) {
+                return redirect()->back()->with('error', 'Dosen yang dipilih tidak memiliki Jabatan Fungsional Akademik (JFA) aktif. Penunjukan dibatalkan.');
+            }
+
+            // Ambil JFA Tujuan pengaju
+            $jfaTujuanPengaju = null;
+            if ($pengajuan->jfaTujuan) {
+                $jfaTujuanPengaju = DB::connection('mysql')
+                    ->table('ref_jabatan_fungsional_akademiks')
+                    ->where('id', $pengajuan->jfaTujuan)
+                    ->value('nama_jabatan');
+            }
+
+            // Bandingkan level JFA (hanya jika keduanya terdeteksi)
+            if ($jfaTujuanPengaju) {
+                $levelTpak = $this->getJfaLevel($tpakJfa->nama_jabatan);
+                $levelPengaju = $this->getJfaLevel($jfaTujuanPengaju);
+
+                if ($levelTpak > 0 && $levelPengaju > 0 && $levelTpak < $levelPengaju) {
+                    return redirect()->back()->with(
+                        'error',
+                        "JFA TPAK ({$tpakJfa->nama_jabatan}) lebih rendah dari JFA Tujuan Pengaju ({$jfaTujuanPengaju}). Penunjukan dibatalkan demi keadilan penilaian."
+                    );
+                }
+            }
+
+            // Simpan menggunakan Model
+            PenunjukanTPAKModel::create([
+                'pengajuan_id' => $request->pengajuan_id,
+                'idDosenTpak' => $request->idDosenTpak,
+                'catatan' => $request->catatan,
+            ]);
+
+            return redirect()->route('dupak.penunjukan_tpak.index')->with('success', 'TPAK berhasil ditunjuk dan ditugaskan.');
+        } catch (\Exception $e) {
+            // Negative case: Tangani error teknis agar user tidak panik
+            return redirect()->back()->with('error', 'Terjadi kesalahan teknis saat menyimpan penunjukan. Silakan coba lagi atau hubungi admin.');
         }
-
-        // 2. Validasi: Cek apakah sudah pernah ditunjuk (duplikasi)
-        $isDuplicate = PenunjukanTPAKModel::where('pengajuan_id', $request->pengajuan_id)
-            ->where('idDosenTpak', $request->idDosenTpak)
-            ->exists();
-        if ($isDuplicate) {
-            return redirect()->back()->with('error', 'Dosen tersebut sudah ditunjuk sebagai TPAK untuk pengajuan ini.');
-        }
-
-        // 3. Validasi: Maksimal 5 TPAK (Sesuai kebijakan)
-        $tpakCount = PenunjukanTPAKModel::where('pengajuan_id', $request->pengajuan_id)->count();
-        if ($tpakCount >= 5) {
-            return redirect()->back()->with('error', 'Maksimal jumlah TPAK untuk satu pengajuan adalah 5 orang.');
-        }
-
-        // Simpan menggunakan Model
-        PenunjukanTPAKModel::create([
-            'pengajuan_id' => $request->pengajuan_id,
-            'idDosenTpak' => $request->idDosenTpak,
-            'catatan' => $request->catatan,
-        ]);
-
-        return redirect()->route('dupak.penunjukan_tpak.index')->with('success', 'TPAK berhasil ditunjuk dan ditugaskan.');
     }
 
     public function destroy($id)
     {
-        PenunjukanTPAKModel::destroy($id);
-        return redirect()->route('dupak.penunjukan_tpak.index')->with('success', 'Penugasan TPAK telah dibatalkan!');
+        try {
+            $penunjukan = PenunjukanTPAKModel::find($id);
+            if (!$penunjukan) {
+                return redirect()->route('dupak.penunjukan_tpak.index')->with('error', 'Data penunjukan tidak ditemukan atau sudah dihapus.');
+            }
+
+            $penunjukan->delete();
+            return redirect()->route('dupak.penunjukan_tpak.index')->with('success', 'Penugasan TPAK telah dibatalkan!');
+        } catch (\Exception $e) {
+            return redirect()->route('dupak.penunjukan_tpak.index')->with('error', 'Terjadi kesalahan teknis saat membatalkan penunjukan. Silakan coba lagi.');
+        }
     }
 }
