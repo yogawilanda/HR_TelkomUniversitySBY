@@ -399,12 +399,12 @@ Route::middleware('auth')->group(function () {
 
         // Validasi DUPAK (for admin/validator)
         Route::resource('validasi', ValidasiController::class)
-            ->only(['index', 'show', 'update']);
+            ->only(['index', 'show', 'update', 'store']);
 
         // Rute Dinamis untuk Input Form Detail Pengajuan
         Route::get('detil_pengajuan/{category}/{id}', [DetilPengajuanController::class, 'showForm'])
             ->name('dupak.detil_pengajuan.form');
-        
+
         // Rute untuk menyimpan data detail pengajuan
         Route::post('detil_pengajuan/{category}/{id}', [DetilPengajuanController::class, 'store'])
             ->name('dupak.detil_pengajuan.store');
@@ -413,9 +413,10 @@ Route::middleware('auth')->group(function () {
         // Route::resource('detil_pengajuan', \App\Http\Controllers\Dupak\DetilPengajuanController::class);
 
         // route penunjukan_tpak, tanpa id, karena sistemnya SDM akan menunjuk TPAK berdasarkan kebutuhan, bukan berdasarkan pengajuan tertentu
-        Route::group(['prefix' => 'penunjukan-tpak', 'as' => 'penunjukan-tpak.'], function () {
+Route::group(['prefix' => 'penunjukan-tpak', 'as' => 'penunjukan_tpak.'], function () {
             Route::get('/', [PenunjukanTPAKController::class, 'index'])->name('index');
-            Route::get('/input', [PenunjukanTPAKController::class, 'create'])->name('create');
+            Route::post('/', [PenunjukanTPAKController::class, 'store'])->name('store');
+            Route::delete('/{id}', [PenunjukanTPAKController::class, 'destroy'])->name('destroy');
             // Route::post('/store', [\App\Http\Controllers\Dupak\TPAKController::class, 'store'])->name('store');
             // Route::delete('/destroy/{id}', [\App\Http\Controllers\Dupak\PenunjukanTpakController::class, 'destroy'])->name('destroy');
         });
