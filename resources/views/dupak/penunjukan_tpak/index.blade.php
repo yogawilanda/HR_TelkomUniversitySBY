@@ -1,9 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
+@php use Illuminate\Support\Str; @endphp
+
 <x-dupak.sidebar />
 
 <div class="mt-16 md:ml-64 p-6">
+
     <div class="mx-auto max-w-7xl">
         <div class="mb-6">
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Penunjukan Tim Penilai Angka Kredit (TPAK)</h1>
@@ -97,13 +100,14 @@
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                                     <td class="px-6 py-4">
                                         <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                            {{ $item->pengajuan->nama_dosen ?? 'N/A' }}
+{{ $item->pengajuan->nama_dosen ?? $item->pengaju_nama ?? 'N/A' }}
                                         </div>
                                         <div class="text-xs text-gray-500">ID Pengajuan: #{{ $item->pengajuan_id }}</div>
+
                                     </td>
                                     <td class="px-6 py-4">
                                         <div class="text-sm text-gray-900 dark:text-gray-200">
-                                            {{ $item->dosenTpak->pegawai->nama_lengkap ?? 'N/A' }}
+{{ $item->tpak_nama_lengkap ?? 'N/A' }}
                                         </div>
                                         <div class="text-xs text-gray-500 italic">"{{ Str::limit($item->catatan, 30) }}"</div>
                                     </td>
@@ -143,6 +147,7 @@
 </div>
 
 @push('scripts')
-<!-- Anda bisa menambahkan library Select2 di sini jika ingin dropdown yang searchable -->
+<script src="{{ asset('js/penunjukan-tpak.js') }}"></script>
+<!-- Select2 etc -->
 @endpush
 @endsection

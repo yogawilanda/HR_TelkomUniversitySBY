@@ -37,13 +37,14 @@ class Pengajuan extends DupakModel
         // Ini adalah cara PEREQUESTAN manual yang Anda minta.
         $dosenData = DB::connection('mysql')
             ->table('dosens') // Cari di tabel dosens
-            ->select('users.nama') // Ambil kolom nama dari tabel users
+->select('users.nama_lengkap') // Ambil kolom nama_lengkap dari tabel users
             ->join('users', 'dosens.users_id', '=', 'users.id') // Join ke tabel users
             ->where('dosens.id', $this->idDosen) // Cocokkan id dosen
             ->first();
 
         // Kembalikan nama atau pesan default jika tidak ditemukan
-        return $dosenData ? $dosenData->nama : 'Nama Dosen Tidak Ditemukan (ID: ' . $this->idDosen . ')';
+return $dosenData ? $dosenData->nama_lengkap : 'Nama Dosen Tidak Ditemukan (ID: ' . $this->idDosen . ')';
+
     }
 
 

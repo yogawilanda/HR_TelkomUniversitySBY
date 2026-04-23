@@ -4,111 +4,114 @@ namespace App\Http\Controllers\Dupak;
 
 use App\Http\Controllers\Controller;
 use App\Models\Dosen;
-use Illuminate\Support\Facades\Auth;
-
+use App\Models\Dupak\Pengajuan;
+use App\Models\Dupak\PenunjukanTPAKModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class PenunjukanTPAKController extends Controller
 {
-    // get all TPAK
     public function index(Request $request)
     {
         $search = $request->input('search');
 
-        // get all current dosen users_id from the main DB, then display them in the view, with the option to assign them as TPAK for a specific pengajuan. the users_id is exist on the dosens table, but the name is exist on the users table, so we need to join the two tables to get the name of the dosen.
-        // Using paginate(10) to support large datasets and provide pagination links in the view.
+        // 1. Ambil data Dosen (Calon TPAK) dari database sdm_tus
+        // Join dengan users untuk mendapatkan nama lengkap
         $dosens = Dosen::join('users', 'dosens.users_id', '=', 'users.id')
             ->select('dosens.id', 'users.nama_lengkap')
-            ->when($search, function ($query, $search) {
-                return $query->where('users.nama_lengkap', 'like', '%' . $search . '%');
-            })
-            ->paginate(5)
-            ->withQueryString();
+            ->orderBy('users.nama_lengkap', 'asc')
+            ->get();
 
-        $user = Auth::user();
-        $pengajuan = DB::connection('dupak')->table('pengajuan')->get();
-        $penunjukanTpak = DB::connection('dupak')->table('penunjukan_tpak')->paginate(5);
+        // 2. Ambil data Pengajuan DUPAK yang belum selesai (Pending/Submitted) untuk dropdown form
+        $pengajuan = Pengajuan::whereIn('status', ['Pending', 'Submitted'])->get();
 
-        return view(
-            'dupak.penunjukan_tpak.show',
-            compact('dosens', 'user', 'pengajuan', 'penunjukanTpak')
-        );
-    }
+        // 3. Ambil Riwayat Penunjukan TPAK dari database dupak
+        $penunjukanQuery = PenunjukanTPAKModel::orderBy('created_at', 'desc');
 
-    public function create()
-    {
-        return view('dupak.penunjukan_tpak.create');
-    }
+        // Implementasi Fitur Pencarian (Nama Pengaju atau Nama TPAK)
+        if ($search) {
+            // Cari ID Dosen yang namanya cocok di database sdm_tus
+            $matchedDosenIds = Dosen::join('users', 'dosens.users_id', '=', 'users.id')
+                ->where('users.nama_lengkap', 'like', "%{$search}%")
+                ->pluck('dosens.id');
 
-    public function getAllTPAK()
-    {
-        $user = Auth::user();
+            // Cari ID Pengajuan yang nama pengajunya cocok
+            $matchedPengajuanIds = Pengajuan::where('nama_dosen', 'like', "%{$search}%")->pluck('id');
 
-        if (!$user) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+            $penunjukanQuery->where(function($q) use ($matchedDosenIds, $matchedPengajuanIds) {
+                $q->whereIn('idDosenTpak', $matchedDosenIds)
+                  ->orWhereIn('pengajuan_id', $matchedPengajuanIds);
+            });
         }
 
-        return response()->json($user->tpak()->get());
+        // Pagination riwayat penunjukan
+        $penunjukanTpak = $penunjukanQuery->paginate(10);
+
+        // Transformasi koleksi untuk mendapatkan nama pengaju dan nama penilai (TPAK)
+        // Karena database terpisah, kita lakukan mapping manual untuk efisiensi (menghindari N+1 query)
+        $pengajuanIds = $penunjukanTpak->pluck('pengajuan_id')->unique();
+        $tpakDosenIds = $penunjukanTpak->pluck('idDosenTpak')->unique();
+
+        $pengajuansData = Pengajuan::whereIn('id', $pengajuanIds)->get();
+        $tpakDosensData = Dosen::join('users', 'dosens.users_id', '=', 'users.id')
+            ->whereIn('dosens.id', $tpakDosenIds)
+            ->select('dosens.id', 'users.nama_lengkap')
+            ->get()
+            ->pluck('nama_lengkap', 'id');
+
+        $penunjukanTpak->getCollection()->transform(function ($item) use ($pengajuansData, $tpakDosensData) {
+            $p = $pengajuansData->firstWhere('id', $item->pengajuan_id);
+            $item->pengaju_nama = $p ? $p->nama_dosen : 'N/A';
+            $item->tpak_nama_lengkap = $tpakDosensData[$item->idDosenTpak] ?? 'N/A';
+            $item->created_at = Carbon::parse($item->created_at);
+            return $item;
+        });
+
+        return view('dupak.penunjukan_tpak.index', compact('dosens', 'pengajuan', 'penunjukanTpak'));
     }
 
-    public function limitTPAK()
-    {
-        $user = Auth::user();
-
-        if (!$user) return response()->json(['message' => 'Unauthorized'], 401);
-
-        // if the assigned TPAk is more than 2, return response of restriction
-        if ($user->tpak()->count() > 2) {
-            return response()->json(['message' => 'You have reached the maximum number of TPAK assignments'], 403);
-        }
-    }
-
-    // ! dummy implentative
-    public function assignTPAK(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
-            'tpak_id' => 'required|exists:tpaks,id',
-            'pengajuan_id' => 'required|exists:pengajuans,id',
+            'pengajuan_id' => 'required|exists:dupak.pengajuan,id',
+            'idDosenTpak' => 'required|exists:dosens,id',
+            'catatan' => 'nullable|string',
         ]);
 
-        $user = Auth::user();
-
-        if (!$user) return response()->json(['message' => 'Unauthorized'], 401);
-
-        // check if the dupak has already been assigned to 2 TPAK
-        if ($user->tpak()->count() >= 2) {
-            return response()->json(['message' => 'You have reached the maximum number of TPAK assignments'], 403);
+        // 1. Validasi: Dosen tidak boleh menilai pengajuannya sendiri
+        $pengajuan = Pengajuan::findOrFail($request->pengajuan_id);
+        if ($pengajuan->idDosen == $request->idDosenTpak) {
+            return redirect()->back()->with('error', 'Dosen tidak diperbolehkan menjadi penilai (TPAK) untuk pengajuannya sendiri.');
         }
+
+        // 2. Validasi: Cek apakah sudah pernah ditunjuk (duplikasi)
+        $isDuplicate = PenunjukanTPAKModel::where('pengajuan_id', $request->pengajuan_id)
+            ->where('idDosenTpak', $request->idDosenTpak)
+            ->exists();
+        if ($isDuplicate) {
+            return redirect()->back()->with('error', 'Dosen tersebut sudah ditunjuk sebagai TPAK untuk pengajuan ini.');
+        }
+
+        // 3. Validasi: Maksimal 5 TPAK (Sesuai kebijakan)
+        $tpakCount = PenunjukanTPAKModel::where('pengajuan_id', $request->pengajuan_id)->count();
+        if ($tpakCount >= 5) {
+            return redirect()->back()->with('error', 'Maksimal jumlah TPAK untuk satu pengajuan adalah 5 orang.');
+        }
+
+        // Simpan menggunakan Model
+        PenunjukanTPAKModel::create([
+            'pengajuan_id' => $request->pengajuan_id,
+            'idDosenTpak' => $request->idDosenTpak,
+            'catatan' => $request->catatan,
+        ]);
+
+        return redirect()->route('dupak.penunjukan_tpak.index')->with('success', 'TPAK berhasil ditunjuk dan ditugaskan.');
     }
 
-    // data assignment TPAK apakah disimpan di tabel pengajuan atau tabel dosen?
-    /// jika di tabel pengajuan,
-    // maka:  
-    // 1. create table tpaks dengan kolom id, id_dosen,
-    // 2. alter table pengajuan add column tpak_id, dan relasikan dengan tabel tpaks
-    // kelebihannya : tidak perlu meminta izin kepada tim proyek bagian kepegawaian untuk mengalterisasi tabel dosen, karena data TPAK hanya akan disimpan di tabel pengajuan, sehingga tidak mempengaruhi data dosen secara keseluruhan.
-
-    // gambaran table tpaks:
-    // Table: tpak_assignments
-    // | id | pengajuan_id | dosen_id (TPAK) | bukti_penunjukan | nilai | catatan |
-    // | :--- | :--- | :--- | :--- | :--- | :--- |
-    // | 1 | 101 | 5 (Dosen A) | surat_01.pdf | 4.5 | Good |
-    // | 2 | 101 | 9 (Dosen B) | surat_01.pdf | 4.2 | Valid |
-
-    // create table tpaks dengan 
-    // kolom id (pk), 
-    // id_dosen (FK ke tabel dosen), 
-    // bukti_penunjukan (string, 255, nullable), 
-    // nilai (float, 4, 2, nullable), 
-    // catatan (string, 255, nullable),
-
-    // table pengajuan add column tpak_id
-    // | id | dosen_id | tpak_id | ... | ak_akhir | notes
-    // | :--- | :--- | :--- | :--- | :--- | :--- |
-    // 
-
-    // table pengajuan notes:
-    // | id | dosen_id | tpak_id | ... | notes } created_at | updated_at | link_detil_pengajuan
-    // | :--- | :--- | :--- | :--- | :--- | :
+    public function destroy($id)
+    {
+        PenunjukanTPAKModel::destroy($id);
+        return redirect()->route('dupak.penunjukan_tpak.index')->with('success', 'Penugasan TPAK telah dibatalkan!');
+    }
 }
