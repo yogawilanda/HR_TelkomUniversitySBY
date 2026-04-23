@@ -14,7 +14,7 @@ use App\Models\riwayatJabatanFungsionalAkademik;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\User;
-use Illuminate\Container\Attributes\DB;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -34,7 +34,10 @@ class DashboardController extends Controller
     private function getCurrentJFA(?Dosen $dosen)
     {
         return $dosen
-            ? riwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)->latest()->first()
+            ? riwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
+                ->whereNull('tmt_selesai')
+                ->latest()
+                ->first()
             : null;
     }
 
@@ -93,10 +96,9 @@ class DashboardController extends Controller
             return false;
         }
 
-        // Tentukan status-status yang dianggap "pending" atau sedang dalam proses.
-        // Anda perlu menyesuaikan array status ini dengan nilai yang ada di kolom 'status'
-        // tabel 'dupak_pengajuan'. Contoh di sini: draft, submitted, dan reviewed.
-        $pendingStatuses = ['draft', 'submitted', 'reviewed', 'pending'];
+        // Status yang dianggap sedang dalam proses (belum selesai/ditolak).
+        // Pastikan konsisten dengan nilai di tabel pengajuan dan badge di view.
+        $pendingStatuses = ['Draft', 'Pending', 'Diajukan', 'Revisi', 'Menunggu'];
 
         return Pengajuan::where('idDosen', $dosenId)
             ->whereIn('status', $pendingStatuses)
@@ -107,7 +109,6 @@ class DashboardController extends Controller
     {
         $query = Pengajuan::query();
 
-        // dd($query);
         if ($user->is_admin) {
             // For admin, get the absolute latest submission in the system.
             return $query->latest()->first();
@@ -126,13 +127,9 @@ class DashboardController extends Controller
         $jfaAsal = $riwayat?->ref_jfa_id;
         $refJfa = $jfaAsal ? refJabatanFungsionalAkademik::find($jfaAsal) : null;
 
-        $minimalKum = $refJfa?->minimal_kum ?? 0;
+        $minimalKum = $refJfa?->kum ?? 0;
 
         $namaJabatanSaatIni = $refJfa?->nama_jabatan ?? 'Anda bukan dosen';
-        // JANGAN DIHAPUS/DONT DELETE !
-        // dd($jfaAsal, $riwayat);
-
-
 
         $jfaTujuan = $this->getJfaTujuan($jfaAsal);
         $jfaTujuanNama = $jfaTujuan ? $this->aturanPengajuanJFA[$jfaTujuan] : 'Tidak Ada (Jabatan Tertinggi)';
@@ -191,17 +188,46 @@ class DashboardController extends Controller
             ->get();
 
 
-        // Mengambil data untuk form detil input
-        // contoh Mengambil data dari RefKomponen->id/id dari RefKomponen di modelnya lalu digunakan untuk mencari  
-        // 1. Pendidikan -> 1. A. Pendidikan Formal, maka mengambil dari id
-        // $inputFromUser 
-        // $jenisInput = RefJenisInput::select('id', 'nama')
-        //     ->where('idKomponen', $inputFromUser->idKomponen)
-        //     ->get();
+        // Statistik ringkasan untuk tampilan Admin
+        $statistik = [
+            'selesai' => Pengajuan::where('status', 'Diterima')->count(),
+            'pending' => Pengajuan::whereIn('status', ['Draft', 'Pending', 'Diajukan', 'Revisi', 'Menunggu'])->count(),
+        ];
 
-        // // dd($jenisInput);
+        // Breakdown KUM per komponen (kategori utama) dari pengajuan terbaru dosen
+        $kumBreakdown = [
+            'pendidikan' => '0.00',
+            'pelaksanaan_pendidikan' => '0.00',
+            'penelitian' => '0.00',
+            'pengabdian' => '0.00',
+            'penunjang' => '0.00',
+        ];
 
+        if ($dosen && $personalSubmission) {
+            $breakdown = \App\Models\Dupak\DetailPengajuan::join('ref_kegiatan_komponen', 'detail_pengajuan.idKomponen', '=', 'ref_kegiatan_komponen.id')
+                ->join('ref_kegiatan_utama', 'ref_kegiatan_komponen.idKegiatanUtama', '=', 'ref_kegiatan_utama.id')
+                ->where('detail_pengajuan.pengajuan_id', $personalSubmission->id)
+                ->select('ref_kegiatan_utama.nama as kategori', DB::raw('COALESCE(SUM(detail_pengajuan.angka_kredit_total), 0) as total'))
+                ->groupBy('ref_kegiatan_utama.nama')
+                ->pluck('total', 'kategori');
 
+            foreach ($breakdown as $kategori => $total) {
+                $lower = strtolower($kategori);
+                // Cek "pelaksanaan pendidikan" HARUS lebih dulu sebelum "pendidikan"
+                // karena string "pelaksanaan pendidikan" mengandung kata "pendidikan"
+                if (str_contains($lower, 'pelaksanaan pendidikan')) {
+                    $kumBreakdown['pelaksanaan_pendidikan'] = number_format($total, 2);
+                } elseif (str_contains($lower, 'pendidikan')) {
+                    $kumBreakdown['pendidikan'] = number_format($total, 2);
+                } elseif (str_contains($lower, 'penelitian')) {
+                    $kumBreakdown['penelitian'] = number_format($total, 2);
+                } elseif (str_contains($lower, 'pengabdian')) {
+                    $kumBreakdown['pengabdian'] = number_format($total, 2);
+                } elseif (str_contains($lower, 'penunjang')) {
+                    $kumBreakdown['penunjang'] = number_format($total, 2);
+                }
+            }
+        }
 
         $viewData = [
             'user' => $user,
@@ -220,6 +246,11 @@ class DashboardController extends Controller
                 'pending_kum' => number_format($kumPengajuan, 2), // KUM dari detail pengajuan
                 'statusColor' => $progress['statusColor'],
                 'updatedAtFormatted' => $user->kum_updated_at ? Carbon::parse($user->kum_updated_at)->diffForHumans() : 'Belum pernah diperbarui',
+                'pendidikan' => $kumBreakdown['pendidikan'],
+                'pelaksanaan_pendidikan' => $kumBreakdown['pelaksanaan_pendidikan'],
+                'penelitian' => $kumBreakdown['penelitian'],
+                'pengabdian' => $kumBreakdown['pengabdian'],
+                'penunjang' => $kumBreakdown['penunjang'],
             ],
 
             'jfa' => [
@@ -233,11 +264,9 @@ class DashboardController extends Controller
                 'latest' => $latestSubmission,
             ],
             'kegiatanUtama' => $kegiatanUtama,
+            'statistik' => $statistik,
         ];
-        // dd($jfaData, $jfaData['namaJabatanSaatIni']);
-        // dd to check current JFA ID of the dosen
-        // dd($dosen, $this->getCurrentJFA($dosen)?->ref_jfa_id);
-        // dd($totalPengajuanMandiri, $totalSeluruhPengajuan);
+
         return view('dupak.dashboard', $viewData);
     }
 }

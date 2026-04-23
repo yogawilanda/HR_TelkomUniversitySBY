@@ -413,7 +413,7 @@ Route::middleware('auth')->group(function () {
         // Route::resource('detil_pengajuan', \App\Http\Controllers\Dupak\DetilPengajuanController::class);
 
         // route penunjukan_tpak, tanpa id, karena sistemnya SDM akan menunjuk TPAK berdasarkan kebutuhan, bukan berdasarkan pengajuan tertentu
-Route::group(['prefix' => 'penunjukan-tpak', 'as' => 'penunjukan_tpak.'], function () {
+        Route::group(['prefix' => 'penunjukan-tpak', 'as' => 'penunjukan_tpak.'], function () {
             Route::get('/', [PenunjukanTPAKController::class, 'index'])->name('index');
             Route::post('/', [PenunjukanTPAKController::class, 'store'])->name('store');
             Route::delete('/{id}', [PenunjukanTPAKController::class, 'destroy'])->name('destroy');

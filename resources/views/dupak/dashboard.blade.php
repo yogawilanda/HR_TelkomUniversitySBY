@@ -102,10 +102,15 @@
                     {{-- Rincian Angka Kredit Spesifik (Merged Here) --}}
                     <div class="mb-6">
                         <h4 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Rincian Per Komponen</h4>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                             <div class="bg-gray-50 p-3 rounded-lg border border-gray-100">
                                 <span class="text-xs text-gray-500 block">Pendidikan</span>
                                 <div class="text-lg font-bold text-gray-800">{{ $kum['pendidikan'] ?? '0' }}</div>
+                            </div>
+
+                            <div class="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                <span class="text-xs text-gray-500 block">Pelaksanaan Pendidikan</span>
+                                <div class="text-lg font-bold text-gray-800">{{ $kum['pelaksanaan_pendidikan'] ?? '0' }}</div>
                             </div>
 
                             <div class="bg-gray-50 p-3 rounded-lg border border-gray-100">
@@ -183,7 +188,7 @@
                             <i class="fas fa-user-circle mr-2 text-blue-900"></i>
                             Anda saat ini masuk sebagai Pengaju DUPAK
                         </h3>
-                        <a href="" class="px-4 py-2 text-sm text-white bg-blue-900 rounded hover:bg-blue-950">
+                        <a href="javascript:void(0)" onclick="alert('Fitur Menjadi TPAK sedang dalam pengembangan.')" class="px-4 py-2 text-sm text-white bg-blue-900 rounded hover:bg-blue-950">
                             Menjadi TPAK
                         </a>
                     </div>
@@ -203,8 +208,8 @@
                     @endif
                 </h1>
 
-                <!-- Jika user bukan admin, maka tombol pengajuan akan muncul -->
-                @if (!$user->is_dosen)
+                <!-- Jika user adalah dosen, maka tombol pengajuan akan muncul -->
+                @if ($dosen)
                 @php
                 $buttonDisabled = $submissions['has_pending'];
                 @endphp
