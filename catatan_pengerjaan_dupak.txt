@@ -223,3 +223,19 @@ halaman validasi sudah ada masih belum 100% selesai
 detail pengajuan butuh attribut status, sudah ditambahkan ke model, migration, dan juga viewnya
 
 touchscreen mode berjalan dengan lancar namun bukan fitur utama.
+======== Formulasi Perhitungan Dupak dan Kolom yang diperlukan untuk input form detail pengajuan ========
+Tambahkan Kegiatan di Masing masing formulir butuh di spesifikan dan dikategorikan
+Contoh di 
+1. A. Pendidikan Formal 
+Kolom input user yang dibutuhkan itu : 
+link, penilaian AK,
+
+2. A. Pelaksanaan pendidikan
+1. Period Pelaksanaan Perkuliahan : Contoh jawaban (Semester <ganjil/genap> <tahun awal/tahun akhir>)
+Asumsi
+fieldnya semester, tahun awal/akhir, SKS, Kelas 
+
+-------------- Fitur Validasi Pengajuan ---------------
+
+-------------- Fitur Penunjukan TPAK ------------------
+Alur pengerjaan
