@@ -29,6 +29,10 @@ return new class extends Migration
             $table->decimal('nilai_angka_kredit', 8, 2)->nullable()->comment('Credit score given by this TPAK');
             $table->text('catatan')->nullable()->comment('Notes from TPAK for this application');
 
+            // Audit trail: User ID dari admin yang melakukan penunjukan (DB utama sdm_tus)
+            // Tidak dibuat foreign key karena tabel users berada di database lain.
+            $table->uuid('created_by')->nullable()->comment('User ID dari admin yang menunjuk TPAK (DB utama)');
+
             // Timestamps
             $table->timestamps();
 
@@ -36,11 +40,6 @@ return new class extends Migration
             $table->foreign('pengajuan_id')->references('id')->on('pengajuan')->onDelete('cascade');
         });
     }
-
-    // karena tidak bisa langsung fk ke db sebelah, maka alternatifnya langsung lewat modelnya nanti.
-            // $table->foreign('idDosen')->references('id')->on('dosens'); 
-            // $table->foreign('jfaAsal')->references('id')->on('ref_jabatan_fungsional_akademik');
-            // $table->foreign('jfaTujuan')->references('id')->on('ref_jabatan_fungsional_akademik');
 
     /**
      * Reverse the migrations.

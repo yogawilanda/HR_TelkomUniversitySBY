@@ -119,9 +119,15 @@ $stats = [
 
             <div class="lg:col-span-2">
                 <div class="mb-8">
-                    <div class="flex items-center mb-4">
-                        <div class="p-2 bg-blue-600 rounded-lg mr-3"><i class="fas fa-clock text-white"></i></div>
-                        <h2 class="text-xl font-bold dark:text-white">Antrean Pengajuan (Belum Ada Penilai)</h2>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-blue-600 rounded-lg mr-3"><i class="fas fa-clock text-white"></i></div>
+                            <h2 class="text-xl font-bold dark:text-white">Antrean Pengajuan (Belum Ada Penilai)</h2>
+                        </div>
+                        <form action="{{ route('dupak.penunjukan_tpak.index') }}" method="GET" class="relative">
+                            <input type="text" name="antrean_search" value="{{ request('antrean_search') }}" placeholder="Cari pengaju..." class="pl-8 pr-3 py-1.5 text-xs rounded-full border-gray-300 dark:bg-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <i class="fas fa-search absolute left-2.5 top-2 text-gray-400 text-[10px]"></i>
+                        </form>
                     </div>
 
                     <div class="bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-800 overflow-hidden">
@@ -202,14 +208,30 @@ $stats = [
                                             <div>
                                                 <div class="text-sm text-gray-900 dark:text-gray-200 font-medium">{{ $item->tpak_nama_lengkap ?? 'N/A' }}</div>
                                                 <div class="text-[10px] text-gray-500 italic">{{ Str::limit($item->catatan ?? '', 25) }}</div>
+                                                <div class="text-[10px] text-blue-600">
+                                                    <i class="fas fa-user-tag mr-0.5"></i>
+                                                    Ditunjuk oleh: {{ $item->creator->nama_lengkap ?? 'Sistem' }}
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            <span class="h-2 w-2 rounded-full bg-blue-500 mr-2"></span>
-                                            Reviewing
-                                        </span>
+                                        @if($item->progress_total > 0)
+                                            <div class="w-full max-w-[140px]">
+                                                <div class="flex justify-between text-[10px] text-gray-600 mb-0.5">
+                                                    <span>{{ $item->progress_evaluated }}/{{ $item->progress_total }} dinilai</span>
+                                                    <span>{{ $item->progress_percent }}%</span>
+                                                </div>
+                                                <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                                                    <div class="h-full {{ $item->progress_percent >= 100 ? 'bg-green-500' : 'bg-blue-600' }} rounded-full" style="width: {{ $item->progress_percent }}%"></div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                                <span class="h-2 w-2 rounded-full bg-gray-400 mr-2"></span>
+                                                Belum ada kegiatan
+                                            </span>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                         <div class="flex justify-center space-x-2">

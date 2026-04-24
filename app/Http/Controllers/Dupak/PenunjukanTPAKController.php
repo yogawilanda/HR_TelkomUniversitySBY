@@ -7,6 +7,7 @@ use App\Models\Dosen;
 use App\Models\Dupak\Pengajuan;
 use App\Models\Dupak\PenunjukanTPAKModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -25,13 +26,20 @@ class PenunjukanTPAKController extends Controller
 
         // 2. Ambil data Pengajuan DUPAK yang belum mencapai batas limit TPAK (5 orang)
         // Kita gunakan subquery untuk menghitung jumlah TPAK yang sudah ditunjuk per pengajuan
-        $pengajuan = Pengajuan::whereIn('status', ['Pending', 'Submitted'])
+        $antreanSearch = $request->input('antrean_search');
+
+        $pengajuanQuery = Pengajuan::whereIn('status', ['Pending', 'Submitted'])
             ->where(function($q) {
                 $q->selectRaw('count(*)')
                   ->from('penunjukan_tpak')
                   ->whereColumn('penunjukan_tpak.pengajuan_id', 'pengajuan.id');
-            }, '<', 5)
-            ->get();
+            }, '<', 5);
+
+        if ($antreanSearch) {
+            $pengajuanQuery->where('nama_dosen', 'like', "%{$antreanSearch}%");
+        }
+
+        $pengajuan = $pengajuanQuery->get();
 
         // Hitung jumlah TPAK yang sudah ditunjuk per pengajuan (untuk info di UI)
         $tpakCounts = PenunjukanTPAKModel::select('pengajuan_id', DB::raw('count(*) as total'))
@@ -56,7 +64,7 @@ class PenunjukanTPAKController extends Controller
             ->toArray();
 
         // 3. Ambil Riwayat Penunjukan TPAK dari database dupak
-        $penunjukanQuery = PenunjukanTPAKModel::orderBy('created_at', 'desc');
+        $penunjukanQuery = PenunjukanTPAKModel::with('creator')->orderBy('created_at', 'desc');
 
         // Implementasi Fitur Pencarian (Nama Pengaju atau Nama TPAK)
         if ($search) {
@@ -89,11 +97,32 @@ class PenunjukanTPAKController extends Controller
             ->get()
             ->pluck('nama_lengkap', 'id');
 
-        $penunjukanTpak->getCollection()->transform(function ($item) use ($pengajuansData, $tpakDosensData) {
+        // Hitung progress penilaian per pengajuan (total detail yang punya evaluasi / total detail)
+        $detailCounts = \App\Models\Dupak\DetailPengajuan::select('pengajuan_id', DB::raw('count(*) as total'))
+            ->whereIn('pengajuan_id', $pengajuanIds)
+            ->groupBy('pengajuan_id')
+            ->pluck('total', 'pengajuan_id')
+            ->toArray();
+
+        $evaluatedCounts = \App\Models\Dupak\HasilEvaluasi::select('detail_pengajuan.pengajuan_id', DB::raw('count(distinct hasil_evaluasi.detail_pengajuan_id) as total'))
+            ->join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
+            ->whereIn('detail_pengajuan.pengajuan_id', $pengajuanIds)
+            ->groupBy('detail_pengajuan.pengajuan_id')
+            ->pluck('total', 'detail_pengajuan.pengajuan_id')
+            ->toArray();
+
+        $penunjukanTpak->getCollection()->transform(function ($item) use ($pengajuansData, $tpakDosensData, $detailCounts, $evaluatedCounts) {
             $p = $pengajuansData->firstWhere('id', $item->pengajuan_id);
             $item->pengaju_nama = $p ? $p->nama_dosen : 'N/A';
             $item->tpak_nama_lengkap = $tpakDosensData[$item->idDosenTpak] ?? 'N/A';
             $item->created_at = Carbon::parse($item->created_at);
+
+            $totalDetail = $detailCounts[$item->pengajuan_id] ?? 0;
+            $evaluated = $evaluatedCounts[$item->pengajuan_id] ?? 0;
+            $item->progress_total = $totalDetail;
+            $item->progress_evaluated = $evaluated;
+            $item->progress_percent = $totalDetail > 0 ? round(($evaluated / $totalDetail) * 100) : 0;
+
             return $item;
         });
 
@@ -198,6 +227,7 @@ class PenunjukanTPAKController extends Controller
                 'pengajuan_id' => $request->pengajuan_id,
                 'idDosenTpak' => $request->idDosenTpak,
                 'catatan' => $request->catatan,
+                'created_by' => Auth::id(),
             ]);
 
             return redirect()->route('dupak.penunjukan_tpak.index')->with('success', 'TPAK berhasil ditunjuk dan ditugaskan.');

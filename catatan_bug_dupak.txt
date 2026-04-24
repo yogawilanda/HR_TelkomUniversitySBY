@@ -1,0 +1,77 @@
+# Catatan Bug — DUPAK
+
+> File ini mencatat seluruh bug yang ditemukan selama pengembangan modul DUPAK.
+> Dibedakan berdasarkan tingkat keparahan: Red (critical), Yellow (warning), Green (minor).
+
+----------
+
+## Red Bug (Critical)
+
+### 1. User dosen tidak bisa akses dashboard
+- **Deskripsi**: Kalau user dengan jabatan dosen login, tidak bisa akses dashboard karena detail pengajuan url-nya masih absolute menggunakan id.
+- **Resolve**: Menggunakan ternary operator pada url show detail pengajuan di progress.
+- **Status**: FIXED
+
+### 2. JFA tidak aktif tidak difilter
+- **Deskripsi**: `getCurrentJFA()` menggunakan `latest()->first()` tanpa memeriksa `tmt_selesai IS NULL`. Berpotensi mengambil riwayat JFA yang sudah tidak aktif.
+- **Resolve**: Ditambahkan `whereNull('tmt_selesai')` agar sesuai dengan logika JFA aktif.
+- **Status**: FIXED
+
+### 3. Undefined variable `$statistik` di dashboard admin
+- **Deskripsi**: Bagian "Data Statistika" untuk Admin menggunakan variabel `$statistik['selesai']` dan `$statistik['pending']`, tetapi variabel `$statistik` TIDAK PERNAH DI-PASS dari Controller.
+- **Resolve**: Variabel `$statistik` sekarang dihitung dan dikirim ke view (selesai = 'Diterima', pending = status proses).
+- **Status**: FIXED
+
+### 4. User belum punya pengajuan — error di Informasi KUM
+- **Deskripsi**: Jika user belum memiliki pengajuan, harusnya tampilkan "Anda belum mengajukan pengajuan" di Informasi KUM Card dan Angka Kredit Spesifik.
+- **Resolve**: Kondisi `$hasNoPengajuan == true` sudah ditangani dengan baik untuk menampilkan dialog informasi.
+- **Status**: FIXED
+
+----------
+
+## Yellow Bug (Warning)
+
+### 1. Target jabatan terdeteksi terlalu dini
+- **Deskripsi**: Kalau user dengan jabatan dosen login, informasi DUPAK seperti progress dan lain-lain sudah langsung mendeteksi bahwa user langsung memiliki target jabatan lanjutannya. Meskipun benar, tapi harusnya sistem belum tahu itu.
+- **Status**: Sudah diperbaiki dengan pengecekan riwayat JFA yang lebih ketat.
+
+### 2. Admin yang juga dosen — tombol detail ambil id salah
+- **Deskripsi**: Kalau admin login terus kebetulan admin juga dosen, tombol detail kegiatan masih mengambil dari id 1, bukan pengajuannya sendiri.
+- **Status**: FIXED
+
+### 3. Perhitungan KUM admin tercampur dengan data dosen lain
+- **Deskripsi**: Admin melihat total KUM pengajuan user lain; perhitungan KUM belum dipisahkan antara data personal dosen dan ringkasan admin.
+- **Resolve**: Perhitungan KUM dipisahkan secara ketat antara data personal dosen dan ringkasan admin.
+- **Status**: FIXED
+
+### 4. Route form detail pengajuan salah
+- **Deskripsi**: Route form action menggunakan `dupak.dupak.detil_pengajuan.store` (terduplikasi).
+- **Resolve**: Diperbaiki menjadi `dupak.detil_pengajuan.store`.
+- **Status**: FIXED
+
+### 5. Dropdown TPAK menampilkan dosen pengaju
+- **Deskripsi**: UI Dropdown TPAK masih menampilkan dosen pengaju, sehingga user baru tahu error setelah submit.
+- **Resolve**: Dropdown TPAK mengecualikan dosen pengaju (via JS data attribute).
+- **Status**: FIXED
+
+### 6. Tombol "Tunjuk Penilai" tidak disabled meski sudah 5 TPAK
+- **Deskripsi**: Tombol "Tunjuk Penilai" di tabel antrean tidak disabled meski sudah 5 TPAK.
+- **Resolve**: Tombol sekarang disabled jika sudah 5 TPAK.
+- **Status**: FIXED
+
+----------
+
+## Green Bug (Minor / Enhancement)
+
+### 1. Indentasi accessor `getNamaDosenAttribute()`
+- **Deskripsi**: Accessor memiliki indentasi/formatting yang rusak (line breaks aneh) namun logika query tetap berfungsi.
+- **Status**: MINOR, formatting fix needed
+
+### 2. Path mapping JS case-sensitive
+- **Deskripsi**: Path mapping di popup-tambah-kegiatan menggunakan `name.includes('pendidikan')` yang bersifat case-sensitive.
+- **Status**: FUNGSIONAL, minor UX improvement possible
+
+### 3. Property `isAdmin` vs `is_admin`
+- **Deskripsi**: Sidebar menggunakan `auth()->user()->isAdmin` sedangkan controller menggunakan `$user->is_admin`.
+- **Status**: PERLU CEK KONSISTENSI
+

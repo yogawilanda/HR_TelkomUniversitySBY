@@ -17,6 +17,7 @@ class PenunjukanTPAKModel extends DupakModel {
 		'bukti_penunjukan',
 		'nilai_angka_kredit',
 		'catatan',
+		'created_by',
 	];
 
 	/**
@@ -33,5 +34,13 @@ class PenunjukanTPAKModel extends DupakModel {
 	public function dosenTpak()
 	{
 		return $this->belongsTo(Dosen::class, 'idDosenTpak');
+	}
+
+	/**
+	 * Relasi ke User (Admin yang menunjuk)
+	 */
+	public function creator()
+	{
+		return $this->belongsTo(\App\Models\User::class, 'created_by');
 	}
 }
