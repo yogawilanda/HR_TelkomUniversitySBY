@@ -14,6 +14,7 @@ $stats = [
 
 <div class="pt-16 p-6">
     <div class="mx-auto max-w-7xl">
+        <a href="{{ route('dupak.dashboard') }}" class="text-sm text-gray-500 hover:text-gray-700 mb-4 inline-block">&larr; Kembali ke Dashboard DUPAK</a>
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white text-left">Command Center DUPAK</h1>
@@ -79,58 +80,39 @@ $stats = [
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-1 space-y-6">
-                <!-- Form remains the same -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <div class="p-4 bg-blue-900 border-b border-blue-800">
-                        <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center">
-                            <i class="fas fa-user-plus mr-2"></i> Penunjukan Penilai Baru
-                        </h2>
-                    </div>
-                    <form action="{{ route('dupak.penunjukan_tpak.store') }}" method="POST" class="p-6 space-y-4">
-                        @csrf
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Pilih Pengajuan (Antrean)</label>
-                            <select name="pengajuan_id" class="w-full rounded-lg border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" required>
-                                <option value="">-- Cari Nama Pengaju --</option>
-                                @foreach($pengajuan as $p)
-                                <option value="{{ $p->id }}">#{{ $p->id }} - {{ $p->nama_dosen }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Pilih Dosen TPAK (Penilai)</label>
-                            <select name="idDosenTpak" class="w-full rounded-lg border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" required>
-                                <option value="">-- Pilih Penilai --</option>
-                                @foreach($dosens as $d)
-                                <option value="{{ $d->id }}">
-                                    {{ $d->nama_lengkap }}
-                                </option>
-                                @endforeach
-                            </select>
-                            <p class="text-[10px] text-gray-500 mt-1 italic">* Pastikan JFA Penilai ≥ JFA Pengaju</p>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Catatan Instruksi</label>
-                            <textarea name="catatan" rows="3" class="w-full rounded-lg border-gray-300 text-sm dark:bg-gray-700 dark:text-white" placeholder="Instruksi khusus untuk penilai..."></textarea>
-                        </div>
-
-                        <button type="submit" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-lg transition-all flex items-center justify-center">
-                            Tugaskan Sekarang <i class="fas fa-paper-plane ml-2"></i>
-                        </button>
-                    </form>
-                </div>
-
                 <div class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                     <div class="flex">
                         <i class="fas fa-info-circle text-blue-600 mt-1"></i>
                         <div class="ml-3">
                             <h3 class="text-sm font-bold text-blue-800 dark:text-blue-300 text-left">Tips Admin</h3>
                             <p class="text-xs text-blue-700 dark:text-blue-400 mt-1 leading-relaxed text-left">
-                                Periksa beban kerja penilai pada kolom kanan sebelum memberikan penugasan baru untuk menjaga kualitas review.
+                                Klik tombol "Tunjuk Penilai" pada antrean pengajuan untuk membuka form penunjukan TPAK. Sistem akan otomatis menyaring dosen yang tidak valid.
                             </p>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Widget ringkasan beban kerja TPAK (top 5) -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+                        <h2 class="text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Beban Kerja TPAK</h2>
+                    </div>
+                    <div class="p-4 space-y-3 max-h-64 overflow-y-auto">
+                        @php
+                            $sortedDosens = $dosens->sortByDesc(fn($d) => $dosenWorkload[$d->id] ?? 0)->take(8);
+                        @endphp
+                        @forelse($sortedDosens as $d)
+                        @php $wl = $dosenWorkload[$d->id] ?? 0; @endphp
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-gray-700 dark:text-gray-300 truncate w-32">{{ $d->nama_lengkap }}</span>
+                            <div class="flex-1 mx-3 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-blue-600 rounded-full" style="width: {{ min(100, ($wl / 5) * 100) }}%"></div>
+                            </div>
+                            <span class="text-[10px] font-bold text-blue-700 dark:text-blue-300 w-6 text-right">{{ $wl }}</span>
+                        </div>
+                        @empty
+                        <p class="text-xs text-gray-400 italic">Belum ada data penugasan.</p>
+                        @endforelse
                     </div>
                 </div>
             </div>
@@ -153,13 +135,28 @@ $stats = [
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 @forelse($pengajuan as $p)
-                                <tr class="hover:bg-blue-50/50">
+                                @php
+                                    $count = $tpakCounts[$p->id] ?? 0;
+                                    $isFull = $count >= 5;
+                                @endphp
+                                <tr class="hover:bg-blue-50/50 {{ $isFull ? 'opacity-60 bg-gray-50' : '' }}">
                                     <td class="px-6 py-4 text-sm dark:text-white">#{{ $p->id }}</td>
-                                    <td class="px-6 py-4 text-sm font-bold dark:text-white">{{ $p->nama_dosen }}</td>
+                                    <td class="px-6 py-4 text-sm font-bold dark:text-white">
+                                        {{ $p->nama_dosen }}
+                                        <span class="ml-2 text-[10px] px-2 py-0.5 rounded-full {{ $isFull ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' }}">
+                                            {{ $count }}/5 TPAK
+                                        </span>
+                                    </td>
                                     <td class="px-6 py-4 text-center">
-                                        <button onclick="document.getElementById('pengajuan_id').value = '{{ $p->id }}'" class="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-700">
-                                            <i class="fas fa-user-plus mr-1"></i> Tunjuk Penilai
-                                        </button>
+                                        @if($isFull)
+                                            <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-green-100 text-green-700">
+                                                <i class="fas fa-check mr-1"></i> Lengkap
+                                            </span>
+                                        @else
+                                            <button onclick="quickAssign('{{ $p->id }}', '{{ $p->idDosen }}')" class="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-700">
+                                                <i class="fas fa-user-plus mr-1"></i> Tunjuk Penilai
+                                            </button>
+                                        @endif
                                     </td>
                                 </tr>
                                 @empty
@@ -252,18 +249,179 @@ $stats = [
     </div>
 </div>
 
-@push('scripts')
+<!-- Modal Penunjukan TPAK -->
+<div id="modalTpak" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity" onclick="closeModalTpak()"></div>
+
+    <div class="fixed inset-0 z-10 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                <div class="bg-blue-900 px-4 py-3 sm:px-6 flex justify-between items-center">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center" id="modal-title">
+                        <i class="fas fa-user-plus mr-2"></i> Penunjukan Penilai Baru
+                    </h3>
+                    <button type="button" onclick="closeModalTpak()" class="text-blue-200 hover:text-white focus:outline-none">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form action="{{ route('dupak.penunjukan_tpak.store') }}" method="POST" class="p-6 space-y-4">
+                    @csrf
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Pilih Pengajuan (Antrean)</label>
+                        <select id="modal_pengajuan_id" name="pengajuan_id" class="w-full rounded-lg border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" required>
+                            <option value="">-- Cari Nama Pengaju --</option>
+                            @foreach($pengajuan as $p)
+                            @php
+                                $count = $tpakCounts[$p->id] ?? 0;
+                            @endphp
+                            <option value="{{ $p->id }}" data-pengaju="{{ $p->idDosen }}" data-count="{{ $count }}">
+                                #{{ $p->id }} - {{ $p->nama_dosen }} ({{ $count }}/5 TPAK)
+                            </option>
+                            @endforeach
+                        </select>
+                        <p id="modal-pengajuan-info" class="text-[10px] text-gray-500 mt-1 italic hidden"></p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Pilih Dosen TPAK (Penilai)</label>
+                        <select id="modal_idDosenTpak" name="idDosenTpak" class="w-full rounded-lg border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" required>
+                            <option value="">-- Pilih Penilai --</option>
+                            @foreach($dosens as $d)
+                            @php $workload = $dosenWorkload[$d->id] ?? 0; @endphp
+                            <option value="{{ $d->id }}" data-workload="{{ $workload }}">
+                                {{ $d->nama_lengkap }} (Beban: {{ $workload }} penugasan)
+                            </option>
+                            @endforeach
+                        </select>
+                        <p class="text-[10px] text-gray-500 mt-1 italic">* Pastikan JFA Penilai ≥ JFA Pengaju</p>
+                        <p id="modal-tpak-filter-info" class="text-[10px] text-yellow-600 mt-1 italic hidden"></p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Catatan Instruksi</label>
+                        <textarea name="catatan" rows="3" class="w-full rounded-lg border-gray-300 text-sm dark:bg-gray-700 dark:text-white" placeholder="Instruksi khusus untuk penilai..."></textarea>
+                    </div>
+
+                    <div class="flex justify-end gap-3 pt-2">
+                        <button type="button" onclick="closeModalTpak()" class="px-4 py-2 text-xs font-bold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-4 py-2 text-xs font-bold text-white bg-blue-900 rounded-lg hover:bg-blue-800 flex items-center">
+                            Tugaskan Sekarang <i class="fas fa-paper-plane ml-2"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@endsection
+
+@section('script')
 <script>
+// Data mapping dari server
+const pengajuMap = @json($pengajuMap ?? []);
+const assignedMap = @json($assignedMap ?? []);
+const tpakCounts = @json($tpakCounts ?? []);
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Quick assign buttons
-    document.querySelectorAll('.quick-assign').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const pengajuanId = this.dataset.id;
-            document.getElementById('pengajuan_id').value = pengajuanId;
+    const modalSelectPengajuan = document.getElementById('modal_pengajuan_id');
+    const modalSelectTpak = document.getElementById('modal_idDosenTpak');
+    const modalInfoPengajuan = document.getElementById('modal-pengajuan-info');
+    const modalInfoFilter = document.getElementById('modal-tpak-filter-info');
+
+    function filterTpakOptions() {
+        const pengajuanId = modalSelectPengajuan.value;
+        if (!pengajuanId) {
+            Array.from(modalSelectTpak.options).forEach(opt => {
+                if (opt.value !== '') opt.hidden = false;
+            });
+            modalInfoFilter.classList.add('hidden');
+            modalInfoPengajuan.classList.add('hidden');
+            return;
+        }
+
+        const pengajuId = pengajuMap[pengajuanId] || null;
+        const assigned = assignedMap[pengajuanId] || [];
+        const count = tpakCounts[pengajuanId] || 0;
+
+        if (count >= 5) {
+            modalInfoPengajuan.textContent = 'Pengajuan ini sudah memiliki 5 TPAK (maksimal).';
+        } else {
+            modalInfoPengajuan.textContent = 'Sudah ' + count + ' dari 5 TPAK ditugaskan.';
+        }
+        modalInfoPengajuan.classList.remove('hidden');
+
+        let hiddenCount = 0;
+        Array.from(modalSelectTpak.options).forEach(opt => {
+            if (opt.value === '') return;
+
+            const dosenId = opt.value;
+            const isSelf = pengajuId && dosenId === pengajuId;
+            const isAssigned = assigned.includes(dosenId);
+
+            if (isSelf || isAssigned) {
+                opt.hidden = true;
+                hiddenCount++;
+            } else {
+                opt.hidden = false;
+            }
         });
+
+        if (hiddenCount > 0) {
+            modalInfoFilter.textContent = hiddenCount + ' dosen disembunyikan (pengaju sendiri / sudah ditunjuk).';
+            modalInfoFilter.classList.remove('hidden');
+        } else {
+            modalInfoFilter.classList.add('hidden');
+        }
+
+        if (modalSelectTpak.selectedOptions[0]?.hidden) {
+            modalSelectTpak.value = '';
+        }
+    }
+
+    if (modalSelectPengajuan) {
+        modalSelectPengajuan.addEventListener('change', filterTpakOptions);
+    }
+
+    // Escape key untuk menutup modal
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeModalTpak();
+        }
     });
 });
-</script>
-@endpush
 
+function openModalTpak() {
+    document.getElementById('modalTpak').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModalTpak() {
+    document.getElementById('modalTpak').classList.add('hidden');
+    document.body.style.overflow = '';
+    const form = document.querySelector('#modalTpak form');
+    if (form) form.reset();
+    const infoFilter = document.getElementById('modal-tpak-filter-info');
+    const infoPengajuan = document.getElementById('modal-pengajuan-info');
+    if (infoFilter) infoFilter.classList.add('hidden');
+    if (infoPengajuan) infoPengajuan.classList.add('hidden');
+    Array.from(document.getElementById('modal_idDosenTpak').options).forEach(opt => {
+        if (opt.value !== '') opt.hidden = false;
+    });
+}
+
+// Quick assign dari tabel antrean
+function quickAssign(pengajuanId, pengajuId) {
+    openModalTpak();
+    const selectPengajuan = document.getElementById('modal_pengajuan_id');
+    if (selectPengajuan) {
+        selectPengajuan.value = pengajuanId;
+        selectPengajuan.dispatchEvent(new Event('change'));
+    }
+}
+</script>
 @endsection

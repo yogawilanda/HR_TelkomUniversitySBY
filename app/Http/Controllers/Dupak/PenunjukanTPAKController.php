@@ -33,6 +33,28 @@ class PenunjukanTPAKController extends Controller
             }, '<', 5)
             ->get();
 
+        // Hitung jumlah TPAK yang sudah ditunjuk per pengajuan (untuk info di UI)
+        $tpakCounts = PenunjukanTPAKModel::select('pengajuan_id', DB::raw('count(*) as total'))
+            ->groupBy('pengajuan_id')
+            ->pluck('total', 'pengajuan_id')
+            ->toArray();
+
+        // Hitung beban kerja TPAK (jumlah penugasan aktif per dosen)
+        $dosenWorkload = PenunjukanTPAKModel::select('idDosenTpak', DB::raw('count(*) as total'))
+            ->groupBy('idDosenTpak')
+            ->pluck('total', 'idDosenTpak')
+            ->toArray();
+
+        // Mapping pengajuan_id -> idDosen pengaju (untuk filter self-assign di UI)
+        $pengajuMap = $pengajuan->pluck('idDosen', 'id')->toArray();
+
+        // Mapping pengajuan_id -> array idDosenTpak yang sudah ditunjuk (untuk filter duplikat di UI)
+        $assignedMap = PenunjukanTPAKModel::select('pengajuan_id', 'idDosenTpak')
+            ->get()
+            ->groupBy('pengajuan_id')
+            ->map(fn($items) => $items->pluck('idDosenTpak')->toArray())
+            ->toArray();
+
         // 3. Ambil Riwayat Penunjukan TPAK dari database dupak
         $penunjukanQuery = PenunjukanTPAKModel::orderBy('created_at', 'desc');
 
@@ -75,7 +97,7 @@ class PenunjukanTPAKController extends Controller
             return $item;
         });
 
-        return view('dupak.penunjukan_tpak.index', compact('dosens', 'pengajuan', 'penunjukanTpak'));
+        return view('dupak.penunjukan_tpak.index', compact('dosens', 'pengajuan', 'penunjukanTpak', 'tpakCounts', 'dosenWorkload', 'pengajuMap', 'assignedMap'));
     }
 
     /**
@@ -108,8 +130,14 @@ class PenunjukanTPAKController extends Controller
         ]);
 
         try {
-            // 1. Validasi: Dosen tidak boleh menilai pengajuannya sendiri
+            // 1. Ambil dan cek status pengajuan
             $pengajuan = Pengajuan::findOrFail($request->pengajuan_id);
+            $finalStatuses = ['Diterima', 'Ditolak', 'Selesai'];
+            if (in_array($pengajuan->status, $finalStatuses)) {
+                return redirect()->back()->with('error', 'Pengajuan sudah final (' . $pengajuan->status . '). Tidak dapat menambahkan TPAK lagi.');
+            }
+
+            // 2. Validasi: Dosen tidak boleh menilai pengajuannya sendiri
             if ($pengajuan->idDosen == $request->idDosenTpak) {
                 return redirect()->back()->with('error', 'Dosen tidak diperbolehkan menjadi penilai (TPAK) untuk pengajuannya sendiri.');
             }
