@@ -101,6 +101,24 @@ class DashboardController extends Controller
             ->exists();
     }
 
+    /**
+     * Cek apakah dosen sudah mencapai jabatan fungsional tertinggi (Guru Besar).
+     * UUID "d6418a5e-b76f-4d67-9990-056e1acabe66" = Guru Besar (Profesor)
+     */
+    private function isMaxJfa(?Dosen $dosen): bool
+    {
+        if (!$dosen) return false;
+
+        $riwayat = $this->getCurrentJFA($dosen);
+        $jfaId = $riwayat?->ref_jfa_id;
+
+        // Guru Besar adalah elemen terakhir pada map urutan JFA
+        $jfaKeys = array_keys($this->aturanPengajuanJFA);
+        $lastJfaId = end($jfaKeys);
+
+        return $jfaId === $lastJfaId;
+    }
+
     private function getLatestSubmission(User $user, ?Dosen $dosen)
     {
         $query = Pengajuan::query();
@@ -213,6 +231,8 @@ class DashboardController extends Controller
             }
         }
 
+        $isMaxJfa = $this->isMaxJfa($dosen);
+
         $viewData = [
             'user' => $user,
             'dosen' => $dosen,
@@ -220,6 +240,7 @@ class DashboardController extends Controller
             'hasNoPengajuan' => $hasNoPengajuan,
             'totalPengajuanMandiri' => $totalPengajuanMandiri,
             'totalSeluruhPengajuan' => $totalSeluruhPengajuan,
+            'isMaxJfa' => $isMaxJfa,
 
             'kum' => [
                 'current' => $progress['current'],

@@ -37,8 +37,12 @@ class PengajuanController extends Controller
 
         $kegiatanUtama = RefKegiatanUtama::with('komponens')->where('status', 1)->get();
 
+        // Cek apakah dosen sudah Guru Besar (jabatan tertinggi)
+        $dosen = Dosen::where('users_id', $user->id)->first();
+        $isMaxJfa = $dosen ? $this->isMaxJfa($dosen) : false;
+
         // 3. Pass the Paginator object to the view
-        return view('dupak.pengajuan.index', compact('pengajuan', 'user', 'dosenId', 'kegiatanUtama'));
+        return view('dupak.pengajuan.index', compact('pengajuan', 'user', 'dosenId', 'kegiatanUtama', 'isMaxJfa'));
     }
 
     // Peta urutan Jabatan Fungsional Akademik (UUID ke Nama Jabatan)
@@ -63,6 +67,23 @@ class PengajuanController extends Controller
         // Anda bisa tambahkan jabatan fungsional lain di sini, pastikan urut!
     ];
 
+    /**
+     * Cek apakah dosen sudah mencapai jabatan fungsional tertinggi (Guru Besar).
+     */
+    private function isMaxJfa(Dosen $dosen): bool
+    {
+        $riwayat_jfa = RiwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
+            ->latest()
+            ->first();
+
+        if (!$riwayat_jfa) return false;
+
+        $jfaKeys = array_keys($this->aturanPengajuanJFA);
+        $lastJfaId = end($jfaKeys);
+
+        return $riwayat_jfa->ref_jfa_id === $lastJfaId;
+    }
+
     public function create()
     {
         // 1. Ambil data Dosen.
@@ -72,6 +93,12 @@ class PengajuanController extends Controller
         // namun untuk safety, pengecekan juga dilakukan pada controller ini.
         if (!$dosen) {
             return redirect()->route('dupak.dashboard')->with('error', 'Akses ditolak. Anda bukan Dosen.');
+        }
+
+        // Validasi keras: Guru Besar tidak boleh mengajukan kenaikan jabatan lagi.
+        if ($this->isMaxJfa($dosen)) {
+            return redirect()->route('dupak.dashboard')
+                ->with('error', 'Anda sudah mencapai jabatan fungsional tertinggi (Guru Besar). Pengajuan kenaikan jabatan tidak diperbolehkan.');
         }
 
         $nidn = $dosen->nidn ?? 'NIDN Belum Terisi';
@@ -183,6 +210,13 @@ class PengajuanController extends Controller
         }
 
         // Create new Pengajuan
+        // Validasi keras: Guru Besar tidak boleh mengajukan kenaikan jabatan lagi.
+        if ($this->isMaxJfa($dosen)) {
+            return redirect()->route('dupak.dashboard')
+                ->with('error', 'Anda sudah mencapai jabatan fungsional tertinggi (Guru Besar). Pengajuan kenaikan jabatan tidak diperbolehkan.');
+        }
+
+        // Jika sudah jabatan tertinggi, $nextJfaId tidak terdefinisi — amankan dengan early return di atas.
         $pengajuan = new Pengajuan();
         $pengajuan->idDosen = $dosen->id;
         $pengajuan->status = 'Pending';

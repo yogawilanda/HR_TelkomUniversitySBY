@@ -68,7 +68,14 @@
                         @else
                             <div class="p-10 border-2 border-dashed border-gray-300 text-center rounded-lg">
                                 <p class="text-gray-500">Belum ada pengajuan aktif.</p>
-                                <a href="{{ route('dupak.pengajuan.create', ['userId' => $user->id]) }}" class="mt-4 inline-block bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-950">Buat Pengajuan Baru</a>
+                                @if($isMaxJfa)
+                                    <div class="mt-4 p-3 bg-green-50 border border-green-300 text-green-800 rounded-md text-sm">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        Anda telah mencapai jabatan tertinggi (Guru Besar). Tidak perlu pengajuan kenaikan jabatan lagi.
+                                    </div>
+                                @else
+                                    <a href="{{ route('dupak.pengajuan.create', ['userId' => $user->id]) }}" class="mt-4 inline-block bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-950">Buat Pengajuan Baru</a>
+                                @endif
                             </div>
                         @endif
                     </div>
@@ -127,7 +134,7 @@
 
                         @if (!$user->is_admin)
                         @php
-                        $buttonDisabled = $submissions['has_pending'];
+                        $buttonDisabled = $submissions['has_pending'] || $isMaxJfa;
                         @endphp
                         <a href="{{ $buttonDisabled ? '#' : route('dupak.pengajuan.create', ['userId' => $user->id]) }}"
                            class="px-4 py-2 text-xs font-semibold text-white uppercase rounded-md
@@ -140,6 +147,13 @@
                     @if(!$user->is_admin && $submissions['has_pending'])
                     <div class="mb-4 p-3 bg-yellow-50 border border-yellow-300 text-yellow-700 rounded">
                         Lengkapi detail kegiatan hingga memenuhi syarat pengajuan baru.
+                    </div>
+                    @endif
+
+                    @if(!$user->is_admin && $isMaxJfa)
+                    <div class="mb-4 p-3 bg-green-50 border border-green-300 text-green-800 rounded">
+                        <i class="fas fa-check-circle mr-1"></i>
+                        Anda sudah mencapai jabatan fungsional tertinggi (Guru Besar). Pengajuan kenaikan jabatan tidak tersedia.
                     </div>
                     @endif
 
