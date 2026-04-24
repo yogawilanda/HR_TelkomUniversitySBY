@@ -9,6 +9,7 @@ use App\Models\Dupak\PenunjukanTPAKModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class PenunjukanTPAKController extends Controller
@@ -232,8 +233,19 @@ class PenunjukanTPAKController extends Controller
 
             return redirect()->route('dupak.penunjukan_tpak.index')->with('success', 'TPAK berhasil ditunjuk dan ditugaskan.');
         } catch (\Exception $e) {
-            // Negative case: Tangani error teknis agar user tidak panik
-            return redirect()->back()->with('error', 'Terjadi kesalahan teknis saat menyimpan penunjukan. Silakan coba lagi atau hubungi admin.');
+            // Log exception lengkap untuk debugging
+            Log::error('Gagal menyimpan penunjukan TPAK', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile() . ':' . $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->only(['pengajuan_id', 'idDosenTpak']),
+            ]);
+
+            $debugMessage = config('app.debug')
+                ? ' [DEBUG: ' . $e->getMessage() . ' — ' . get_class($e) . ']'
+                : '';
+
+            return redirect()->back()->with('error', 'Terjadi kesalahan teknis saat menyimpan penunjukan. Silakan coba lagi atau hubungi admin.' . $debugMessage);
         }
     }
 
@@ -248,7 +260,16 @@ class PenunjukanTPAKController extends Controller
             $penunjukan->delete();
             return redirect()->route('dupak.penunjukan_tpak.index')->with('success', 'Penugasan TPAK telah dibatalkan!');
         } catch (\Exception $e) {
-            return redirect()->route('dupak.penunjukan_tpak.index')->with('error', 'Terjadi kesalahan teknis saat membatalkan penunjukan. Silakan coba lagi.');
+            Log::error('Gagal membatalkan penunjukan TPAK', [
+                'message' => $e->getMessage(),
+                'penunjukan_id' => $id,
+            ]);
+
+            $debugMessage = config('app.debug')
+                ? ' [DEBUG: ' . $e->getMessage() . ']'
+                : '';
+
+            return redirect()->route('dupak.penunjukan_tpak.index')->with('error', 'Terjadi kesalahan teknis saat membatalkan penunjukan. Silakan coba lagi.' . $debugMessage);
         }
     }
 }
