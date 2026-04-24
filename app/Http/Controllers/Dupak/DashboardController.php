@@ -10,6 +10,7 @@ use App\Models\Dupak\RefKegiatanKomponen;
 use App\Models\Dupak\RefTargetJabatanPengajuan;
 use App\Models\refJabatanFungsionalAkademik;
 use App\Models\Dupak\RefKegiatanUtama;
+use App\Models\Dupak\PenunjukanTPAKModel;
 use App\Models\riwayatJabatanFungsionalAkademik;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\DB;
 class DashboardController extends Controller
 {
     protected $aturanPengajuanJFA = [
-        '8a7c0b44-2c2e-4a16-a4df-111111111111' => 'Non JAD', // if i add this, it's error without a proper debugging and i dont know why, check why.
+        '8a7c0b44-2c2e-4a16-a4df-111111111111' => 'Non JAD',
         'b467678d-8e9f-4453-bb76-f0cba91468dc' => 'Asisten Ahli',
         'f6890047-b0ea-4b45-a9f9-b0584c65bdd6' => 'Lektor',
         '21ac00aa-1f19-4347-84c1-9e70413209ab' => 'Lektor Kepala',
@@ -64,15 +65,15 @@ class DashboardController extends Controller
 
     private function buildProgress($current, $goal)
     {
+        // Pastikan goal tidak nol untuk menghindari division by zero error
+        $goal = (float) $goal;
+        $current = (float) $current;
         $percent = $goal > 0 ? min(100, ($current / $goal) * 100) : 0;
 
         return [
-            'current' => number_format($current, 2),
-            'goal' => number_format($goal, 2),
-            'remaining' => number_format(
-                max(0, $goal - $current),
-                2
-            ),
+            'current' => number_format($current, 2, '.', ''),
+            'goal' => number_format($goal, 2, '.', ''),
+            'remaining' => number_format(max(0, $goal - $current), 2, '.', ''),
             'percent' => $percent,
             'statusColor' => $percent >= 100 ? 'bg-green-600' : ($percent >= 60 ? 'bg-yellow-500' : 'bg-indigo-600'),
         ];
@@ -80,8 +81,7 @@ class DashboardController extends Controller
 
     private function submissions(User $user, ?string $dosenId)
     {
-        // get the latest submissions for the current user (if not admin) or all submissions (if admin)
-        $q = Pengajuan::with(['dosen', 'dosen.pegawai'])->latest();
+        $q = Pengajuan::with(['dosen.pegawai'])->latest();
 
         if (!$user->is_admin) {
             $q->where('idDosen', $dosenId ?? '___INVALID___');
@@ -92,12 +92,8 @@ class DashboardController extends Controller
 
     private function hasPendingSubmission(?string $dosenId): bool
     {
-        if (!$dosenId) {
-            return false;
-        }
+        if (!$dosenId) return false;
 
-        // Status yang dianggap sedang dalam proses (belum selesai/ditolak).
-        // Pastikan konsisten dengan nilai di tabel pengajuan dan badge di view.
         $pendingStatuses = ['Draft', 'Pending', 'Diajukan', 'Revisi', 'Menunggu'];
 
         return Pengajuan::where('idDosen', $dosenId)
@@ -109,16 +105,11 @@ class DashboardController extends Controller
     {
         $query = Pengajuan::query();
 
-        if ($user->is_admin) {
-            // For admin, get the absolute latest submission in the system.
+        if ($user->is_admin && !$dosen) {
             return $query->latest()->first();
         }
 
-        // Ambil pengajuan terakhir milik dosen tersebut tanpa mempedulikan statusnya
-        // agar tombol "Detail Kegiatan" selalu mengarah ke aktivitas terbaru.
-        return $query->where('idDosen', $dosen?->id)
-            ->latest()
-            ->first();
+        return $query->where('idDosen', $dosen?->id)->latest()->first();
     }
 
     private function getJfaAndKumData(?Dosen $dosen, float $currentKum)
@@ -128,14 +119,12 @@ class DashboardController extends Controller
         $refJfa = $jfaAsal ? refJabatanFungsionalAkademik::find($jfaAsal) : null;
 
         $minimalKum = $refJfa?->kum ?? 0;
-
-        $namaJabatanSaatIni = $refJfa?->nama_jabatan ?? 'Anda bukan dosen';
+        $namaJabatanSaatIni = $refJfa?->nama_jabatan ?? 'Belum memiliki JFA';
 
         $jfaTujuan = $this->getJfaTujuan($jfaAsal);
-        $jfaTujuanNama = $jfaTujuan ? $this->aturanPengajuanJFA[$jfaTujuan] : 'Tidak Ada (Jabatan Tertinggi)';
+        $jfaTujuanNama = $jfaTujuan ? ($this->aturanPengajuanJFA[$jfaTujuan] ?? 'Tidak Diketahui') : 'Jabatan Tertinggi';
 
         $targetKum = $this->getTargetKum($jfaAsal, $jfaTujuan, $minimalKum);
-
         $progress = $this->buildProgress($currentKum, $targetKum);
 
         return [
@@ -154,32 +143,32 @@ class DashboardController extends Controller
             abort(403, 'Akses ditolak. Anda bukan Dosen.');
         }
 
-        // Ambil pengajuan terbaru untuk menghitung KUM yang sedang diajukan
         $latestSubmission = $this->getLatestSubmission($user, $dosen);
 
-        // FIX: Hanya hitung KUM pengajuan jika user adalah Dosen, dan pastikan hanya mengambil milik sendiri.
         $kumPengajuan = 0;
+        $personalSubmission = null;
+
         if ($dosen) {
             $personalSubmission = Pengajuan::where('idDosen', $dosen->id)->latest()->first();
-            $kumPengajuan = $personalSubmission ? $personalSubmission->details()->sum('angka_kredit_total') : 0;
+            $kumPengajuan = $personalSubmission ? (float) $personalSubmission->details()->sum('angka_kredit_total') : 0;
         }
 
-        // KUM saat ini adalah gabungan KUM di profil + KUM yang sedang diproses dalam pengajuan
-        $totalKumSaatIni = ($user->kum ?? 0) + $kumPengajuan;
-
+        $totalKumSaatIni = (float)($user->kum ?? 0) + $kumPengajuan;
         $jfaData = $this->getJfaAndKumData($dosen, $totalKumSaatIni);
         $progress = $jfaData['progress'];
 
-        // check if dosen has no pengajuan
         $hasNoPengajuan = $dosen ? !Pengajuan::where('idDosen', $dosen->id)->exists() : true;
-
-        // count total pengajuan for the current dosen
         $totalPengajuanMandiri = $dosen ? Pengajuan::where('idDosen', $dosen->id)->count() : 0;
-
-        // check total all submissions for admin
         $totalSeluruhPengajuan = Pengajuan::count();
 
-        // Mengambil hanya kolom yang diperlukan (id dan nama) untuk kategori utama dan komponennya
+        $tugasTpak = collect([]);
+        if ($dosen) {
+            $tugasTpak = PenunjukanTPAKModel::where('idDosenTpak', $dosen->id)
+                ->with(['pengajuan.dosen.pegawai'])
+                ->latest()
+                ->get();
+        }
+
         $kegiatanUtama = RefKegiatanUtama::select('id', 'nama')
             ->with(['komponens' => function ($query) {
                 $query->select('id', 'nama', 'idKegiatanUtama');
@@ -187,14 +176,11 @@ class DashboardController extends Controller
             ->where('status', 1)
             ->get();
 
-
-        // Statistik ringkasan untuk tampilan Admin
         $statistik = [
             'selesai' => Pengajuan::where('status', 'Diterima')->count(),
             'pending' => Pengajuan::whereIn('status', ['Draft', 'Pending', 'Diajukan', 'Revisi', 'Menunggu'])->count(),
         ];
 
-        // Breakdown KUM per komponen (kategori utama) dari pengajuan terbaru dosen
         $kumBreakdown = [
             'pendidikan' => '0.00',
             'pelaksanaan_pendidikan' => '0.00',
@@ -213,8 +199,6 @@ class DashboardController extends Controller
 
             foreach ($breakdown as $kategori => $total) {
                 $lower = strtolower($kategori);
-                // Cek "pelaksanaan pendidikan" HARUS lebih dulu sebelum "pendidikan"
-                // karena string "pelaksanaan pendidikan" mengandung kata "pendidikan"
                 if (str_contains($lower, 'pelaksanaan pendidikan')) {
                     $kumBreakdown['pelaksanaan_pendidikan'] = number_format($total, 2);
                 } elseif (str_contains($lower, 'pendidikan')) {
@@ -242,8 +226,8 @@ class DashboardController extends Controller
                 'target' => $progress['goal'],
                 'remaining' => $progress['remaining'],
                 'percent' => $progress['percent'],
-                'base_kum' => number_format($user->kum ?? 0, 2), // KUM dari profil
-                'pending_kum' => number_format($kumPengajuan, 2), // KUM dari detail pengajuan
+                'base_kum' => number_format($user->kum ?? 0, 2),
+                'pending_kum' => number_format($kumPengajuan, 2),
                 'statusColor' => $progress['statusColor'],
                 'updatedAtFormatted' => $user->kum_updated_at ? Carbon::parse($user->kum_updated_at)->diffForHumans() : 'Belum pernah diperbarui',
                 'pendidikan' => $kumBreakdown['pendidikan'],
@@ -262,6 +246,14 @@ class DashboardController extends Controller
                 'list' => $this->submissions($user, $dosen?->id)->paginate(10),
                 'has_pending' => $this->hasPendingSubmission($dosen?->id),
                 'latest' => $latestSubmission,
+            ],
+            'isTpak' => $tugasTpak->isNotEmpty(),
+            'penugasanTpak' => $tugasTpak,
+
+            'tpak' => [
+                'is_tpak' => $tugasTpak->isNotEmpty(),
+                'assignments' => $tugasTpak,
+                'count' => $tugasTpak->count()
             ],
             'kegiatanUtama' => $kegiatanUtama,
             'statistik' => $statistik,

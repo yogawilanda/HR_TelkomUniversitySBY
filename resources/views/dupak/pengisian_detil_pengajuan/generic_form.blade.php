@@ -12,7 +12,7 @@
 				<h2 class="text-xl">Daftar Usulan Penetapan Angka Kredit</h2>
 
 				{{-- Fixed: Form tag was self-closing and route name adjusted to match web.php --}}
-				<form method="POST" action="{{ route('dupak.detil_pengajuan.store', [$category, $pengajuan->id]) }}" class="space-y-6">
+				<form method="POST" action="{{ route('dupak.dupak.detil_pengajuan.store', [$category, $pengajuan->id]) }}" class="space-y-6">
 					@csrf
 					<input type="hidden" name="id_komponen" value="{{ $komponen->id }}">
 
