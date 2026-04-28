@@ -41,3 +41,14 @@ php artisan db:full-refresh --seed
 - Penunjukan TPAK: 10 blind spot sudah diperbaiki
 - Dashboard: bug critical fixed (statistik, breakdown KUM, status)
 - Migration: kolom `created_by` ditambahkan di file existing (tidak buat file baru)
+
+
+
+
+------------- Catatan untuk evi ---------------------
+ di model dosen aku nambahin function buat connect ke model user. karena ada model dupak yang butuh itu.
+ 
+ public function user()
+    {
+        return $this->belongsTo(User::class, 'users_id', 'id');
+    }

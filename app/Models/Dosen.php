@@ -37,6 +37,12 @@ class Dosen extends Model
         return $this->belongsTo(User::class, 'users_id', 'id');
     }
 
+    // Alias for compatibility with DUPAK modules
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'users_id', 'id');
+    }
+
     // public function prodi()
     // {
     //     return $this->belongsTo(work_position::class);
