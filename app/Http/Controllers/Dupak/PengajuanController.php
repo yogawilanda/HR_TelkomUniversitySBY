@@ -73,7 +73,8 @@ class PengajuanController extends Controller
     private function isMaxJfa(Dosen $dosen): bool
     {
         $riwayat_jfa = RiwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
-            ->latest()
+            ->whereNull('tmt_selesai') // Pastikan hanya JFA aktif
+            ->latest('tmt_mulai') // Ambil yang terbaru berdasarkan tanggal mulai
             ->first();
 
         if (!$riwayat_jfa) return false;
@@ -82,6 +83,35 @@ class PengajuanController extends Controller
         $lastJfaId = end($jfaKeys);
 
         return $riwayat_jfa->ref_jfa_id === $lastJfaId;
+    }
+
+    /**
+     * Menentukan ID JFA tujuan berikutnya berdasarkan JFA aktif dosen saat ini.
+     * Mengembalikan UUID JFA tujuan atau null jika sudah di jabatan tertinggi.
+     */
+    private function getNextJfaId(Dosen $dosen): ?string
+    {
+        $riwayat_jfa = RiwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
+            ->whereNull('tmt_selesai') // Pastikan hanya JFA aktif
+            ->latest('tmt_mulai') // Ambil yang terbaru berdasarkan tanggal mulai
+            ->first();
+
+        if (!$riwayat_jfa) {
+            // Jika tidak ada JFA aktif, asumsikan NJAD dan target Asisten Ahli (indeks 1 di map)
+            return array_keys($this->aturanPengajuanJFA)[1] ?? null;
+        }
+
+        $jfa_id_saat_ini = $riwayat_jfa->ref_jfa_id;
+        $jfaKeys = array_keys($this->aturanPengajuanJFA);
+        $currentKeyIndex = array_search($jfa_id_saat_ini, $jfaKeys);
+
+        if ($currentKeyIndex !== false) {
+            $nextKeyIndex = $currentKeyIndex + 1;
+            if (isset($jfaKeys[$nextKeyIndex])) {
+                return $jfaKeys[$nextKeyIndex];
+            }
+        }
+        return null; // Sudah di jabatan tertinggi atau JFA tidak ditemukan di map
     }
 
     public function create()
@@ -106,44 +136,18 @@ class PengajuanController extends Controller
         $jfa_tujuan = 'Belum Ada Riwayat Jabatan';
 
         // 2. Ambil riwayat JFA terakhir (pastikan tidak null)
-        $riwayat_jfa = RiwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
-            ->latest()
+        $riwayat_jfa_aktif = RiwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
+            ->whereNull('tmt_selesai')
+            ->latest('tmt_mulai')
             ->first();
 
-        if ($riwayat_jfa) {
-            $jfa_id_saat_ini = $riwayat_jfa->ref_jfa_id;
-
-            // Ambil detail jabatan fungsional saat ini (untuk nama jabatan)
-            $refJfaSaatIni = RefJabatanFungsionalAkademik::find($jfa_id_saat_ini);
-
-            if ($refJfaSaatIni) {
-                $jabatan_fungsional = $refJfaSaatIni->nama_jabatan;
-
-                // --- Logika Penentuan JFA Tujuan menggunakan Array Map ---
-
-                // Ambil semua kunci (UUID) dari peta urutan
-                $jfaKeys = array_keys($this->aturanPengajuanJFA);
-
-                // Cari posisi (index) ID saat ini dalam array kunci
-                $currentKeyIndex = array_search($jfa_id_saat_ini, $jfaKeys);
-
-                // Jika ID saat ini ditemukan di map
-                if ($currentKeyIndex !== false) {
-                    $nextKeyIndex = $currentKeyIndex + 1;
-
-                    // Cek apakah ada index berikutnya (jabatan berikutnya)
-                    if (isset($jfaKeys[$nextKeyIndex])) {
-                        $nextJfaId = $jfaKeys[$nextKeyIndex];
-                        // Ambil nama jabatan dari map
-                        $jfa_tujuan = $this->aturanPengajuanJFA[$nextJfaId];
-                    } else {
-                        // Tidak ada jabatan di atas level ini (sudah tertinggi)
-                        $jfa_tujuan = 'Jabatan Tertinggi (Puncak Karir)';
-                    }
-                } else {
-                    // ID JFA saat ini tidak terdaftar di map urutan.
-                    $jfa_tujuan = 'Tidak dapat ditentukan (JFA saat ini tidak ada di daftar urutan).';
-                }
+        if ($riwayat_jfa_aktif) {
+            $jabatan_fungsional = RefJabatanFungsionalAkademik::find($riwayat_jfa_aktif->ref_jfa_id)->nama_jabatan ?? 'Tidak Diketahui';
+            $nextJfaId = $this->getNextJfaId($dosen);
+            if ($nextJfaId) {
+                $jfa_tujuan = $this->aturanPengajuanJFA[$nextJfaId];
+            } else {
+                $jfa_tujuan = 'Jabatan Tertinggi (Puncak Karir)';
             }
         }
 
@@ -168,45 +172,15 @@ class PengajuanController extends Controller
             return redirect()->route('dupak.dashboard')->with('error', 'Akses ditolak. Anda bukan Dosen.');
         }
 
-        $riwayat_jfa = RiwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
-            ->latest()
+        // Ambil JFA aktif saat ini
+        $riwayat_jfa_aktif = RiwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
+            ->whereNull('tmt_selesai')
+            ->latest('tmt_mulai')
             ->first();
 
-        if ($riwayat_jfa) {
-            $jfa_id_saat_ini = $riwayat_jfa->ref_jfa_id;
-
-            // Ambil detail jabatan fungsional saat ini (untuk nama jabatan)
-            $refJfaSaatIni = RefJabatanFungsionalAkademik::find($jfa_id_saat_ini);
-
-            if ($refJfaSaatIni) {
-                $jabatan_fungsional = $refJfaSaatIni->nama_jabatan;
-
-                // --- Logika Penentuan JFA Tujuan menggunakan Array Map ---
-
-                // Ambil semua kunci (UUID) dari peta urutan
-                $jfaKeys = array_keys($this->aturanPengajuanJFA);
-
-                // Cari posisi (index) ID saat ini dalam array kunci
-                $currentKeyIndex = array_search($jfa_id_saat_ini, $jfaKeys);
-
-                // Jika ID saat ini ditemukan di map
-                if ($currentKeyIndex !== false) {
-                    $nextKeyIndex = $currentKeyIndex + 1;
-
-                    // Cek apakah ada index berikutnya (jabatan berikutnya)
-                    if (isset($jfaKeys[$nextKeyIndex])) {
-                        $nextJfaId = $jfaKeys[$nextKeyIndex];
-                        // Ambil nama jabatan dari map
-                        $jfa_tujuan = $this->aturanPengajuanJFA[$nextJfaId];
-                    } else {
-                        // Tidak ada jabatan di atas level ini (sudah tertinggi)
-                        $jfa_tujuan = 'Jabatan Tertinggi (Puncak Karir)';
-                    }
-                } else {
-                    // ID JFA saat ini tidak terdaftar di map urutan.
-                    $jfa_tujuan = 'Tidak dapat ditentukan (JFA saat ini tidak ada di daftar urutan).';
-                }
-            }
+        if (!$riwayat_jfa_aktif) {
+            return redirect()->route('dupak.dashboard')
+                ->with('error', 'Anda belum memiliki riwayat Jabatan Fungsional Akademik aktif.');
         }
 
         // Create new Pengajuan
@@ -216,14 +190,17 @@ class PengajuanController extends Controller
                 ->with('error', 'Anda sudah mencapai jabatan fungsional tertinggi (Guru Besar). Pengajuan kenaikan jabatan tidak diperbolehkan.');
         }
 
-        // Jika sudah jabatan tertinggi, $nextJfaId tidak terdefinisi — amankan dengan early return di atas.
+        $nextJfaId = $this->getNextJfaId($dosen);
+        if (!$nextJfaId) {
+            return redirect()->route('dupak.dashboard')
+                ->with('error', 'Tidak dapat menentukan jabatan tujuan. Anda mungkin sudah mencapai jabatan tertinggi.');
+        }
+
         $pengajuan = new Pengajuan();
         $pengajuan->idDosen = $dosen->id;
         $pengajuan->status = 'Pending';
-        $pengajuan->jfaAsal =  $jfa_id_saat_ini;
-        $pengajuan->jfaTujuan =  $nextJfaId;
-        // dd($request->all());
-        // dd($jfa_id_saat_ini, $nextJfaId);
+        $pengajuan->jfaAsal = $riwayat_jfa_aktif->ref_jfa_id;
+        $pengajuan->jfaTujuan = $nextJfaId;
         $pengajuan->save();
 
         return redirect()->route('dupak.dashboard')
@@ -389,29 +366,45 @@ class PengajuanController extends Controller
             $totalKum = $pengajuan->details->sum('angka_kredit_total');
             
             // Ambil semua nama pemeriksa untuk menghindari undefined variable dan query berulang
-            $evaluatorIds = $pengajuan->details->flatMap->evaluations->pluck('idUserPemeriksa')->unique();
+            $evaluatorNames = [];
+            $tpakEvaluatorIds = $pengajuan->details->flatMap->evaluations->where('peran_pemeriksa', 'TPAK')->pluck('idUserPemeriksa')->unique();
+            $adminEvaluatorIds = $pengajuan->details->flatMap->evaluations->where('peran_pemeriksa', 'Admin')->pluck('idUserPemeriksa')->unique();
 
-            // Ambil nama dari tabel User (untuk Admin yang bukan Dosen)
-            $namesFromUsers = \App\Models\User::whereIn('id', $evaluatorIds)
-                ->get()
-                ->mapWithKeys(fn($user) => [
-                    $user->id => $user->nama_lengkap ?? $user->nama ?? 'Pemeriksa'
-                ])->toArray();
+            if ($tpakEvaluatorIds->isNotEmpty()) {
+                $namesFromDosens = Dosen::whereIn('id', $tpakEvaluatorIds)
+                    ->with('user') // Asumsi Dosen memiliki relasi ke User
+                    ->get()
+                    ->mapWithKeys(fn($dosen) => [
+                        $dosen->id => $dosen->user->nama_lengkap ?? $dosen->user->nama ?? 'Pemeriksa TPAK'
+                    ])->toArray();
+                $evaluatorNames = $evaluatorNames + $namesFromDosens;
+            }
 
-            // Ambil nama dari tabel Dosen (untuk TPAK). idUserPemeriksa merujuk ke ID Dosen.
-            $namesFromDosens = Dosen::whereIn('id', $evaluatorIds)
-                ->with('pegawai')
-                ->get()
-                ->mapWithKeys(fn($dosen) => [
-                    $dosen->id => $dosen->pegawai->nama_lengkap ?? $dosen->pegawai->nama ?? 'Pemeriksa'
-                ])->toArray();
-
-            // Gabungkan kedua hasil pencarian.
-            // Menggunakan operator + memastikan key (UUID) tetap terjaga.
-            $evaluatorNames = $namesFromDosens + $namesFromUsers;
+            if ($adminEvaluatorIds->isNotEmpty()) {
+                $namesFromUsers = \App\Models\User::whereIn('id', $adminEvaluatorIds)
+                    ->get()
+                    ->mapWithKeys(fn($user) => [
+                        $user->id => $user->nama_lengkap ?? $user->nama ?? 'Pemeriksa Admin'
+                    ])->toArray();
+                $evaluatorNames = $evaluatorNames + $namesFromUsers;
+            }
 
             $activityDetails = ['Daftar Kegiatan:'];
             $allEvaluations = [];
+
+            // Mengelompokkan evaluasi berdasarkan detail_pengajuan_id
+            $evaluationsByDetail = $pengajuan->details->flatMap(function ($detail) {
+                return $detail->evaluations->map(function ($eval) use ($detail) {
+                    $eval->detail_pengajuan_id = $detail->id; // Tambahkan ID detail untuk pengelompokan
+                    $eval->deskripsi_kegiatan = $detail->deskripsi_kegiatan; // Tambahkan deskripsi kegiatan
+                    return $eval;
+                });
+            })->groupBy('detail_pengajuan_id');
+
+            foreach ($evaluationsByDetail as $detailId => $evals) {
+                $firstEval = $evals->first();
+                $activityDetails[] = "<strong>{$firstEval->deskripsi_kegiatan}</strong>";
+            }
 
             foreach ($pengajuan->details as $detail) {
                 // Display setiap detail kegiatan dengan format yang lebih menarik
@@ -419,7 +412,7 @@ class PengajuanController extends Controller
                     "<strong>{$detail->deskripsi_kegiatan}</strong> (" . number_format($detail->angka_kredit_total, 2) . " KUM)"
                 ];
                 // Ambil evaluasi untuk detail ini
-                foreach ($detail->evaluations as $eval) {
+                foreach ($detail->evaluations as $eval) { // Ini akan tetap digunakan untuk menampilkan detail evaluasi di timeline
                     $pemeriksa = $evaluatorNames[$eval->idUserPemeriksa] ?? 'Pemeriksa Terdaftar';
                     $allEvaluations[] = [
                         'role' => "{$eval->peran_pemeriksa} ({$pemeriksa})",
@@ -436,7 +429,7 @@ class PengajuanController extends Controller
                 'content' => "Terdapat <strong>{$pengajuan->details->count()} kegiatan</strong> yang sedang diproses dengan total <strong>" . number_format($totalKum, 2) . " KUM</strong>.",
                 'border_color' => 'border-emerald-500',
                 'is_expanded' => true,
-                'details' => $activityDetails,
+                'details' => $activityDetails, // Ini akan menampilkan daftar kegiatan
                 'evaluation' => $allEvaluations
             ];
         } else {

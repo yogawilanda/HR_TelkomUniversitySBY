@@ -1,251 +1,226 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="pt-16 p-6">
-    <div class="mx-auto max-w-7xl">
-
+<div class="min-h-screen bg-[#f8fafc] pb-12">
+    {{-- Notifikasi / Alerts --}}
+    @if (session('success') || session('error'))
+    <div class="fixed top-20 right-6 z-50 min-w-[300px] animate-fade-in-down">
         @if (session('success'))
-        <div class="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded">
-            {{ session('success') }}
-        </div>
+            <div class="p-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 shadow-lg rounded-r-xl flex items-center">
+                <i class="fas fa-check-circle mr-3 text-emerald-500"></i>
+                <span class="text-sm font-bold">{{ session('success') }}</span>
+            </div>
+        @else
+            <div class="p-4 bg-rose-50 border-l-4 border-rose-500 text-rose-800 shadow-lg rounded-r-xl flex items-center">
+                <i class="fas fa-exclamation-circle mr-3 text-rose-500"></i>
+                <span class="text-sm font-bold">{{ session('error') }}</span>
+            </div>
         @endif
+    </div>
+    @endif
 
-        @if (session('error'))
-        <div class="mb-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">
-            {{ session('error') }}
-        </div>
-        @endif
+    {{-- Header Navigation --}}
+    <div class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+        <div class="max-w-[1600px] mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="{{ route('dupak.validasi.index') }}" class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:bg-gray-900 hover:text-white transition-all">
+                    <i class="fas fa-arrow-left text-xs"></i>
+                </a>
+                <div>
+                    <h1 class="text-lg font-black text-gray-900 leading-tight">Validasi Pengajuan #{{ $pengajuan->id }}</h1>
+                    <p class="text-[11px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">Review Angka Kredit TPAK</p>
+                </div>
+            </div>
 
-        {{-- Header --}}
-        <div class="mb-8 flex items-center gap-4">
-            <a href="{{ route('dupak.validasi.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
-                <i class="fas fa-arrow-left mr-2"></i>Kembali
-            </a>
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Validasi Pengajuan #{{ $pengajuan->id }}</h1>
-                <p class="text-gray-600 dark:text-gray-400">Review detail kegiatan dan berikan penilaian TPAK.</p>
+            <div class="flex items-center gap-8">
+                <div class="text-right">
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-tighter">Total Diajukan</p>
+                    <p class="text-lg font-black text-gray-900" id="totalDiajukan">0.00 AK</p>
+                </div>
+                <div class="text-right border-l border-gray-200 pl-8">
+                    <p class="text-[10px] font-black text-emerald-500 uppercase tracking-tighter">Total Disetujui</p>
+                    <p class="text-lg font-black text-emerald-600" id="totalApproved">0.00 AK</p>
+                </div>
             </div>
         </div>
+    </div>
 
-        {{-- Grid: Info kiri, Form kanan --}}
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-
-            {{-- Info Card --}}
+    <div class="max-w-[1600px] mx-auto px-6 mt-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            {{-- Kiri: Informasi Dosen --}}
             <div class="lg:col-span-1">
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Informasi Pengaju</h2>
+                <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sticky top-28">
+                    <h3 class="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-4">Informasi Pengaju</h3>
                     <div class="space-y-4">
                         <div>
-                            <p class="text-sm text-gray-500 uppercase tracking-wide">Nama Dosen</p>
-                            <p class="text-xl font-bold text-gray-900 dark:text-white">{{ $pengajuan->nama_dosen }}</p>
+                            <p class="text-sm font-black text-gray-900">{{ $pengajuan->nama_dosen }}</p>
+                            <p class="text-xs text-gray-500 font-medium">NIDN: {{ $pengajuan->idDosen }}</p>
                         </div>
-                        <div>
-                            <p class="text-sm text-gray-500 uppercase tracking-wide">NIDN / ID Dosen</p>
-                            <p class="text-base font-medium text-gray-700 dark:text-gray-300">{{ $pengajuan->idDosen }}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500 uppercase tracking-wide">JFA Tujuan</p>
-                            <p class="text-base font-semibold text-blue-600 dark:text-blue-400">{{ $pengajuan->jabatanTujuan->nama ?? 'N/A' }}</p>
-                        </div>
-                        <div class="pt-4 border-t border-gray-100 dark:border-gray-700">
-                            <p class="text-sm text-gray-500 uppercase tracking-wide">Total Diajukan</p>
-                            <p class="text-xl font-bold text-orange-600" id="totalDiajukan">0 AK</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500 uppercase tracking-wide">Total Disetujui</p>
-                            <p class="text-xl font-bold text-green-600" id="totalApproved">0 AK</p>
+                        <div class="inline-block px-3 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold">
+                            {{ $pengajuan->jabatanTujuan->nama ?? 'N/A' }}
                         </div>
                     </div>
                 </div>
             </div>
 
-            {{-- Main Form --}}
-            <div class="lg:col-span-2">
-                <form method="POST" action="{{ route('dupak.validasi.update', $pengajuan->id) }}" class="">
-                    @csrf
-                    @method('PATCH')
+            {{-- Kanan: Tabel Kegiatan --}}
+            <div class="lg:col-span-3">
+                <form id="finalForm" action="{{ route('dupak.validasi.update', $pengajuan->id) }}" method="POST">
+                    @csrf @method('PATCH')
 
-                    {{-- Kegiatan Table --}}
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                        <div class="p-6 border-b border-gray-200 dark:border-gray-600">
-                            <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center">
-                                <i class="fas fa-list mr-2 text-blue-600"></i>
-                                Daftar Kegiatan ({{ $pengajuan->details->count() }} Items)
-                            </h2>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                <thead class="bg-gray-50 dark:bg-gray-700">
-                                    <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Detail Kegiatan</th>
-                                        <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Bukti</th>
-                                        <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Diajukan</th>
-                                        <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-32">Bobot (%)</th>
-                                        <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-32">Verifikasi</th>
-                                        <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Catatan Pemeriksa</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                                    @forelse($pengajuan->details as $detail)
+                    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-8">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                    <th class="px-6 py-4 text-center w-12">#</th>
+                                    <th class="px-4 py-4">Detail Kegiatan</th>
+                                    <th class="px-4 py-4 text-center w-20">Bukti</th>
+                                    <th class="px-4 py-4 text-center w-28">AK Awal</th>
+                                    <th class="px-4 py-4 w-32">Bobot (%)</th>
+                                    <th class="px-4 py-4 w-40">Verifikasi</th>
+                                    <th class="px-6 py-4">Catatan</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                @forelse($pengajuan->details as $index => $detail)
                                     @php
-                                    $eval = $myEvaluations[$detail->id] ?? null;
-                                    $others = $otherEvaluations[$detail->id] ?? collect();
-                                    $scoreVal = $eval ? round(($eval->nilai_angka_kredit / max(0.01, $detail->angka_kredit_total)) * 100) : 100;
-                                    $flagVal = $eval->status_evaluasi ?? 'OK';
-                                    $noteVal = $eval->catatan ?? '';
-                                    $did = $detail->id;
+                                        $eval = $myEvaluations[$detail->id] ?? null;
+                                        $others = $otherEvaluations[$detail->id] ?? collect();
+                                        $scoreVal = $eval ? round(($eval->nilai_angka_kredit / max(0.01, $detail->angka_kredit_total)) * 100) : 100;
+                                        $did = $detail->id;
                                     @endphp
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 {{ $eval ? 'bg-green-50' : '' }}">
-                                        <td class="px-6 py-4">
-                                            <div class="font-medium text-sm text-gray-900 dark:text-white">{{ $detail->komponen->nama ?? 'N/A' }}</div>
-                                            <div class="text-xs text-gray-500">{{ $detail->deskripsi_kegiatan ?? '' }}</div>
-                                            @if($eval)
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800 mt-1">
-                                                <i class="fas fa-check mr-1"></i> Sudah dinilai
-                                            </span>
-                                            @endif
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            @if($detail->link_bukti_pendukung)
-                                            <a href="{{ $detail->link_bukti_pendukung }}" target="_blank" class="text-blue-600 hover:underline text-sm">
-                                                <i class="fas fa-file mr-1"></i>Lihat
-                                            </a>
-                                            @else
-                                            <span class="text-gray-400 text-sm">-</span>
-                                            @endif
-                                        </td>
-                                        <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white ak-diajukan" data-ak="{{ $detail->angka_kredit_total ?? 0 }}">
-                                            {{ number_format($detail->angka_kredit_total, 2) }}
-                                        </td>
+                                    <tr class="hover:bg-blue-50/30 transition-all group">
+                                        <td class="px-6 py-4 text-center text-xs font-bold text-gray-300">{{ $index + 1 }}</td>
                                         <td class="px-4 py-4">
-                                            <div class="relative">
-                                                <input type="number" min="0" max="100" step="1" value="{{ $scoreVal }}" 
-                                                    class="w-full rounded-lg border-gray-300 dark:bg-gray-700 dark:text-white text-sm focus:ring-blue-500 pr-8" 
-                                                    data-did="{{ $did }}" id="score_{{ $did }}" name="scores[{{ $did }}]">
-                                                <span class="absolute right-3 top-2 text-gray-400 text-xs font-bold">%</span>
-                                            </div>
-                                            <div class="mt-1 text-[10px] text-gray-500">Hasil: <span id="score_calc_{{ $did }}" class="font-bold">0.00</span> AK</div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <select name="flags[{{ $did }}]" class="w-full rounded-lg border-gray-300 dark:bg-gray-700 dark:text-white text-xs p-2 focus:ring-blue-500">
-                                                <option value="OK" {{ $flagVal === 'OK' ? 'selected' : '' }}>VALID (OK)</option>
-                                                <option value="Doubt" {{ $flagVal === 'Doubt' ? 'selected' : '' }}>DIRAGUKAN</option>
-                                                <option value="Fake" {{ $flagVal === 'Fake' ? 'selected' : '' }}>PALSU / DITOLAK</option>
-                                            </select>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <textarea name="notes[{{ $did }}]" rows="2" class="w-full rounded-lg border-gray-300 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 resize-vertical" placeholder="Catatan penilaian TPAK...">{{ $noteVal }}</textarea>
-
+                                            <div class="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{{ $detail->komponen->nama ?? 'N/A' }}</div>
+                                            <div class="text-[11px] text-gray-500 italic line-clamp-1 group-hover:line-clamp-none">"{{ $detail->deskripsi_kegiatan }}"</div>
+                                            
+                                            {{-- Penilaian TPAK Lain (Tetap Ada) --}}
                                             @if($others->isNotEmpty())
-                                            <div class="mt-2 pt-2 border-t border-gray-200">
-                                                <p class="text-[10px] font-semibold text-gray-500 uppercase mb-1">Penilaian TPAK lain:</p>
+                                            <div class="mt-2 flex flex-wrap gap-1">
                                                 @foreach($others as $o)
-                                                <div class="flex items-center gap-2 mb-1">
-                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold {{ $o->status_evaluasi === 'OK' ? 'bg-green-100 text-green-700' : ($o->status_evaluasi === 'Fake' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') }}">
-                                                        {{ $o->status_evaluasi }}
-                                                    </span>
-                                                    <span class="text-[10px] text-gray-500">{{ round(($o->nilai_angka_kredit / max(0.01, $detail->angka_kredit_total)) * 100) }}%</span>
-                                                    @if($o->catatan)
-                                                    <span class="text-[10px] text-gray-400 italic">"{{ Str::limit($o->catatan, 30) }}"</span>
-                                                    @endif
-                                                </div>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded bg-gray-100 text-[9px] font-bold text-gray-500 border border-gray-200" title="{{ $o->catatan }}">
+                                                    TPAK: {{ round(($o->nilai_angka_kredit / max(0.01, $detail->angka_kredit_total)) * 100) }}%
+                                                </span>
                                                 @endforeach
                                             </div>
                                             @endif
                                         </td>
-                                    </tr>
-                                    @empty
-                                    <tr>
-                                        <td colspan="6" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-                                            Tidak ada kegiatan untuk divalidasi.
+                                        <td class="px-4 py-4 text-center">
+                                            @if($detail->link_bukti_pendukung)
+                                                <a href="{{ $detail->link_bukti_pendukung }}" target="_blank" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition shadow-sm">
+                                                    <i class="fas fa-external-link-alt text-[10px]"></i>
+                                                </a>
+                                            @else
+                                                <span class="text-gray-200">—</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <span class="text-sm font-black text-gray-700 ak-diajukan" data-ak="{{ $detail->angka_kredit_total }}">
+                                                {{ number_format($detail->angka_kredit_total, 2) }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div class="relative">
+                                                <input type="number" name="scores[{{ $did }}]" id="score_{{ $did }}" data-did="{{ $did }}" value="{{ $scoreVal }}" min="0" max="100"
+                                                    class="w-full bg-gray-50 border-gray-200 rounded-lg py-1.5 px-2 text-sm font-black text-center text-blue-600 focus:ring-2 focus:ring-blue-500">
+                                                <div class="text-[9px] text-center mt-1 font-bold text-emerald-500"><span id="score_calc_{{ $did }}">0.00</span> AK</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <select name="flags[{{ $did }}]" class="w-full bg-gray-50 border-gray-200 rounded-lg py-1.5 text-[10px] font-black uppercase focus:ring-2 focus:ring-blue-500">
+                                                <option value="OK" {{ ($eval->status_evaluasi ?? 'OK') === 'OK' ? 'selected' : '' }}>✓ Valid</option>
+                                                <option value="Doubt" {{ ($eval->status_evaluasi ?? '') === 'Doubt' ? 'selected' : '' }}>? Ragu</option>
+                                                <option value="Fake" {{ ($eval->status_evaluasi ?? '') === 'Fake' ? 'selected' : '' }}>✕ Tolak</option>
+                                            </select>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <textarea name="notes[{{ $did }}]" rows="1" class="w-full bg-transparent border-b border-gray-100 py-1 text-xs focus:border-blue-500 focus:ring-0 placeholder-gray-300 resize-none" placeholder="Catatan...">{{ $eval->catatan ?? '' }}</textarea>
                                         </td>
                                     </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="px-6 py-12 text-center text-gray-400 text-sm font-medium italic">Tidak ada data kegiatan.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
 
-                    {{-- Overall Decision --}}
-                    <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 border-2 border-dashed border-gray-200 dark:border-gray-600">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Keputusan Akhir TPAK</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status Pengajuan</label>
-                                <select name="status" class="w-full rounded-lg border-gray-300 dark:bg-gray-700 dark:text-white p-3 focus:ring-2 focus:ring-blue-500">
-                                    <option>Approved</option>
-                                    <option>Rejected</option>
-                                    <option>Revision</option>
-                                </select>
-                            </div>
+                    {{-- Footer: Keputusan Akhir --}}
+                    <div class="bg-white rounded-3xl p-8 shadow-2xl shadow-blue-900/20 text-white">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Catatan Umum TPAK</label>
-                                <textarea name="overall_notes" rows="3" class="w-full rounded-lg border-gray-300 dark:bg-gray-700 dark:text-white p-3 focus:ring-2 focus:ring-blue-500" placeholder="Catatan keseluruhan untuk pengajuan ini..."></textarea>
+                                <label class="text-[10px] font-black text-blue-600 uppercase tracking-widest block mb-3">Catatan Kesimpulan TPAK</label>
+                                <textarea name="overall_notes" rows="4" class="w-full bg-white/5 border-gray-300 rounded-2xl text-sm focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500" placeholder="Ketikkan catatan akhir di sini...">{{ $pengajuan->catatan_tpak }}</textarea>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black text-blue-600 uppercase tracking-widest block mb-3">Keputusan Status</label>
+                                <select name="status" class="w-full bg-white/10 border-gray-200 rounded-xl text-black text-sm font-bold mb-6 focus:ring-blue-500">
+                                    <option value="Approved" class="text-gray-900">Approved</option>
+                                    <option value="Revision" class="text-gray-900">Revision</option>
+                                    <option value="Rejected" class="text-gray-900">Rejected</option>
+                                </select>
+                                <button type="submit" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl transition-all shadow-lg flex items-center justify-center gap-3">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    SIMPAN VALIDASI
+                                </button>
                             </div>
                         </div>
-                        <div class="flex justify-end space-x-3 pt-4">
-                            <button type="button" onclick="window.history.back()" class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
-                                Batal
-                            </button>
-                            <button type="submit" class="px-8 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold">
-                                <i class="fas fa-save mr-2"></i>Simpan Validasi
-                            </button>
-                        </div>
                     </div>
-
                 </form>
             </div>
-
         </div>
-
     </div>
 </div>
 
 @section('script')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    function updateScore(did) {
+    function calculateItem(did) {
         const input = document.getElementById('score_' + did);
-        const calc = document.getElementById('score_calc_' + did);
-        const row = input.closest('tr');
-        const akDiajukan = parseFloat(row.querySelector('.ak-diajukan').dataset.ak) || 0;
+        const calcDisplay = document.getElementById('score_calc_' + did);
+        if(!input) return { akAwal:0, result:0 };
+
+        const tr = input.closest('tr');
+        const akAwal = parseFloat(tr.querySelector('.ak-diajukan').dataset.ak) || 0;
+        const percent = parseFloat(input.value) || 0;
+        const result = akAwal * (percent / 100);
         
-        if (!input || !calc) return;
-        
-        const score = parseFloat(input.value) || 0;
-        const result = akDiajukan * (score / 100);
-        
-        calc.textContent = result.toFixed(2);
-        updateTotals();
+        calcDisplay.textContent = result.toFixed(2);
+        return { akAwal, result };
     }
-    
-    function updateTotals() {
+
+    function refreshTotals() {
         let totalDiajukan = 0;
         let totalDisetujui = 0;
-        const rows = document.querySelectorAll('tbody tr');
-        rows.forEach(function(row) {
-            const akEl = row.querySelector('.ak-diajukan');
-            const input = row.querySelector('input[type="number"]');
-            if (!akEl || !input) return;
-            
-            const ak = parseFloat(akEl.dataset.ak) || 0;
-            const score = parseFloat(input.value) || 0;
-            totalDiajukan += ak;
-            totalDisetujui += ak * (score / 100);
+        
+        document.querySelectorAll('input[name^="scores"]').forEach(input => {
+            const data = calculateItem(input.dataset.did);
+            totalDiajukan += data.akAwal;
+            totalDisetujui += data.result;
         });
+
         document.getElementById('totalDiajukan').textContent = totalDiajukan.toFixed(2) + ' AK';
         document.getElementById('totalApproved').textContent = totalDisetujui.toFixed(2) + ' AK';
     }
-    
-    document.querySelectorAll('input[type="number"]').forEach(function(input) {
-        input.addEventListener('input', function() {
-            updateScore(this.dataset.did);
-        });
-        // Inisialisasi kalkulasi awal
-        updateScore(input.dataset.did);
+
+    document.querySelectorAll('input[name^="scores"]').forEach(input => {
+        input.addEventListener('input', refreshTotals);
+        calculateItem(input.dataset.did); 
     });
-    updateTotals();
+
+    refreshTotals();
 });
 </script>
+
+<style>
+@keyframes fade-in-down {
+    0% { opacity: 0; transform: translateY(-10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-down { animation: fade-in-down 0.4s ease-out; }
+</style>
 @endsection
 @endsection

@@ -28,16 +28,22 @@ class PenunjukanTPAKController extends Controller
         // 2. Ambil data Pengajuan DUPAK yang belum mencapai batas limit TPAK (5 orang)
         // Kita gunakan subquery untuk menghitung jumlah TPAK yang sudah ditunjuk per pengajuan
         $antreanSearch = $request->input('antrean_search');
-
-        $pengajuanQuery = Pengajuan::whereIn('status', ['Pending', 'Submitted'])
+        
+        $pengajuanQuery = Pengajuan::with('dosen.user') // Eager load untuk pencarian nama dosen
+            ->whereIn('status', ['Pending', 'Submitted'])
             ->where(function($q) {
                 $q->selectRaw('count(*)')
-                  ->from('penunjukan_tpak')
+                  ->from('dupak.penunjukan_tpak') // Specify connection for subquery
                   ->whereColumn('penunjukan_tpak.pengajuan_id', 'pengajuan.id');
             }, '<', 5);
 
         if ($antreanSearch) {
-            $pengajuanQuery->where('nama_dosen', 'like', "%{$antreanSearch}%");
+            $pengajuanQuery->whereHas('dosen', function ($query) use ($antreanSearch) {
+                $query->whereHas('user', function ($userQuery) use ($antreanSearch) {
+                    $userQuery->where('nama_lengkap', 'like', "%{$antreanSearch}%")
+                              ->orWhere('nama', 'like', "%{$antreanSearch}%"); // Fallback jika nama_lengkap null
+                });
+            });
         }
 
         $pengajuan = $pengajuanQuery->get();
@@ -91,7 +97,7 @@ class PenunjukanTPAKController extends Controller
         $pengajuanIds = $penunjukanTpak->pluck('pengajuan_id')->unique();
         $tpakDosenIds = $penunjukanTpak->pluck('idDosenTpak')->unique();
 
-        $pengajuansData = Pengajuan::whereIn('id', $pengajuanIds)->get();
+        $pengajuansData = Pengajuan::with('dosen.user')->whereIn('id', $pengajuanIds)->get(); // Eager load dosen.user
         $tpakDosensData = Dosen::join('users', 'dosens.users_id', '=', 'users.id')
             ->whereIn('dosens.id', $tpakDosenIds)
             ->select('dosens.id', 'users.nama_lengkap')
@@ -112,9 +118,9 @@ class PenunjukanTPAKController extends Controller
             ->pluck('total', 'detail_pengajuan.pengajuan_id')
             ->toArray();
 
-        $penunjukanTpak->getCollection()->transform(function ($item) use ($pengajuansData, $tpakDosensData, $detailCounts, $evaluatedCounts) {
+        $penunjukanTpak->getCollection()->transform(function ($item) use ($pengajuansData, $tpakDosensData, $detailCounts, $evaluatedCounts) { // Menggunakan $pengajuansData yang sudah eager loaded
             $p = $pengajuansData->firstWhere('id', $item->pengajuan_id);
-            $item->pengaju_nama = $p ? $p->nama_dosen : 'N/A';
+            $item->pengaju_nama = $p->dosen->user->nama_lengkap ?? 'N/A'; // Akses nama melalui relasi
             $item->tpak_nama_lengkap = $tpakDosensData[$item->idDosenTpak] ?? 'N/A';
             $item->created_at = Carbon::parse($item->created_at);
 

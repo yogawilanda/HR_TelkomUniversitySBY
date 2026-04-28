@@ -1,206 +1,166 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="pt-16 p-6">
-    <div class="mx-auto max-w-7xl">
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Dashboard Validasi TPAK</h1>
-            <p class="text-gray-600 dark:text-gray-400 mt-2">Kelola dan validasi pengajuan DUPAK yang ditugaskan kepada Anda.</p>
+<div class="min-h-screen bg-[#f8fafc] pb-12 pt-16">
+    <div class="max-w-[1400px] mx-auto px-6">
+        <a href="{{ route('dupak.dashboard') }}" class="text-sm text-gray-500 hover:text-gray-700 mb-4 inline-block">&larr; Kembali ke Dashboard DUPAK</a>
+
+        {{-- Header & Stats --}}
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+            <div>
+                <h1 class="text-3xl font-black text-gray-900 tracking-tight">Dashboard TPAK</h1>
+                <p class="text-sm text-gray-500 font-medium mt-1">Kelola validasi angka kredit dosen yang ditugaskan kepada Anda.</p>
+            </div>
+
+            <div class="flex gap-3">
+                <div class="bg-white px-6 py-3 rounded-2xl shadow-sm border border-gray-100 text-center">
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tugas Aktif</p>
+                    <p class="text-xl font-black text-blue-600">{{ $detailPengajuanTPAK->total() }}</p>
+                </div>
+                <div class="bg-white px-6 py-3 rounded-2xl shadow-sm border border-gray-100 text-center">
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Review Selesai</p>
+                    <p class="text-xl font-black text-emerald-500">{{ $selesaiCount }}</p>
+                </div>
+            </div>
         </div>
 
+        {{-- Alerts --}}
         @if (session('success'))
-        <div class="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded">
-            {{ session('success') }}
+        <div class="mb-6 p-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 rounded-r-xl shadow-sm flex items-center animate-fade-in">
+            <i class="fas fa-check-circle mr-3"></i>
+            <span class="text-sm font-bold">{{ session('success') }}</span>
         </div>
         @endif
 
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                <div class="flex items-center">
-                    <div class="p-3 bg-blue-100 dark:bg-blue-900 rounded-xl">
-                        <i class="fas fa-tasks text-blue-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Tugas Aktif</p>
-                        <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ $detailPengajuanTPAK->total() }}</p>
-                    </div>
+        {{-- Filter & Search --}}
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6">
+            <form method="GET" action="{{ route('dupak.validasi.index') }}" class="flex flex-wrap items-center gap-4">
+                <div class="flex-1 min-w-[300px] relative">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                    <input type="text" name="search" value="{{ request('search') }}"
+                        placeholder="Cari nama dosen atau nomor pengajuan..."
+                        class="w-full pl-9 pr-4 py-1.5 bg-gray-50 border border-gray-100 rounded-lg text-[12px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400">
                 </div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                <div class="flex items-center">
-                    <div class="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-xl">
-                        <i class="fas fa-clock text-yellow-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Pending Review</p>
-                        <p class="text-3xl font-bold text-gray-900 dark:text-white">
-                            {{ $detailPengajuanTPAK->where('pengajuan.status', 'pending')->count() }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                <div class="flex items-center">
-                    <div class="p-3 bg-green-100 dark:bg-green-900 rounded-xl">
-                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Selesai</p>
-                        <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ $selesaiCount }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                <div class="flex items-center">
-                    <div class="p-3 bg-purple-100 dark:bg-purple-900 rounded-xl">
-                        <i class="fas fa-chart-line text-purple-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Rata-rata Score</p>
-                        <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ $avgScore > 0 ? $avgScore . '%' : '--' }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Search & Filters -->
-        <form method="GET" action="{{ route('dupak.validasi.index') }}">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 mb-8">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div class="flex-1">
-                    <div class="relative">
-                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama dosen atau pengajuan..." class="pl-10 pr-4 py-2 w-full rounded-xl border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    <select name="status" class="px-4 py-2 rounded-xl border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500">
-                        <option value="">Semua Status</option>
-                        <option value="Draft" {{ request('status') == 'Draft' ? 'selected' : '' }}>Draft</option>
-                        <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="Diajukan" {{ request('status') == 'Diajukan' ? 'selected' : '' }}>Diajukan</option>
-                        <option value="Revisi" {{ request('status') == 'Revisi' ? 'selected' : '' }}>Revisi</option>
-                        <option value="Diterima" {{ request('status') == 'Diterima' ? 'selected' : '' }}>Diterima</option>
-                        <option value="Ditolak" {{ request('status') == 'Ditolak' ? 'selected' : '' }}>Ditolak</option>
+                <div class="relative">
+                    <select name="status" class="bg-gray-50 border border-gray-100 rounded-lg text-[12px] font-bold py-1.5 pl-3 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none cursor-pointer text-gray-600 tracking-tight leading-tight">
+                        <option value="">Status: Semua</option>
+                        @foreach(['Pending', 'Diajukan', 'Revisi', 'Diterima', 'Ditolak'] as $st)
+                        <option value="{{ $st }}" {{ request('status') == $st ? 'selected' : '' }}>{{ $st }}</option>
+                        @endforeach
                     </select>
-                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 transition">
-                        Filter
-                    </button>
-                    @if(request('search') || request('status'))
-                    <a href="{{ route('dupak.validasi.index') }}" class="px-4 py-2 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition text-sm flex items-center">
-                        <i class="fas fa-times mr-1"></i> Reset
-                    </a>
-                    @endif
+                    <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 pointer-events-none"></i>
                 </div>
-            </div>
-        </div>
-        </form>
 
-        <!-- Tasks Table -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div class="p-6 border-b border-gray-200 dark:border-gray-600">
-                <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center">
-                    <i class="fas fa-list mr-2 text-blue-600"></i>
-                    Daftar Pengajuan untuk Divalidasi
-                </h2>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead class="bg-gray-50 dark:bg-gray-700">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                No Pengajuan
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                Nama Dosen
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                Komponen / Deskripsi
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                Angka Kredit
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                Status Pengajuan
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                Deadline
-                            </th>
-                            <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                Progress
-                            </th>
-                            <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                Aksi
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                        @forelse($detailPengajuanTPAK as $item)
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                            <td class="px-6 py-4">
-                                <div class="text-sm font-bold text-gray-900 dark:text-white">D{{ $item->id }} (P#{{ $item->pengajuan_id }})</div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm font-bold text-gray-900 dark:text-white">{{ $item->pengajuan->nama_dosen ?? 'N/A' }}</div>
-                                <div class="text-xs text-gray-500">Fakultas Teknik</div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->komponen->nama ?? $item->idKomponen }}</div>
-                                <div class="text-xs text-gray-500 truncate max-w-[200px]">{{ Str::limit($item->deskripsi_kegiatan, 80) }}</div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">
-                                    {{ $item->angka_kredit_murni ?? 0 }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="px-3 py-1 rounded-full text-xs font-bold {{ $item->pengajuan->status == 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' }}">
-                                    {{ ucfirst($item->pengajuan->status ?? 'Pending') }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
-                                {{ $item->created_at->addDays(7)->format('d M Y') }}
-                            </td>
-                            @php
-                                $prog = $progressMap[$item->id] ?? ['evaluated' => false, 'percent' => 0];
-                            @endphp
-                            <td class="px-6 py-4 text-center">
-                                <div class="w-16 h-2 bg-gray-200 rounded-full mx-auto">
-                                    <div class="h-2 {{ $prog['evaluated'] ? 'bg-green-500' : 'bg-blue-500' }} rounded-full transition-all duration-500" style="width: {{ $prog['percent'] }}%"></div>
+                <button type="submit" class="px-4 py-1.5 bg-gray-900 text-white rounded-lg text-[12px] font-bold hover:bg-blue-600 transition-all shadow-sm active:scale-95">
+                    Filter
+                </button>
+
+                @if(request('search') || request('status'))
+                <a href="{{ route('dupak.validasi.index') }}" class="text-sm font-bold text-gray-400 hover:text-rose-500 transition-colors">
+                    Reset
+                </a>
+                @endif
+            </form>
+        </div>
+
+        {{-- Table Card --}}
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b border-gray-50">
+                        <th class="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">Info Pengajuan</th>
+                        <th class="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">Dosen Pengaju</th>
+                        <th class="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">Komponen Utama</th>
+                        <th class="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest text-center">AK</th>
+                        <th class="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest text-center">Progress</th>
+                        <th class="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    @forelse($detailPengajuanTPAK as $item)
+                    @php
+                    $prog = $progressMap[$item->id] ?? ['evaluated' => false, 'percent' => 0];
+                    @endphp
+                    <tr class="hover:bg-blue-50/30 transition-colors group">
+                        <td class="px-6 py-5">
+                            <div class="text-xs font-black text-blue-600 mb-1">#{{ $item->pengajuan_id }}</div>
+                            <div class="text-[10px] font-bold text-gray-400 flex items-center">
+                                <i class="far fa-calendar-alt mr-1.5"></i>
+                                {{ $item->created_at->format('d M Y') }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="text-sm font-black text-gray-900 group-hover:text-blue-700">{{ $item->pengajuan->nama_dosen ?? 'N/A' }}</div>
+                            <div class="text-[11px] text-gray-500 font-medium">NIDN: {{ $item->pengajuan->idDosen ?? '-' }}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="text-xs font-bold text-gray-700 truncate max-w-[250px]">
+                                {{ $item->komponen->nama ?? 'Komponen #' . $item->idKomponen }}
+                            </div>
+                            <div class="text-[10px] text-gray-400 italic truncate max-w-[200px]" title="{{ $item->deskripsi_kegiatan }}">
+                                {{ $item->deskripsi_kegiatan }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-5 text-center">
+                            <span class="px-2.5 py-1 bg-gray-100 text-gray-700 text-[11px] font-black rounded-lg">
+                                {{ $item->angka_kredit_murni ?? 0 }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="flex flex-col items-center">
+                                <div class="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                    <div class="h-full {{ $prog['evaluated'] ? 'bg-emerald-500' : 'bg-amber-400' }} transition-all" style="width: {{ $prog['percent'] }}%"></div>
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">
-                                    @if($prog['evaluated'])
-                                        <span class="text-green-600 font-semibold"><i class="fas fa-check mr-1"></i>Sudah</span>
-                                    @else
-                                        <span class="text-yellow-600">Belum</span>
-                                    @endif
-                                </p>
-                            </td>
-                            <td class="px-6 py-4 text-right space-y-1">
-                                <a href="{{ route('dupak.validasi.show', $item->pengajuan_id) }}" class="inline-flex items-center px-3 py-1.5 {{ $prog['evaluated'] ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700' }} text-white text-xs font-bold rounded-lg transition">
-                                    <i class="fas {{ $prog['evaluated'] ? 'fa-check' : 'fa-edit' }} mr-1"></i> {{ $prog['evaluated'] ? 'Lihat' : 'Review' }} Pengajuan
-                                </a>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                        <td colspan="8" class="px-6 py-12 text-center">
-                                <div class="flex flex-col items-center text-gray-500 dark:text-gray-400">
-                                    <i class="fas fa-inbox text-4xl mb-4 opacity-50"></i>
-                                    <h3 class="text-lg font-bold mb-2">Belum ada tugas validasi</h3>
-                                    <p class="text-sm">Tunggu penugasan dari admin SDM.</p>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
+                                <span class="text-[9px] font-black uppercase tracking-tighter mt-1.5 {{ $prog['evaluated'] ? 'text-emerald-600' : 'text-amber-600' }}">
+                                    {{ $prog['evaluated'] ? 'Selesai' : 'Pending' }}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5 text-right">
+                            <a href="{{ route('dupak.validasi.show', $item->pengajuan_id) }}"
+                                class="inline-flex items-center justify-center w-10 h-10 rounded-xl {{ $prog['evaluated'] ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white' : 'bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white' }} transition-all shadow-sm">
+                                <i class="fas {{ $prog['evaluated'] ? 'fa-check-double' : 'fa-chevron-right' }} text-xs"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="px-6 py-20 text-center">
+                            <div class="opacity-20 mb-4">
+                                <i class="fas fa-folder-open text-5xl"></i>
+                            </div>
+                            <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">Tidak ada tugas ditemukan</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+
+            @if($detailPengajuanTPAK->hasPages())
+            <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-50">
                 {{ $detailPengajuanTPAK->links() }}
             </div>
+            @endif
         </div>
     </div>
 </div>
+
+<style>
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(5px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
 @endsection
