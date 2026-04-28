@@ -230,6 +230,133 @@ class PengajuanController extends Controller
             ->with('success', 'Pengajuan DUPAK berhasil disimpan.');
     }
 
+    /**
+     * Kirim pengajuan dari status Draft/Pending ke Diajukan.
+     */
+    public function submit(string $id)
+    {
+        $user = Auth::user();
+        $dosen = Dosen::where('users_id', $user->id)->first();
+
+        if (!$dosen) {
+            return redirect()->route('dupak.dashboard')->with('error', 'Akses ditolak. Anda bukan Dosen.');
+        }
+
+        $pengajuan = Pengajuan::where('id', $id)
+            ->where('idDosen', $dosen->id)
+            ->first();
+
+        if (!$pengajuan) {
+            return redirect()->route('dupak.dashboard')->with('error', 'Pengajuan tidak ditemukan atau bukan milik Anda.');
+        }
+
+        $allowedStatuses = ['Draft', 'Pending', 'Revisi'];
+        if (!in_array($pengajuan->status, $allowedStatuses)) {
+            return redirect()->back()->with('error', 'Pengajuan tidak dapat dikirim. Status saat ini: ' . $pengajuan->status);
+        }
+
+        // Opsional: cek minimal ada detail kegiatan
+        if ($pengajuan->details()->count() === 0) {
+            return redirect()->back()->with('error', 'Tidak dapat mengirim pengajuan. Tambahkan minimal satu detail kegiatan terlebih dahulu.');
+        }
+
+        $pengajuan->update(['status' => 'Diajukan']);
+
+        return redirect()->route('dupak.pengajuan.show', $pengajuan->id)
+            ->with('success', 'Pengajuan berhasil dikirim! Menunggu penilaian TPAK.');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        $user = Auth::user();
+        $dosen = Dosen::where('users_id', $user->id)->first();
+
+        $pengajuan = Pengajuan::findOrFail($id);
+
+        // Hanya pemilik atau admin yang bisa edit
+        if (!$user->is_admin && $pengajuan->idDosen !== ($dosen?->id)) {
+            return redirect()->route('dupak.dashboard')->with('error', 'Akses ditolak. Anda bukan pemilik pengajuan ini.');
+        }
+
+        // Hanya status Draft atau Revisi yang bisa diedit
+        if (!in_array($pengajuan->status, ['Draft', 'Pending', 'Revisi'])) {
+            return redirect()->back()->with('error', 'Pengajuan tidak dapat diedit. Status saat ini: ' . $pengajuan->status);
+        }
+
+        return view('dupak.pengajuan.edit', compact('pengajuan'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        $user = Auth::user();
+        $dosen = Dosen::where('users_id', $user->id)->first();
+
+        $pengajuan = Pengajuan::findOrFail($id);
+
+        if (!$user->is_admin && $pengajuan->idDosen !== ($dosen?->id)) {
+            return redirect()->route('dupak.dashboard')->with('error', 'Akses ditolak. Anda bukan pemilik pengajuan ini.');
+        }
+
+        if (!in_array($pengajuan->status, ['Draft', 'Pending', 'Revisi'])) {
+            return redirect()->back()->with('error', 'Pengajuan tidak dapat diupdate. Status saat ini: ' . $pengajuan->status);
+        }
+
+        $validated = $request->validate([
+            'start' => 'nullable|date',
+            'end' => 'nullable|date|after_or_equal:start',
+            'TahunAjaranAjuanAwal' => 'nullable|string|max:10',
+            'TahunAjaranAjuanAkhir' => 'nullable|string|max:10',
+            'semesterAjuan' => 'nullable|string|max:50',
+        ]);
+
+        $pengajuan->update($validated);
+
+        return redirect()->route('dupak.pengajuan.show', $pengajuan->id)
+            ->with('success', 'Pengajuan berhasil diperbarui.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        $user = Auth::user();
+        $dosen = Dosen::where('users_id', $user->id)->first();
+
+        $pengajuan = Pengajuan::findOrFail($id);
+
+        if (!$user->is_admin && $pengajuan->idDosen !== ($dosen?->id)) {
+            return redirect()->route('dupak.dashboard')->with('error', 'Akses ditolak. Anda bukan pemilik pengajuan ini.');
+        }
+
+        // Hanya pengajuan dengan status Draft/Pending/Revisi yang bisa dihapus
+        if (!in_array($pengajuan->status, ['Draft', 'Pending', 'Revisi'])) {
+            return redirect()->back()->with('error', 'Pengajuan tidak dapat dihapus. Status saat ini: ' . $pengajuan->status);
+        }
+
+                // Hapus hasil evaluasi terkait (must be BEFORE detail_pengajuan deletion)
+        \App\Models\Dupak\HasilEvaluasi::whereIn('detail_pengajuan_id', function ($query) use ($pengajuan) {
+            $query->select('id')->from('detail_pengajuan')->where('pengajuan_id', $pengajuan->id);
+        })->delete();
+
+        // Hapus detail kegiatan terkait
+        $pengajuan->details()->delete();
+
+        // Hapus penunjukan TPAK terkait
+        \App\Models\Dupak\PenunjukanTPAKModel::where('pengajuan_id', $pengajuan->id)->delete();
+
+        $pengajuan->delete();
+
+        return redirect()->route('dupak.pengajuan.index')
+            ->with('success', 'Pengajuan berhasil dihapus.');
+    }
+
     public function show(string $id)
     {   
         // get riwayat jfa dosen

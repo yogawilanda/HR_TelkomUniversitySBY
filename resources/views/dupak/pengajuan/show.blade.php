@@ -5,6 +5,18 @@
 <div class="min-h-screen flex flex-col pt-16 px-4 pb-12">
 	<div class="mx-auto max-w-3xl w-full flex-grow">
 
+		@if (session('success'))
+		<div class="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded">
+			{{ session('success') }}
+		</div>
+		@endif
+
+		@if (session('error'))
+		<div class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">
+			{{ session('error') }}
+		</div>
+		@endif
+
 		<!-- Header Section -->
 		<div class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
 			<!-- button dengan icon kembali ke halaman sebelumnya -->
@@ -22,6 +34,16 @@
 			<button onclick="openTimelineModal()" class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
 				<i class="fas fa-history mr-2"></i> Lihat Progres
 			</button>
+
+			<!-- Tombol Kirim Pengajuan (hanya jika status Draft/Pending/Revisi) -->
+			@if(in_array($pengajuan->status, ['Draft', 'Pending', 'Revisi']))
+			<form action="{{ route('dupak.pengajuan.submit', $pengajuan->id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin mengirim pengajuan ini? Setelah dikirim, Anda tidak bisa mengubah detail kegiatan.');">
+				@csrf
+				<button type="submit" class="bg-green-600 focus:ring-4 focus:outline-none focus:ring-green-600 text-white font-bold py-2 px-4 rounded hover:bg-green-700 hover:text-white transition-colors text-xs uppercase tracking-widest flex items-center">
+					<i class="fas fa-paper-plane mr-2"></i> Kirim Pengajuan
+				</button>
+			</form>
+			@endif
 
 			<!-- Tombol Tambah Detil -->
 			<a href="javascript:void(0)" onclick="openModal()" id="tambah-detil-btn" class="bg-blue-900 focus:ring-4 focus:outline-none focus:ring-blue-900 text-white font-bold py-2 px-4 rounded hover:bg-blue-950 hover:text-white transition-colors text-xs uppercase tracking-widest flex items-center">

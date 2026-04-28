@@ -392,6 +392,8 @@ Route::middleware('auth')->group(function () {
 
         // Pengajuan DUPAK
         Route::resource('pengajuan', PengajuanController::class);
+        Route::post('pengajuan/{id}/submit', [PengajuanController::class, 'submit'])
+            ->name('pengajuan.submit');
 
         // Riwayat DUPAK
         Route::resource('riwayat', RiwayatController::class)

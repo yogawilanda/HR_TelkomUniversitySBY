@@ -98,6 +98,15 @@
         @if($submissions['latest'])
         <a href="{{ route('dupak.pengajuan.show', $submissions['latest']->id) }}"
             class="px-4 py-2 text-sm text-white bg-blue-900 rounded hover:bg-blue-950">Detail Kegiatan</a>
+
+        @if(in_array($submissions['latest']->status, ['Draft', 'Pending', 'Revisi']))
+        <form action="{{ route('dupak.pengajuan.submit', $submissions['latest']->id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin mengirim pengajuan ini? Setelah dikirim, Anda tidak bisa mengubah detail kegiatan.');">
+            @csrf
+            <button type="submit" class="px-4 py-2 text-sm text-white bg-green-600 rounded hover:bg-green-700">
+                <i class="fas fa-paper-plane mr-1"></i> Kirim Pengajuan
+            </button>
+        </form>
+        @endif
         @else
         <button disabled title="Anda belum memiliki pengajuan"
             class="px-4 py-2 text-sm text-white bg-gray-400 rounded cursor-not-allowed">Detail Kegiatan</button>

@@ -119,7 +119,7 @@
                                 <i class="fas fa-user-circle mr-2 text-blue-900"></i>
                                 Anda saat ini masuk sebagai Pengaju DUPAK
                             </h3>
-                            <a href="" class="px-4 py-2 text-sm text-white bg-blue-900 rounded hover:bg-blue-950 inline-block">
+                            <a href="{{ route('dupak.validasi.index') }}" class="px-4 py-2 text-sm text-white bg-blue-900 rounded hover:bg-blue-950 inline-block">
                                 Menjadi TPAK
                             </a>
                         </div>

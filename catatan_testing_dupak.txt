@@ -1,0 +1,16 @@
+Whitebox Testing
+
+1. TPAK dapat mengakses halaman validasi detail pengajuan
+2. TPAK dapat melihat pengajuan yang ditunjuk kepada TPAK tersebut.
+3. TPAK yang tidak ditunjuk ke pengajuan tersebut tidak dapat melihat pengajuan tersebut.
+4. TPAK dapat menyimpan evaluasi
+5. TPAK dapat memperbarui evaluasi atas pengajuan yang ada.
+6. Evaluasi dapat di set flaggingnya ke rejected
+7. Evaluasi dapat di set flaggingnya ke revisi
+8. Status update evaluasi telah dipetakan secara benar
+9. Keseluruhan catatan dapat disimpan ke penunjukan TPAK
+10. index validasi index dapat menunjukan statistik
+11. fitur filter berdasarkan status di halaman index validasi.
+
+http://127.0.0.1:8000/dupak/validasi
+ketika ditolak harusnya warna merah, dan penilaian harusnya dilakukan per detail, bukan penilaian dilakukan untuk semua detail

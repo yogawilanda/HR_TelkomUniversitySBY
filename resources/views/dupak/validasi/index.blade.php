@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="mt-16 md:ml-64 p-6">
+<div class="pt-16 p-6">
     <div class="mx-auto max-w-7xl">
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Dashboard Validasi TPAK</h1>
@@ -47,7 +47,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Selesai</p>
-                        <p class="text-3xl font-bold text-gray-900 dark:text-white">0</p>
+                        <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ $selesaiCount }}</p>
                     </div>
                 </div>
             </div>
@@ -58,13 +58,14 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Rata-rata Score</p>
-                        <p class="text-3xl font-bold text-gray-900 dark:text-white">--</p>
+                        <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ $avgScore > 0 ? $avgScore . '%' : '--' }}</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Search & Filters -->
+        <form method="GET" action="{{ route('dupak.validasi.index') }}">
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 mb-8">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div class="flex-1">
@@ -76,16 +77,25 @@
                 <div class="flex gap-2">
                     <select name="status" class="px-4 py-2 rounded-xl border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500">
                         <option value="">Semua Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="reviewing">Reviewing</option>
-                        <option value="completed">Completed</option>
+                        <option value="Draft" {{ request('status') == 'Draft' ? 'selected' : '' }}>Draft</option>
+                        <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="Diajukan" {{ request('status') == 'Diajukan' ? 'selected' : '' }}>Diajukan</option>
+                        <option value="Revisi" {{ request('status') == 'Revisi' ? 'selected' : '' }}>Revisi</option>
+                        <option value="Diterima" {{ request('status') == 'Diterima' ? 'selected' : '' }}>Diterima</option>
+                        <option value="Ditolak" {{ request('status') == 'Ditolak' ? 'selected' : '' }}>Ditolak</option>
                     </select>
-                    <button class="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 transition">
+                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 transition">
                         Filter
                     </button>
+                    @if(request('search') || request('status'))
+                    <a href="{{ route('dupak.validasi.index') }}" class="px-4 py-2 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition text-sm flex items-center">
+                        <i class="fas fa-times mr-1"></i> Reset
+                    </a>
+                    @endif
                 </div>
             </div>
         </div>
+        </form>
 
         <!-- Tasks Table -->
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -152,15 +162,24 @@
                             <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
                                 {{ $item->created_at->addDays(7)->format('d M Y') }}
                             </td>
+                            @php
+                                $prog = $progressMap[$item->id] ?? ['evaluated' => false, 'percent' => 0];
+                            @endphp
                             <td class="px-6 py-4 text-center">
-                                <div class="w-16 h-2 bg-gray-200 rounded-full">
-                                    <div class="h-2 bg-blue-500 rounded-full" style="width: 60%"></div>
+                                <div class="w-16 h-2 bg-gray-200 rounded-full mx-auto">
+                                    <div class="h-2 {{ $prog['evaluated'] ? 'bg-green-500' : 'bg-blue-500' }} rounded-full transition-all duration-500" style="width: {{ $prog['percent'] }}%"></div>
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">60%</p>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    @if($prog['evaluated'])
+                                        <span class="text-green-600 font-semibold"><i class="fas fa-check mr-1"></i>Sudah</span>
+                                    @else
+                                        <span class="text-yellow-600">Belum</span>
+                                    @endif
+                                </p>
                             </td>
                             <td class="px-6 py-4 text-right space-y-1">
-                                <a href="{{ route('dupak.validasi.show', $item->pengajuan_id) }}" class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition">
-                                    <i class="fas fa-edit mr-1"></i> Review Pengajuan
+                                <a href="{{ route('dupak.validasi.show', $item->pengajuan_id) }}" class="inline-flex items-center px-3 py-1.5 {{ $prog['evaluated'] ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700' }} text-white text-xs font-bold rounded-lg transition">
+                                    <i class="fas {{ $prog['evaluated'] ? 'fa-check' : 'fa-edit' }} mr-1"></i> {{ $prog['evaluated'] ? 'Lihat' : 'Review' }} Pengajuan
                                 </a>
                             </td>
                         </tr>

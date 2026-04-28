@@ -21,4 +21,4 @@
 - [x] 2. Perbaiki `ValidasiController::update()` — simpan evaluasi per detail ke `hasil_evaluasi`
 - [x] 3. Handle duplikasi — update existing record jika TPAK sudah pernah nilai detail yang sama
 - [x] 4. Update view `show.blade.php` — tampilkan nilai yang sudah pernah diisi + evaluasi TPAK lain
-- [ ] 5. Update view `index.blade.php` — progress real-time + status sudah/belum dinilai (NEXT)
+- [x] 5. Update view `index.blade.php` — progress real-time + status sudah/belum dinilai

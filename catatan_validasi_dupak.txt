@@ -57,6 +57,6 @@ Revision  → Pengaju/Admin bisa edit komponen
 
 ## Fitur Belum Dibuat
 
-- Fitur "Kirim Pengajuan": Draft → Submitted
+- ~~Fitur "Kirim Pengajuan": Draft → Submitted~~ ✅ SELESAI
 - Fitur Verifikasi Admin: cek kelengkapan dokumen sebelum penilaian TPAK
 - Rekapitulasi Akhir & Export PDF
