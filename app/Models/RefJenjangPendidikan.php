@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class refJenjangPendidikan extends Model
+class RefJenjangPendidikan extends Model
 {
     /** @use HasFactory<\Database\Factories\RefJenjangPendidikanFactory> */
     use HasFactory;

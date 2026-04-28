@@ -86,6 +86,9 @@ class RiwayatJabatanFungsionalKeahlianController extends Controller
                         // DB::commit();
 
                         $validated['users_id'] = Tpa::find($validated['tpa_id'])->users_id;
+                        $validated['keterangan'] = 'Jabatan Fungsional Pegawai';
+                        $validated['keperluan'] = 'JFK';
+
                         $sk = SK::create($validated);
                         $validated['sk_pengakuan_ypt_id'] = $sk->id;
                     } catch (\Exception $e) {
@@ -140,9 +143,9 @@ class RiwayatJabatanFungsionalKeahlianController extends Controller
         // $id_user = SK::with("user_data")->where('id', $id_sk)->first();
         $sk_ypt = (new SKController())->new($request, 'YPT', 'fromRiwayatJabatanFungsionalKeahlian');
         $jfk_update = riwayatJabatanFungsionalKeahlian::findOrFail($id_jfk);
-        $jfk_update ?->update(['sk_pengakuan_ypt_id' => $sk_ypt]);
+        $jfk_update?->update(['sk_pengakuan_ypt_id' => $sk_ypt]);
 
-        return redirect()->back()->with('success','Surat Keputusan Pengakuan YPT Untuk Jabatan Fungsional Keahlian karyawan berhasil ditambahkan');
+        return redirect()->back()->with('success', 'Surat Keputusan Pengakuan YPT Untuk Jabatan Fungsional Keahlian karyawan berhasil ditambahkan');
         // dd($validated['sk_pengakuan_ypt_id']);
         // dd($id_user);
         // dd(riwayatJabatanFungsionalKeahlian::where());
@@ -199,6 +202,9 @@ class RiwayatJabatanFungsionalKeahlianController extends Controller
                         // DB::commit();
 
                         $validated['users_id'] = Tpa::find($validated['tpa_id'])->users_id;
+                        $validated['keterangan'] = 'Jabatan Fungsional Pegawai';
+                        $validated['keperluan'] = 'JFK';
+
                         $sk = SK::create($validated);
                         $validated['sk_pengakuan_ypt_id'] = $sk->id;
                     } catch (\Exception $e) {

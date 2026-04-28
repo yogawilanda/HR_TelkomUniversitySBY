@@ -1,7 +1,7 @@
 @props(['target_id' => null])
 
 <button id="exportCsvBtn" data-id-table="{{ $target_id }}" 
-    class="group flex rounded-md h-full transition-all duration-200 ease-in-out">
+    class="group flex rounded-md h-full transition-all duration-200 ease-in-out hover:scale-105 active:scale-95">
     <div
         class="flex justify-center items-center gap-2 px-3 py-2.5 
         rounded-md border border-[#b6d4fe] bg-[#eef6ff] text-[#1e429f]

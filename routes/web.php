@@ -40,7 +40,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/tes', function () {
-    return view('kelola_data.pegawai.import');
+    return view('kelola_data.sk.view');
 })->name('import');
 
 Route::get('/dashboard', function () {
@@ -88,6 +88,13 @@ Route::middleware('auth')->group(function () {
             Route::group(['prefix' => 'pendidikan', 'as' => 'pendidikan.'], function () {
                 Route::get('/{idUser}/index', [RiwayatJenjangPendidikanController::class, 'profileRiwayatPendidikan'])->name('index');
             });
+        });
+
+        Route::group(['prefix' => 'sk', 'as' => 'sk.'], function () {
+            Route::get('/{id_sk_or_sk_number}/view', [SKController::class, 'view'])->name('view');
+            // Route::get('/new-dikti/',[SKController::class, 'new'])->name('new-dikti');
+
+            Route::get('/{file_path}/{id_sk}/file', [SKController::class, 'getFile'])->name('file');
         });
     });
     Route::group(['prefix' => 'manage', 'as' => 'manage.'], function () {
@@ -228,10 +235,12 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::group(['prefix' => 'sk', 'as' => 'sk.'], function () {
-            Route::get('/list/', [SKController::class, 'index'])->name('list');
-            Route::post('/new/{YptOrDikti}', [SKController::class, 'new'])->name('new');
+            Route::get('/list', [SKController::class, 'index'])->name('list');
+            Route::post('/{YptOrDikti}/new', [SKController::class, 'new'])->name('new');
+            Route::get('/{id_sk_or_sk_number}/view', [SKController::class, 'view'])->name('view');
             // Route::get('/new-dikti/',[SKController::class, 'new'])->name('new-dikti');
 
+            Route::get('/{file_path}/{id_sk}/file', [SKController::class, 'getFile'])->name('file');
         });
 
         Route::group(['prefix' => 'formasi', 'as' => 'formasi.'], function () {

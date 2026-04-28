@@ -13,7 +13,7 @@ use App\Models\formation;
 use App\Models\Prodi;
 use App\Models\RefBagian;
 use App\Models\refJabatanFungsionalAkademik;
-use App\Models\refJenjangPendidikan;
+use App\Models\RefJenjangPendidikan;
 use App\Models\RefPangkatGolongan;
 use App\Models\RefStatusPegawai;
 use App\Models\riwayatJabatanFungsionalAkademik;
@@ -94,7 +94,7 @@ class PegawaiController extends Controller
     public function new()
     {
         $options = [
-            'jenjang_pendidikan' => refJenjangPendidikan::all(),
+            'jenjang_pendidikan' => RefJenjangPendidikan::all(),
             'status_pegawai'     => RefStatusPegawai::all(),
             'jenjang_jfa'        => RefPangkatGolongan::all(),
         ];

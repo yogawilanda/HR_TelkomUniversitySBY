@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class pengawakan extends Model
+class Pengawakan extends Model
 {
     /** @use HasFactory<\Database\Factories\PengawakanFactory> */
     use HasFactory;
@@ -42,7 +42,7 @@ class pengawakan extends Model
 
     public function formasi()
     {
-        return $this->belongsTo(formation::class, 'formasi_id', 'id');
+        return $this->belongsTo(Formation::class, 'formasi_id', 'id');
     }
 
     public function sk_ypt()

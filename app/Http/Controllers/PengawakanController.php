@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dosen;
-use App\Models\formation;
-use App\Models\pengawakan;
+use App\Models\Formation;
+use App\Models\Pengawakan;
 use App\Models\SK;
 use App\Models\Tpa;
 use App\Models\User;
@@ -19,7 +19,7 @@ class PengawakanController extends Controller
         // $formations = json_decode(Formation::with(['bagian', 'prodi', 'fakultas','level_id','atasan_formation'])
         //                             ->orderBy('atasan_formasi_id')
         //                             ->get());
-        $pemetaans = json_decode(pengawakan::with(['users', 'formasi', 'sk_ypt'])
+        $pemetaans = json_decode(Pengawakan::with(['users', 'formasi', 'sk_ypt'])
             ->join('users', 'pengawakans.users_id', '=', 'users.id')
             ->where('tmt_selesai', null)
 
@@ -47,7 +47,7 @@ class PengawakanController extends Controller
     public function create(Request $request)
     {
         // dd($request->all());
-        // dd($request);
+        // dd($request->file('file_sk'));
         $validated = $this->validation($request);
 
         if ($validated['no_sk'] != null) {
@@ -63,8 +63,19 @@ class PengawakanController extends Controller
                 try {
 
                     $validated['tipe_sk'] = 'Pengakuan YPT';
-                    $sk = SK::create($validated);
+                    $validated['keperluan'] = 'Pemetaan';
+                    $validated['file_sk'] = $request->file('file_sk');
+                    $validated['keterangan'] = 'Pemetaan Pegawai';
+                    // dd($validated);
+                    $response = (new SKController())->new(new Request($validated), 'Ypt', false);
+                    $sk = $response->getData()->data;
+                    // dd($sk->id);
+                    // $cek = $sk->getData(true);
+                    // dd($cek['message']);
+                    // dd($sk->getData(true),'cek');
                     // DB::commit();
+
+
                     $validated['sk_ypt_id'] = $sk->id;
                 } catch (\Exception $e) {
                     // DB::rollBack();
@@ -79,8 +90,8 @@ class PengawakanController extends Controller
 
             }
             // $level = Formation::create($validated);
-            $save = pengawakan::create($validated);
-            $bagian = formation::where('id', $save->formasi_id)->first()['work_position_id'];
+            $save = Pengawakan::create($validated);
+            $bagian = Formation::where('id', $save->formasi_id)->first()['work_position_id'];
             // dd($bagian);
             // dd($save);
 
@@ -284,4 +295,6 @@ class PengawakanController extends Controller
             ], 500);
         }
     }
+
+    
 }

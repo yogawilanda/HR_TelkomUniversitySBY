@@ -16,28 +16,23 @@
         }
     </style>
 
-    <div class="min-h-screen font-sans gap-5 antialiased">
+    <div class="min-h-screen font-sans antialiased relative px-4 md:px-6">
 
-        {{-- Background --}}
+        <!-- Background -->
         <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
             <div
-                class="absolute -top-32 left-1/2 h-80 w-80 -translate-x-1/2 
-                    rounded-full bg-indigo-500 blur-[120px] opacity-40">
+                class="absolute -top-32 left-1/2 h-72 w-72 md:h-80 md:w-80 -translate-x-1/2 rounded-full bg-indigo-500 blur-[120px] opacity-40">
             </div>
-
             <div
-                class="absolute bottom-0 left-0 h-72 w-72 rounded-full 
-                    bg-violet-600 blur-[120px] opacity-30">
+                class="absolute bottom-0 left-0 h-60 w-60 md:h-72 md:w-72 rounded-full bg-violet-600 blur-[120px] opacity-30">
             </div>
-
             <div
-                class="absolute bottom-10 right-0 h-80 w-80 rounded-full 
-                    bg-emerald-500 blur-[120px] opacity-30">
+                class="absolute bottom-10 right-0 h-64 w-64 md:h-80 md:w-80 rounded-full bg-emerald-500 blur-[120px] opacity-30">
             </div>
         </div>
 
-        <!-- Header Active Role -->
-        <div class="mb-8 flex flex-col items-center gap-2 md:gap-0">
+        <!-- Header -->
+        <div class="mb-6 md:mb-8 text-center">
             <h2 class="text-lg md:text-2xl font-semibold text-gray-900">
                 Jabatan Struktural Yang Sedang Aktif
             </h2>
@@ -47,44 +42,52 @@
         </div>
 
         <!-- Active Cards -->
-        <main class="flex justify-center pb-5 border-b border-gray-200/70">
-            <div class="w-full flex flex-wrap gap-6 justify-center">
+        <main class="pb-6 border-b border-gray-200/70 flex justify-center">
+            <div
+                class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 justify-items-center sm:justify-items-stretch max-w-6xl mx-auto">
 
                 @forelse ($user['pengawakans_aktif'] as $pemetaan)
-                    {{-- @if ($pemetaan->tmt_selesai == null) --}}
-                        {{-- {{ dd($pemetaan) }} --}}
-                        <div
-                            class="bg-white max-w-50 rounded-3xl shadow-lg border border-gray-100
-                            transition-transform hover:scale-[1.02] hover:shadow-xl">
-                            <div class="h-32 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+                    <div
+                        class="bg-white rounded-3xl shadow-lg border border-gray-100 hover:scale-[1.02] hover:shadow-xl transition">
 
-                            <div class="flex flex-col items-center p-6 -mt-16">
-                                <div
-                                    class="w-28 h-28 rounded-full bg-gray-100 border-4 border-white shadow-md
-                                    flex items-center justify-center">
-                                    <svg class="w-14 h-14 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                        stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
-                                        <path d="M4 6h16M4 12h16M4 18h7" stroke-linecap="round" />
-                                    </svg>
-                                </div>
+                        <div class="h-28 md:h-32 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-t-3xl"></div>
 
-                                <h2 class="mt-4 text-xl font-semibold text-gray-800">{{ $pemetaan->users->nama_lengkap }}
-                                </h2>
-                                <p class="text-gray-500 text-sm">{{ $pemetaan->formasi->nama_formasi }}</p>
+                        <div class="flex flex-col items-center p-4 md:p-6 -mt-14">
+                            <div
+                                class="w-24 h-24 md:w-28 md:h-28 rounded-full bg-gray-100 border-4 border-white shadow flex items-center justify-center">
+                                <svg class="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" stroke-width="1.6"
+                                    viewBox="0 0 24 24">
+                                    <path d="M4 6h16M4 12h16M4 18h7" stroke-linecap="round" />
+                                </svg>
                             </div>
+
+                            <h2 class="mt-3 text-base md:text-lg font-semibold text-gray-800 text-center">
+                                {{ $pemetaan->users->nama_lengkap }}
+                            </h2>
+
+                            <p class="text-gray-500 text-xs md:text-sm text-center">
+                                {{ $pemetaan->formasi->nama_formasi }}
+                            </p>
                         </div>
-                    {{-- @endif --}}
+                    </div>
                 @empty
-                    <p class="text-gray-600 text-sm">Tidak Ada Jabatan Struktural Aktif</p>
+                    <p class="text-gray-600 text-sm text-center">Tidak Ada Jabatan Struktural Aktif</p>
                 @endforelse
+
             </div>
         </main>
 
-        <!-- History -->
-        <main id="top" class="mt-10 max-w-6xl mx-auto px-2">
+        <!-- Floating Button -->
+        <button
+            class="w-full md:w-auto mt-6 md:mt-0 md:fixed md:bottom-6 md:right-6 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-5 py-3 rounded-full shadow-lg transition hover:scale-105">
+            + Tambah Pemetaan Pegawai Ini
+        </button>
 
-            <!-- Section Title -->
-            <div class="mb-8 flex flex-col items-center">
+        <!-- History -->
+        <main class="mt-10 max-w-6xl mx-auto">
+
+            <!-- Title -->
+            <div class="mb-6 md:mb-8 text-center">
                 <h2 class="text-xl md:text-2xl font-semibold text-gray-900">
                     Riwayat Jabatan Struktural
                 </h2>
@@ -93,99 +96,71 @@
                 </p>
             </div>
 
+            
             <!-- Filter -->
-            <section class="mb-8">
-                <div class="flex flex-col items-end gap-3">
+            <section class="mb-6">
+                <div class="flex flex-col md:flex-row md:justify-between gap-4">
 
-                    <div class="text-end">
-                        <h2 class="text-sm font-semibold text-gray-900">Filter</h2>
-                        <p class="text-xs text-gray-700 max-w-md">
-                            Gunakan filter kategori untuk fokus pada posisi kerja tertentu dalam riwayat pemetaan.
+                    <div class="text-sm">
+                        <h2 class="font-semibold text-gray-900">Filter</h2>
+                        <p class="text-xs text-gray-600">
+                            Gunakan filter kategori.
                         </p>
                     </div>
 
                     <div class="flex flex-wrap gap-2">
-                        <button
-                            class="history-filter-btn px-3 py-1.5 text-[11px] rounded-full 
-                                   border border-gray-600 bg-gray-900 text-white
-                                   data-[active=true]:bg-indigo-600 data-[active=true]:border-indigo-500"
-                            data-category="all" data-active="true">Semua</button>
-
-                        <button
-                            class="history-filter-btn px-3 py-1.5 text-[11px] rounded-full 
-                                   border border-gray-600 bg-gray-900/80 text-gray-200 hover:bg-gray-800"
-                            data-category="Bagian">Struktural Bagian</button>
-
-                        <button
-                            class="history-filter-btn px-3 py-1.5 text-[11px] rounded-full 
-                                   border border-gray-600 bg-gray-900/80 text-gray-200 hover:bg-gray-800"
-                            data-category="Program Studi">Struktural Program Studi</button>
-
-                        <button
-                            class="history-filter-btn px-3 py-1.5 text-[11px] rounded-full 
-                                   border border-gray-600 bg-gray-900/80 text-gray-200 hover:bg-gray-800"
-                            data-category="Fakultas">Struktural Fakultas</button>
+                        <button data-category="all" data-active="true"
+                            class="history-filter-btn px-3 py-1 text-xs rounded-full bg-indigo-600 text-white" >Semua</button>
+                        <button data-category="Bagian"
+                            class="history-filter-btn px-3 py-1 text-xs rounded-full bg-gray-800 text-gray-200">Bagian</button>
+                        <button data-category="Program Studi"
+                            class="history-filter-btn px-3 py-1 text-xs rounded-full bg-gray-800 text-gray-200">Program
+                            Studi</button>
+                        <button data-category="Fakultas"
+                            class="history-filter-btn px-3 py-1 text-xs rounded-full bg-gray-800 text-gray-200">Fakultas</button>
                     </div>
                 </div>
             </section>
 
             <!-- Timeline -->
-            <section id="timeline">
-                <div class="relative pl-8">
+            <section>
+                <div class="relative pl-6 md:pl-8">
 
-                    <!-- Vertical Line -->
+                    <!-- Line -->
                     <div
-                        class="absolute left-4 top-0 h-full w-[2px] bg-gradient-to-b 
-                            from-indigo-500 via-slate-600 to-transparent">
+                        class="absolute left-2 md:left-4 top-0 h-full w-[2px] bg-gradient-to-b from-indigo-500 via-slate-600 to-transparent">
                     </div>
 
-                    <div class="space-y-7">
+                    <div class="space-y-6">
 
                         @forelse ($user['pengawakans'] as $pemetaan)
                             <article
-                                class="history-item relative pl-8 transition-all duration-200
-                                        {{ $pemetaan->tmt_selesai ? 'opacity-30' : '' }}"
-                                data-category="{{ $pemetaan->formasi->bagian->type_work_position }}">
+                                class="history-item relative pl-6 md:pl-8 {{ $pemetaan->tmt_selesai ? 'opacity-40' : '' }}"
+                                data-category="{{ $pemetaan->formasi->bagian->type_work_position ?? 'lainnya' }}">
 
-                                <!-- Marker -->
-                                <div
-                                    class="absolute left-0 top-2 w-3 h-3 rounded-full 
-                                        bg-indigo-500 border-[3px] border-white shadow">
+                                <!-- Dot -->
+                                <div class="absolute left-0 top-2 w-3 h-3 bg-indigo-500 rounded-full border-2 border-white">
                                 </div>
 
                                 <!-- Date -->
                                 <div
-                                    class="inline-flex items-center gap-2 px-3 py-1 text-white text-xs
-                                        bg-gray-900/80 rounded-full border border-gray-700">
-                                    {{ date('F Y', strtotime($pemetaan->tmt_mulai)) }} -
-                                    {{ $pemetaan->tmt_selesai ? date('F Y', strtotime($pemetaan->tmt_selesai)) : 'Sekarang' }}
+                                    class="text-[11px] md:text-xs bg-gray-900 text-white px-2 py-1 rounded-full inline-block">
+                                    {{ date('M Y', strtotime($pemetaan->tmt_mulai)) }} -
+                                    {{ $pemetaan->tmt_selesai ? date('M Y', strtotime($pemetaan->tmt_selesai)) : 'Sekarang' }}
                                 </div>
 
                                 <!-- Title -->
-                                <h3 class="mt-3 text-base font-semibold text-gray-900 flex items-center gap-2">
-                                    <i class="{{ $pemetaan->formasi->level_data->icon }} text-indigo-600"></i>
+                                <h3 class="mt-2 text-sm md:text-base font-semibold text-gray-900">
                                     {{ $pemetaan->formasi->nama_formasi }}
                                 </h3>
 
-                                <p class="mt-2 text-xs text-gray-700 leading-relaxed">
-                                    Menjalankan tugas, fungsi, dan tanggung jawab sesuai jabatan yang ditempati.
+                                <p class="text-xs text-gray-600 mt-1">
+                                    Menjalankan tugas sesuai jabatan.
                                 </p>
 
-                                @if (session('account')['is_admin'])
-                                    <div class="flex items-center gap-2 mt-3">
-                                        <span class="text-sm font-medium text-gray-800">SK Jabatan:</span>
-                                        <button
-                                            class="px-3 py-1 text-xs font-semibold bg-blue-100 
-                                                   text-blue-700 rounded-full flex items-center gap-2">
-                                            <i class="fa-solid fa-file"></i> SK
-                                        </button>
-                                    </div>
-                                @endif
-
                             </article>
-
                         @empty
-                            <p class="text-gray-600 text-sm">Belum Ada Riwayat Pemetaan.</p>
+                            <p class="text-gray-600 text-sm">Belum Ada Riwayat.</p>
                         @endforelse
 
                     </div>
@@ -193,7 +168,6 @@
             </section>
 
         </main>
-
     </div>
 
     {{-- FILTER SCRIPT --}}
@@ -210,6 +184,7 @@
 
                 historyItems.forEach(item => {
                     const match = category === 'all' || item.dataset.category === category;
+                    console.log(match, category,item.dataset.category );
                     item.classList.toggle('opacity-30', !match);
                     item.classList.toggle('scale-[0.98]', !match);
                 });

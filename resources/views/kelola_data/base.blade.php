@@ -29,5 +29,4 @@
         }
     </style>
     @include('kelola_data.sidebar')
-    @include('kelola_data.pegawai.js.alert-success-from-controller')
 @endsection

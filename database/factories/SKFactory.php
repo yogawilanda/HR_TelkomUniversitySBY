@@ -23,7 +23,8 @@ class SKFactory extends Factory
         return [
             'no_sk' => $this->faker->numerify('SK-###/'.$kode),
             'tmt_mulai' => $this->faker->optional()->date(),
-            'file_sk' => $this->faker->optional()->lexify('file_????.pdf'),
+            'file_sk' => 'Pemetaan_sk.pdf',
+            'keterangan' => 'keterangan',
             'tipe_sk' => $tipe,
             'created_at' => now(),
             'updated_at' => now(),

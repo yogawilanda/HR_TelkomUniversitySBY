@@ -57,7 +57,7 @@
                 <x-tb-td type="select" nama="gender" sorting=true>Formasi</x-tb-td>
                 <x-tb-td nama="tmt_mulai" sorting=true>TMT Mulai</x-tb-td>
                 {{-- <x-tb-td nama="tmt_selesai" sorting=true>TMT Selesai</x-tb-td> --}}
-                <x-tb-td nama="sk" sorting=true>NO. SK</x-tb-td>
+                <x-tb-td nama="sk" sorting=true>Nomor SK</x-tb-td>
                 {{-- <x-tb-td type="select" nama="aktif" sorting=true>Nonaktifkan</x-tb-td> --}}
                 <x-tb-td nama="email_pribadi" sorting=true>Action</x-tb-td>
             </x-slot:table_header>
@@ -71,8 +71,19 @@
                             <x-tb-cl-fill>{{ htmlspecialchars($pemetaan->formasi->nama_formasi) }}</x-tb-cl-fill>
                             <x-tb-cl-fill>{{ date('d/m/Y', strtotime($pemetaan->tmt_mulai)) }}</x-tb-cl-fill>
                             {{-- <x-tb-cl-fill :cls="$pemetaan->tmt_selesai === null ? 'text-white' : ''">{{ $pemetaan->tmt_selesai }}</x-tb-cl-fill> --}}
-                            <x-tb-cl-fill><a href=""
-                                    class="text-wrap">{{ htmlspecialchars($pemetaan->sk_ypt->no_sk) }}</a></x-tb-cl-fill>
+                            <x-tb-cl-fill><a href="" class="text-wrap">
+
+                                    <a href="{{ route('manage.sk.view', ['id_sk_or_sk_number' => str_replace("/", "|", $pemetaan->sk_ypt->no_sk)]) }}"
+                                        class="px-3 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-full flex items-center gap-2
+                                            border border-transparent 
+                                            transition-all duration-200 ease-in-out
+                                            hover:bg-white hover:text-blue-700 hover:border-blue-500 hover:scale-105
+                                            active:bg-blue-100 active:text-blue-700 active:scale-100">
+                                        <i class="fa-solid fa-file"></i>
+                                        {{ htmlspecialchars($pemetaan->sk_ypt->no_sk) }}
+                                    </a>
+                            </x-tb-cl-fill>
+
                             <x-tb-cl-fill>
                                 <div class="flex items-center justify-center gap-3">
                                     <div class="dropdown shadow-xl">

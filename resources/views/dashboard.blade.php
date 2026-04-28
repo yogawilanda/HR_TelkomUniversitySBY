@@ -23,7 +23,7 @@ $moduls = [
                 <!-- App: Dashboard -->
                 @foreach ($moduls as $modul)
                 <a href="{{ $modul[2] }}"
-                    class="group relative flex flex-col items-center justify-center rounded-2xl bg-white p-6 border border-gray-200 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-blue-400 dark:bg-gray-900 dark:border-gray-700">
+                    class="group route_pop_up relative flex flex-col items-center justify-center rounded-2xl bg-white p-6 border border-gray-200 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-blue-400 dark:bg-gray-900 dark:border-gray-700">
 
                     <!-- Icon -->
                     <div

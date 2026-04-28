@@ -20,16 +20,16 @@ class RefPangkatGolonganSeeder extends Seeder
         //     ['pangkat' => 'Guru Besar (Profesor)', 'golongan' => 'IV/c'],
         // ];
 
-        $data = [
-            ['pangkat' => 'Pembina Tk. I', 'golongan' => 'IV/b'],
-            ['pangkat' => 'Pembina Utama Muda', 'golongan' => 'IV/c'],
-            ['pangkat' => 'Penata', 'golongan' => 'III/c'],
-            ['pangkat' => 'Penata Muda Tk. I', 'golongan' => 'III/b'],
-            ['pangkat' => 'Penata Tk. I', 'golongan' => 'IV/c'],
-        ];
+        // $data = [
+        //     ['pangkat' => 'Pembina Tk. I', 'golongan' => 'IV/b'],
+        //     ['pangkat' => 'Pembina Utama Muda', 'golongan' => 'IV/c'],
+        //     ['pangkat' => 'Penata', 'golongan' => 'III/c'],
+        //     ['pangkat' => 'Penata Muda Tk. I', 'golongan' => 'III/b'],
+        //     ['pangkat' => 'Penata Tk. I', 'golongan' => 'IV/c'],
+        // ];
 
-        foreach ($data as $item) {
-            RefPangkatGolongan::create($item);
-        }
+        // foreach ($data as $item) {
+        //     RefPangkatGolongan::create($item);
+        // }
     }
 }

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class formation extends Model
+class Formation extends Model
 {
     /** @use HasFactory<\Database\Factories\FormationFactory> */
     use HasFactory;
@@ -54,7 +54,7 @@ class formation extends Model
 
     public function atasan_formation()
     {
-        return $this->belongsTo(formation::class, 'atasan_formasi_id','id');
+        return $this->belongsTo(Formation::class, 'atasan_formasi_id','id');
     }
 
     public function bagian()
