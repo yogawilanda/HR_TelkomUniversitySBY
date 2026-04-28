@@ -1,210 +1,43 @@
-migrasi khusus database dupak
-php artisan make:migration create_ref_target_jabatan_pengajuan_table --path=database/migrations/dupak
+# Master Index — Catatan Pengerjaan DUPAK
 
-migrasi baru untuk seluruh database
+> File ini adalah indeks utama. Detail tiap kategori ada di file terpisah.
+
+## Daftar File Catatan
+
+| No | File | Keterangan | Status |
+|----|------|------------|--------|
+| 1 | `catatan_bug_dupak.txt` | Log bug (red, yellow, critical) | ✅ Lengkap |
+| 2 | `catatan_fitur_selesai_dupak.txt` | Fitur yang sudah selesai dikerjakan | ✅ Lengkap |
+| 3 | `catatan_tpaK_dupak.txt` | Penunjukan TPAK & audit trail | ✅ Lengkap |
+| 4 | `catatan_dashboard_dupak.txt` | Audit & perbaikan Dashboard | ✅ Lengkap |
+| 5 | `catatan_migrasi_dupak.txt` | Migration, seeding, struktur DB | ✅ Lengkap |
+| 6 | `catatan_validasi_dupak.txt` | Validasi pengajuan & flagging | ✅ Lengkap |
+| 7 | `catatan_rapat_dupak.txt` | Hasil tanya jawab dengan Pak Dahliar / Evi | ✅ Lengkap |
+| 8 | `catatan_detail_pengajuan_dupak.txt` | Form detail pengajuan & perhitungan AK | ✅ Lengkap |
+| 9 | `CATATAN_TEKNIS_DUPAK.md` | Dokumentasi teknis project (multi-DB, aturan migration) | ✅ Lengkap |
+
+> **Catatan**: File master ini tidak lagi berisi detail panjang. Detail tiap kategori ada di file terpisah sesuai tabel di atas.
+
+## Quick Command
+
+```bash
+# Migrasi khusus database dupak
+php artisan make:migration nama_tabel --path=database/migrations/dupak
+
+# Migrasi baru untuk seluruh database
 php artisan db:full-refresh --seed
-----------
-Bug Logs (Manual dulu ges)
+```
 
-red bug ditemukan : kalau user dengan jabatan dosen login, tidak bisa akses dashboard karena detail pengajuan urlnya masih absolute menggunakan id
-resolve : menggunakan ternary opr pada url show detail pengajuan di progress.
-
-yellow bug ditemukan : kalau user dengan jabatan dosen login, informasi dupak seperti progress dan lain lain sudah langsung mendeteksi bahwa user langsung memiliki target jabatan lanjutannya, meskipun benar, tapi harusnya sistem belum tau itu.
-
-yellow bug :
-kalau admin login terus kebetulan admin juga dosen, tombol detail kegiatan masih mengambil dari id 1, bukan pengajuannya sendiri.
-
----------
-Fitur yang sudah diselesaikan
-	Tampilan
-		Dupak
-			1. a. Kartu Informasi Dupak
-				a.1. Progess Bar
-				a.2. Kum Saat Ini
-				a.3. Target Kum Value dan target jabatan yang diajukan
-				a.4. Tersisa Value
-				a.5. Tombol Detail Kegiatan
-				a.6. Tombol Tambahkan Kegiatana beserta modalnya(pop up)  
-			1. b. Kartu Pengaju
-				b.1. Nama User yang mengakses (Dosen/Admin+dosen)
-				b.2. NIDN (dari db sdm_tus.dosen)
-				b.3. Jabatan saat ini (dari db sdm_tus.riwayat_jfa)
-				b.4. NIK (dari db sdm_tus.users)
-			1. c. Tabel Pengajuan
-				c.1. Untuk dosen
-				c.2. Untuk admin dupak
-		Fungsionalitas
-			1. Kartu Informasi Dupak
-				a.1. Progress Bar
-				a.2. Kum Saat Ini Value
-				a.3. Target Kum Value
-				a.4. Tersisa Value
-				a.5. Redireksi tombol detail kegiatan dengan membawa id
-				a.6. Pop Up Tambah Kegiatan (belum untuk aksi input/create detil pengajuan)
-
-		Migrasi
-			1. tabel pengajuan
-			2. tabel ref_target_jabatan_pengajuan_table
-			3. tabel ref_jenis_input
-			4. tabel ref_kegiatan_utama
-			5. tabel ref_kegiatan_komponen
-			6. tabel ref_nilai_kum_baku
-			7. tabel jabatan_fungsional_akademik (ini dihapus nanti soalnya sudah ada di sdm_tus.ref_jfa)
-			8. tabel migrations(bawaan dari eloquent)
-
-		Seeder/Dummy Data
-			1. create_ref_target_jabatan_pengajuan_table --path=database/migrations/dupak
-			2. 
-
-		Konfigurasi Database Dupak Kedalam Aplikasi
-			1. Konfigurasi .env
-			2. Konfigurasi database.php (untuk appoint ke database mana dupak bisa dipanggil)
-
-Fitur yang belum diselesaikan
-1. Input pengajuan detail kegiatan
-2. Edit status pada pengajuan di role admin dupak
-3. Update view detail pengajuan pada role dosen ketika selesai melakukan pengajuan
-4. Migrasi/konversi DDL dari secara total (7/13) tabel
-
-
-
-------------- 
-Jabatan NJAD. Non JAD harus dimasukkan kedalam tabel referesi JFA yang di sdm_tus.
-
-dot besar hanya untuk event/acara 
-dot kecil hanya untuk poin detil input
-
-upload dalam bentuk link.
-
-
-detail pengajuan dibuatkan view secara terbatas supaya menghindari over query.
-
-tim PAK juga dosen
-
-catatan ada dalam kolom pengajuan, gunanya adalah untuk admin dapat berkomunikasi dengan dengan dosen/pengaju dupak.
-
-flaging hanya dilakukan oleh admin, dan flagging, setiap poin kegiatan.
-
--------------------
-List yang sudah selesai
-1. Integrasi Seeding Dupak ke aplikasi utama
-2. Migrasi tabel detil pengajuan yang terbaru
-3. Migrasi tabel evaluasi yang isinya komentar/flagging/scoring untuk admin dan TPAK
-4. Migrasi tabel penunjukan tpak 
-5. Seeding adaptif untuk pengisian pengajuan.
-6. mengubah privasi user yang hanya bisa mengakses laman dupak
-7. Membuat seeder untuk pengajuan dengan metode adaptif seeding antar 2 db sekaligus.
-8. Menambahkan kolom evaluasi berupa pesan dari TPAK dan admin kedalam tampilan detail pengajuan per block.
-9. Halaman untuk formulir setiap detil pengajuan di ekstensi url 
-http://127.0.0.1:8000/dupak/detil_pengajuan/penelitian
-http://127.0.0.1:8000/dupak/detil_pengajuan/pendidikan
-http://127.0.0.1:8000/dupak/detil_pengajuan/pengabdian
-http://127.0.0.1:8000/dupak/detil_pengajuan/penunjang
-(kurang 1, yaitu pelaksanaan pendidikan)
-10. registrasi setiap halaman formulir ke web.php dari poin 9
-11. Menyiapkan TPAK controller sebagai controller tunggal untuk keperluan interaksi antar keperluan tabel penunjukan_tpak.
------------------
-Aturan bab tanya evi nanti
-5. 
-6. Kesimpulan dan saran
-
------------
-tidak perlu memberi limit
--pak dahliar.
-
-lektor kepala 2  gb 3.
-maksimal 3 jika perlu di limit.
-
-
------------
-12. integrasi button untuk redirect menuju laman form pengisian detil pengajuan per masing masing jenis detil pengajuan.
-13. Perbaikan error fatal "Call to a member function count() on null" dengan mendefinisikan relasi `details` pada model Pengajuan dan menambahkan pengecekan null-safety.
-14. Optimasi performa pada PengajuanController menggunakan Eager Loading (`with`) untuk memuat data komponen dan evaluasi sekaligus (mencegah N+1 query).
-15. Perbaikan bug pada DashboardController dimana Admin melihat total KUM pengajuan user lain; sekarang perhitungan KUM dipisahkan secara ketat antara data personal dosen dan ringkasan admin.
-16. Implementasi logika pengambilan nama pemeriksa (evaluator) yang mendukung pencarian lintas tabel antara `users` (Admin) dan `dosens` (TPAK/Pegawai) dengan metode array merging.
-17. Penambahan fitur breakdown KUM pada Dashboard (Base KUM dari profil + Pending KUM dari detail pengajuan) untuk transparansi progress dosen.
-18. Penambahan guard autentikasi pada TPAKController untuk mencegah crash aplikasi saat sesi user berakhir atau tidak terdeteksi.
-
---- Belum Dibuat
+## Fitur Belum Dibuat (Ringkasan)
 19. Halaman List Penunjukan TPAK
 20. Halaman Penilaian dan evaluasi dari TPAK dan Admin
-21. Halaman Dosen menjadi mode TPAK/ fitur untuk membuat dosen yang menjadi TPAK dapat melakukan pekerjaan sebagai TPAK.
-*22. Fitur "Kirim Pengajuan": Mengubah status pengajuan dari Draft menjadi "Submitted" agar bisa mulai diverifikasi oleh Admin.
-*23. Fitur Verifikasi Admin: Tahap awal pengecekan kelengkapan dokumen sebelum masuk ke penilaian angka kredit oleh TPAK.
-*24. Fitur Rekapitulasi Akhir & Export PDF: Generate formulir DUPAK otomatis berdasarkan detail kegiatan yang sudah disetujui.
+21. Halaman Dosen menjadi mode TPAK
+22. Fitur "Kirim Pengajuan" (Draft → Submitted)
+23. Fitur Verifikasi Admin (cek kelengkapan dokumen)
+24. Fitur Rekapitulasi Akhir & Export PDF
 
---- Yang perlu di tanyakan
-1. Apakah proses menjadi TPAK itu perlu rekrutmen, atau penunjukan secara langsung oleh Admin SDM?
-- pak Dahliar memberi informasi bahwa limit TPAK sementara dihilangkan dahulu, jaga jaga karena untuk tingkat atas biasanya butuh lebih dari 2 TPAK.
-Dilimit 5 TPAK per dupak.
-
-2. Bagaimana prosedur jika terdapat perbedaan nilai (discrepancy) yang signifikan antara TPAK 1 dan TPAK 2? Apakah ada peran TPAK ke-3 (Ketua TPAK/Verifier Akhir)?
-
-Bisa jadi berbeda pengakuannya. 1 Review pengakuan AK kredit catatan.
-Kegiatan Salah kamar jadi, perhitungannya sudah fix. jadi ketika ada sub pengajuan detil yang tidak sesuai maka TPAK memberi catatan kepada pengaju sedangkan yang bisa mengubah sub kategorinya itu adalah dari pengaju atau pihak SDM.
-
-
-3. Apakah Admin memiliki wewenang untuk mengubah nilai angka kredit secara langsung, atau Admin hanya bertugas memverifikasi kelengkapan dokumen (berkas valid/tidak)?
-Menyesuaikan sub kategori. pihak SDM saja dan pengaju yang dapat mengupdate nilai dari pengajuan yang dimaksud.
-
-7. Apakah perlu ada fitur untuk mengatur/mengubah kalkulasi dari nilai AK dari per masing masing poin detail pengajuan?
-2 kolom lagi standar minimal 
-
-ada sub total per masing masing kategori bisa di visualisasi.
-angka saja, tidak perlu visualisasinya.
-
-
-Bisa mengubah persentase dari jumlah AKK minimal (Angka kredit kumulatif)
-
-User bisa melihat target persentase tidak hanya total dari keselurahan
-namun juga berdasarkan kategori kegiatan.
-
-Sembunyikan nama TPAK ke Pengaju.
-
-4. Apakah ada periode waktu tertentu (masa sanggah) bagi dosen jika keberatan dengan hasil evaluasi dari TPAK?
-5. Terkait Jabatan NJAD (Non JFA): Apakah mereka memiliki skema target KUM yang berbeda, atau tetap mengikuti standar minimal kenaikan ke Asisten Ahli?
-6. Apakah sistem perlu membatasi jumlah SKS pengajaran per semester sesuai dengan aturan BKD agar tidak terjadi over-claim KUM di bagian pendidikan?
-
---------------
-Yang sudah dikerjakan
-
-1. Penyamaan kelas, nama views, dan controller untuk Penunjukan TPAK
-2. Komponen View untuk melihat Angka Kredit Spesifik untuk pengaju Dupak
-3. Paginasi Tabel Penunjukan TPAK
-4. Update untuk halaman form pengisian detail komponen pendidikan.
-5. 
-
---------------
-Yang belum dikerjakan
-Halaman Validasi Detail Pengajuan
-1. Admin dan TPAK akan memiliki fitur Validasi Pengajuan dari pengaju, fungsinya adalah melihat apa saja komponen pengajuan yang sudah di submit oleh pengaju, disitu Pihak TPAK dan Admin bisa memberikan komentar dan memberikan nilai terhadap pengajuan yang diperlukan.
-
-isinya apa saja?
-isinya adalah record dari komponen kegiatan yang telah disubmisi oleh pengaju, semuanya dikumpulkan dalam 1 tabel, dimana terdapat informasi seperti No., Pengaju,  Komponen/Detail Pengajuan, Tombol untuk melihat isi dari komponen Pengajuan secara detail, lalu ada textbox/paragraf untuk berkomentar, dan status untuk memberikan flagging, jika flagging approved, maka akan diproses untuk memberikan nilai yang sudah ditetapkan valuenya oleh sistem, jika tidak, maka statusnya ada reject/ditolak, setelah itu jika statusnya adalah need revision/revision saja, maka set status komponen tadi untuk dapat diedit oleh pengaju dan admin.
-
-batasan TPAK, hanya bisa memberikan komentar/pesan, memberi flagging status, dan submit untuk memberi nilai.
-
-batasan Admin, hanya bisa memberikan komentar,flagging status, dan submit, namun tidak akan berpengaruh ke pemberian nilai.
-
-batasan Pengaju, hanya bisa membuat dan melihat submisi untuk komponen kegiatanya sendiri, dan jika sudah disubmit HARUS menunggu pihak TPAK/Admin untuk mengupdate komponen kegiatan.
-
------------------------------------
-Komponen Untuk melihat ringkasan siapa saja yang sudah membuat dupak, jumlah tpak, jumlah komponen kegiatan yang sudah diajukan.
-
-Big BUG.
-
-Jika user belum memiliki pengajuan harusnya tampilkan "Anda belum mengajukan pengajuan" di Informasi KUM Card dan Angka Kredit Spesifik
-
------------
-Small bug Jika NJAD, tidak muncul pengajuan untuk tingkat lanjutannya, sudah fix.
-
-NJAD pengajuan menjadi Asisten Ahli, untuk sementara.
-
-Data statistik untuk Dupak khusus tampilan admin sudah diupdate dan mengambil data dari DB.
-
-Merapikan Tampilan Dashboard lagi karena ada tambahan card untuk data statistik.
-Done
--------------
-Detail Pengajuan - Pendidikan Store
-Detail Pengajuan - Penelitian Store
-
+## Status Terakhir
+- Guru Besar: pengajuan kenaikan jabatan diblokir (controller + view)
+- Penunjukan TPAK: 10 blind spot sudah diperbaiki
+- Dashboard: bug critical fixed (statistik, breakdown KUM, status)
+- Migration: kolom `created_by` ditambahkan di file existing (tidak buat file baru)

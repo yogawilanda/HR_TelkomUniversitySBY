@@ -1,0 +1,87 @@
+# Catatan Migrasi & Seeding DUPAK
+
+> Struktur database, migrasi, seeding, dan aturan teknis multi-database.
+
+---
+
+## Arsitektur Database Multi-Connection
+
+- **`sdm_tus`** (koneksi `mysql` / default) — database utama SDM
+- **`dupak`** (koneksi `dupak`) — database modul DUPAK
+
+### Aturan Penting
+- Model DUPAK wajib extend `DupakModel` (sudah set `$connection = 'dupak'`).
+- Query ke DB utama dari controller DUPAK pakai `DB::connection('mysql')`.
+- **Tidak bisa Foreign Key constraint antar database**.
+
+---
+
+## Lokasi Migration DUPAK
+
+```
+database/migrations/dupak/
+```
+
+Format nama:
+```
+YYYY_MM_DD_HHMMSS_dupak_table_<nama_tabel>.php
+```
+
+Setiap migration DUPAK wajib:
+```php
+protected $connection = 'dupak';
+```
+
+---
+
+## ⚠️ Aturan Penting: Jangan Buat Migration Baru untuk Alter Table
+
+Tim menggunakan custom command:
+```bash
+php artisan db:full-refresh --seed
+```
+
+Command ini menghapus dan membuat ulang semua tabel, jadi:
+- **Edit langsung migration existing** (file `create` table).
+- Semua perubahan schema dilakukan di file migration yang sudah ada.
+
+---
+
+## Tabel DUPAK yang Sudah Dibuat
+
+1. `pengajuan`
+2. `ref_target_jabatan_pengajuan`
+3. `ref_jenis_input`
+4. `ref_kegiatan_utama`
+5. `ref_kegiatan_komponen`
+6. `ref_nilai_kum_baku`
+7. `detail_pengajuan`
+8. `hasil_evaluasi` / `evaluasi`
+9. `penunjukan_tpak` (+ kolom `created_by`)
+10. `migrations` (bawaan Eloquent)
+
+---
+
+## Seeding Adaptif
+
+- Seeders Dupak di `database/seeders/Dupak/`
+- Metode adaptif seeding antar 2 database sekaligus.
+- Integrasi Seeding Dupak ke aplikasi utama sudah selesai.
+
+---
+
+## Perbaikan Migration Terbaru
+
+- **File**: `database/migrations/dupak/2025_11_19_072934_dupak_table_penunjukan_tpak.php`
+- **Perubahan**: Kolom `created_by` ditambahkan langsung di migration `create` (bukan file baru).
+- **Alasan**: tim pakai `db:full-refresh --seed`.
+
+---
+
+## Down Migration
+
+Untuk menghindari error FK saat `migrate:fresh`, gunakan:
+```php
+Schema::connection($this->connection)->disableForeignKeyConstraints();
+Schema::connection($this->connection)->dropIfExists('nama_tabel');
+Schema::connection($this->connection)->enableForeignKeyConstraints();

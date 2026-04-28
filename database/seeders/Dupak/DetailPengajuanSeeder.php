@@ -22,6 +22,7 @@ class DetailPengajuanSeeder extends Seeder
                     'volume' => 3.00,
                     'angka_kredit_murni' => 1.00,
                     'angka_kredit_total' => 3.00,
+                    'status' => 'Pending',
                     'link_bukti_pendukung' => 'https://drive.google.com/sample-bukti-ajar',
                     'created_at' => now(),
                 ],
@@ -32,6 +33,7 @@ class DetailPengajuanSeeder extends Seeder
                     'volume' => 1.00,
                     'angka_kredit_murni' => 20.00,
                     'angka_kredit_total' => 20.00,
+                    'status' => 'Pending',
                     'link_bukti_pendukung' => 'https://jurnal.org/deep-learning-hr',
                     'created_at' => now(),
                 ]

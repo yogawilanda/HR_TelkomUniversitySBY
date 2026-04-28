@@ -1,0 +1,652 @@
+================================================================================
+DOKUMENTASI LOGIKA DUPAK - EKSTRAKSI DARI mockdata_dupak.xlsx
+================================================================================
+Tanggal Ekstraksi: Sesuai sesi
+Sumber: mockdata_dupak.xlsx
+Tujuan: Menjadi panduan implementasi logic aplikasi DUPAK
+================================================================================
+
+==============================
+1. STRUKTUR DOKUMEN / HEADER
+==============================
+
+Dokumen ini adalah "Surat Pernyataan Melaksanakan Kegiatan Pendidikan dan Pengajaran"
+sesuai Lampiran V Keputusan Bersama Menteri No. 4/VIII/PB/2014 dan No. 24/2014.
+
+Bagian Header (Data Profil Pengaju):
+- Nama Lengkap
+- NIP
+- Pangkat/Golongan Ruang
+- Jabatan Fungsional
+- Unit Kerja
+
+================================================================================
+2. UNSUR UTAMA DAN SUB-KOMPONEN DUPAK
+================================================================================
+
+--------------------------------
+I. PENDIDIKAN (idKegiatanUtama = 1)
+--------------------------------
+
+[Sub-Komponen A] Pendidikan Formal (idKomponen = 1)
+  Satuan Hasil: Ijazah
+  Logic: Angka Kredit TETAP per jenjang pendidikan
+  - Sarjana (S1)                    : 100 AK
+  - Magister (S2) linier            : 50 AK
+  - Magister (S2) non-linier        : 15 AK
+  - Doktor (S3) linier              : 50 AK
+  - Doktor (S3) non-linier          : 15 AK
+  Formula: 1 (volume) × AK = Total AK
+  Kolom Input User:
+    - Pilihan jenjang (dropdown: S1, S2 linier, S2 non-linier, S3 linier, S3 non-linier)
+    - Link bukti (Ijazah)
+  NOTE: Total maksimal dari sub-komponen ini = 200 AK (dari contoh data)
+
+[Sub-Komponen B] Diklat Pra Jabatan (idKomponen = 2)
+  Satuan Hasil: -
+  Logic: Perlu definisi nilai AK dari ref_nilai_kum_baku
+  Kolom Input User:
+    - Nama diklat
+    - Link bukti (Sertifikat)
+  NOTE: Pada mock data, nilainya 0 (belum diisi)
+
+--------------------------------
+II. PELAKSANAAN PENDIDIKAN (idKegiatanUtama = 2)
+--------------------------------
+
+[Sub-Komponen A] Melaksanakan Perkuliahan (idKomponen = 3)
+  Satuan Hasil: SKS
+  Grouping: Per Semester (Gasal / Genap) per Tahun Ajaran
+  ----------------------------------------------------------------
+  RUMUS PERHITUNGAN (KRITIS - PERLU DIIMPLEMENTASIKAN):
+  ----------------------------------------------------------------
+  
+  Setiap mata kuliah diinput dengan:
+    - Nama MK, SKS, Jumlah Kelas
+    - Tahun Ajaran (contoh: 2023/2024)
+    - Semester (Gasal/Genap)
+  
+  AKUMULASI SKS PER SEMESTER dihitung dari:
+    SKS_total = Σ (SKS × Kelas) untuk semua MK dalam 1 semester
+  
+  RUMUS AK:
+    Jika SKS_total ≤ 10  →  Rate AK = 1.0 per SKS
+    Jika SKS_total > 10  →  Rate AK = 1.0 untuk 10 SKS pertama,
+                            Rate AK = 0.5 untuk SKS di atas 10
+  
+  Contoh perhitungan dari mock data:
+    - MI1264 Dasar Algoritma, 4 SKS, 2 Kelas
+      SKS_total = 4 × 2 = 8
+      8 ≤ 10 → Rate 1.0
+      AK = 8 × 1 = 8
+      
+    - VII2B4 Pemrograman Web 2, 4 SKS, 2 Kelas (tapi dibagi):
+      6 SKS × 1 kelas = 6 (rate 1.0) = 6
+      2 SKS × 1 kelas = 2 (rate 0.5) = 1
+      Total = 7 (karena SKS_total > 10)
+      
+  MAKSIMUM: 11 AK per semester
+  
+  Kolom Input User PER BARIS:
+    - Nama Mata Kuliah
+    - SKS
+    - Jumlah Kelas
+    - Tahun Ajaran (dropdown)
+    - Semester (Gasal/Genap)
+    - Link bukti (SK Mengajar)
+  
+  Kolom yang dihitung otomatis oleh sistem:
+    - Volume Kegiatan = SKS × Kelas
+    - Angka Kredit per SKS (1.0 atau 0.5)
+    - Jumlah AK = Volume × Rate
+    - Akumulasi SKS semester
+    - Keterangan: "SKS<=10" atau "SKS>10"
+
+[Sub-Komponen B] Membimbing Seminar (idKomponen = 4)
+  Satuan Hasil: Kegiatan
+  Grouping: Per Semester (Gasal/Genap)
+  Logic: Perlu nilai dari ref_nilai_kum_baku
+  Kolom Input User PER BARIS:
+    - Nama Mahasiswa (NIM)
+    - Tahun Ajaran
+    - Semester
+    - Link bukti (SK)
+  NOTE: Pada mock data, nilainya 0 (belum diisi)
+
+[Sub-Komponen C] Membimbing KKN/PKN/PKL (idKomponen = 5)
+  Satuan Hasil: Kegiatan
+  Grouping: Per Semester (Gasal/Genap)
+  Logic: Perlu nilai dari ref_nilai_kum_baku
+  Kolom Input User PER BARIS:
+    - Nama Kegiatan / Deskripsi
+    - Tahun Ajaran
+    - Semester
+    - Link bukti (SK)
+  NOTE: Pada mock data, nilainya 0 (belum diisi)
+
+[Sub-Komponen D] Membimbing Disertasi/Tesis/Skripsi/Laporan Akhir (idKomponen = 6)
+  Satuan Hasil: Lulusan
+  Grouping: Per Semester (Gasal/Genap) per Tahun Ajaran
+  ----------------------------------------------------------------
+  RUMUS PERHITUNGAN:
+  ----------------------------------------------------------------
+  Per mahasiswa yang dibimbing:
+    - Pembimbing UTAMA     : 1.0 AK
+    - Pembimbing PENDAMPING: 0.5 AK
+  
+  MAKSIMUM TOTAL: 32 AK untuk seluruh periode
+  
+  Contoh perhitungan dari mock data:
+    - 30109419 - Marsheilla Mustika | Pembimbing Utama | Laporan akhir studi
+      Volume = 1, Rate = 1, AK = 1 × 1 = 1
+      
+    - 30110089 - Irwan Harianto     | Pembimbing Pendamping | Laporan akhir studi
+      Volume = 1, Rate = 0.5, AK = 1 × 0.5 = 0.5
+  
+  Kolom Input User PER BARIS:
+    - Nama Mahasiswa (NIM)
+    - Jenis Bimbingan (Disertasi/Tesis/Skripsi/Laporan Akhir Studi)
+    - Peran (Pembimbing Utama / Pembimbing Pendamping)
+    - Tahun Ajaran
+    - Semester (Gasal/Genap)
+    - Link bukti (SK/Surat Tugas)
+    - Keterangan otomatis: "Pembimbing Utama [Jenis]" / "Pembimbing Pendamping [Jenis]"
+
+[Sub-Komponen E] Bertugas sebagai Penguji Ujian Akhir (idKomponen = 7)
+  Satuan Hasil: Lulusan
+  Grouping: Per Semester (Gasal/Genap) per Tahun Ajaran
+  ----------------------------------------------------------------
+  RUMUS PERHITUNGAN:
+  ----------------------------------------------------------------
+  Per mahasiswa diuji:
+    - Ketua Penguji  : 1.0 AK
+    - Anggota Penguji: 0.5 AK
+  
+  MAKSIMUM PER SEMESTER: 8 AK
+    - Maksimal Ketua Penguji  : 4 AK
+    - Maksimal Anggota Penguji: 4 AK
+  
+  Contoh perhitungan dari mock data:
+    - Predy Gito (30109054) | Ketua Penguji | AK = 1 × 1 = 1
+    - Sabar F. Sianturi     | Anggota Penguji | AK = 1 × 0.5 = 0.5
+  
+  Kolom Input User PER BARIS:
+    - Nama Mahasiswa (NIM)
+    - Peran (Ketua Penguji / Anggota Penguji)
+    - Tahun Ajaran
+    - Semester (Gasal/Genap)
+    - Link bukti (SK)
+
+[Sub-Komponen F] Membina Kegiatan Mahasiswa (idKomponen = 8)
+  Satuan Hasil: Semester
+  Grouping: Per Semester (Gasal/Genap)
+  MAKSIMUM: 4 AK
+  Kolom Input User PER BARIS:
+    - Deskripsi kegiatan
+    - Tahun Ajaran
+    - Semester
+    - Link bukti (SK)
+  NOTE: Pada mock data, nilainya 0 (belum diisi)
+
+[Sub-Komponen G] Mengembangkan Program Kuliah (idKomponen = 9)
+  Satuan Hasil: Semester
+  Grouping: Per Semester (Gasal/Genap)
+  MAKSIMUM: 2 AK
+  Kolom Input User PER BARIS:
+    - Nama Mata Kuliah
+    - Tahun Ajaran
+    - Semester
+    - Link bukti (SK)
+  NOTE: Pada mock data, nilainya 0 (belum diisi)
+
+[Sub-Komponen H] Mengembangkan Bahan Pengajaran (idKomponen = 10)
+  Satuan Hasil: Eksampelar
+  Grouping: Semester Gasal + Semester Genap (terpisah)
+  Kolom Input User PER BARIS:
+    - Jenis (buku ajar / diktat / modul)
+    - Tahun Ajaran
+    - Semester
+    - Link bukti (SK)
+  NOTE: Pada mock data, nilainya 0 (belum diisi)
+
+[Sub-Komponen I] Menyampaikan Orasi Ilmiah (idKomponen = 11)
+  Satuan Hasil: Orasi
+  Grouping: Semester Gasal + Semester Genap
+  MAKSIMUM: 10 AK
+  Kolom Input User PER BARIS:
+    - Judul makalah / buku
+    - Tahun Ajaran
+    - Semester
+    - Link bukti (SK)
+  NOTE: Pada mock data, nilainya 0 (belum diisi)
+
+[Sub-Komponen J] Menduduki Jabatan Pimpinan Perguruan Tinggi (idKomponen = 12)
+  Satuan Hasil: Semester
+  Grouping: Semester Gasal + Semester Genap
+  ----------------------------------------------------------------
+  RUMUS PERHITUNGAN:
+  ----------------------------------------------------------------
+  Nilai AK per semester TETAP berdasarkan jabatan:
+    a. Rektor                                              : ? AK
+    b. Pembantu rektor / dekan / direktur pasca sarjana    : ? AK
+    c. Ketua sekolah tinggi / pembantu dekan / asisten direktur : ? AK
+    d. Pembantu ketua sekolah tinggi / pembantu direktur politeknik : ? AK
+    e. Direktur akademi                                    : ? AK
+    f. Pembantu direktur akademi / ketua jurusan / bagian  : 3 AK per semester
+    g. Ketua jurusan politeknik / akademi / sekretaris jurusan : ? AK
+    h. Sekretaris jurusan / kepala laboratorium            : ? AK
+  
+  Dari mock data, yang terisi hanya jabatan (f) = 3 AK/semester.
+  
+  Kolom Input User PER BARIS:
+    - Nama Jabatan (dropdown sesuai level a-h)
+    - Unit/Direktorat
+    - Tahun Ajaran
+    - Semester (Gasal/Genap)
+    - Link bukti (SK)
+  
+  Total dari mock data: 39 AK (Gasal) + 21 AK (Genap, termasuk 2024/2025)
+
+[Sub-Komponen K] Membimbing Dosen yang Lebih Rendah (idKomponen = 13)
+  Satuan Hasil: Kegiatan
+  Syarat: Hanya untuk dosen Lektor Kepala ke atas
+  Grouping: Semester Gasal + Semester Genap
+  Kolom Input User PER BARIS:
+    - Deskripsi kegiatan
+    - Tahun Ajaran
+    - Semester
+    - Link bukti (SK)
+  NOTE: Pada mock data, nilainya 0 (belum diisi)
+
+[Sub-Komponen L] Datasering & Pencangkokan (idKomponen = 14)
+  Satuan Hasil: Kegiatan
+  Syarat: Hanya untuk dosen Lektor Kepala ke atas
+  Grouping: Semester Gasal + Semester Genap
+  Kolom Input User PER BARIS:
+    - Deskripsi kegiatan
+    - Tahun Ajaran
+    - Semester
+    - Link bukti (SK)
+  NOTE: Pada mock data, nilainya 0 (belum diisi)
+
+[Sub-Komponen M] Pengembangan Diri (idKomponen = 15)
+  Satuan Hasil: Sertifikat
+  Grouping: Semester Gasal + Semester Genap
+  Kolom Input User PER BARIS:
+    - Deskripsi kegiatan
+    - Tahun Ajaran
+    - Semester
+    - Link bukti (SK/Sertifikat)
+  NOTE: Pada mock data, nilainya 0 (belum diisi)
+
+================================================================================
+3. REKAPITULASI TOTAL DARI MOCK DATA
+================================================================================
+
+Kategori I (Pendidikan):
+  - Pendidikan Formal (A) : 200 AK
+  - Diklat Prajabatan (B) : 0 AK
+  - Jumlah I              : 200 AK
+
+Kategori II (Pelaksanaan Pendidikan):
+  - Perkuliahan (A)       : 209 AK
+  - Membimbing Seminar (B): 0 AK
+  - KKN/PKL/PKN (C)       : 0 AK
+  - Bimbingan TA (D)      : 105 AK
+  - Penguji Ujian (E)     : 66 AK
+  - Membina Mahasiswa (F) : 0 AK
+  - Prog. Kuliah (G)      : 0 AK
+  - Bahan Pengajaran (H)  : 0 AK
+  - Orasi Ilmiah (I)      : 0 AK
+  - Jabatan Pimpinan (J)  : 39 AK
+  - Bimbing Dosen (K)     : 0 AK
+  - Datasering (L)        : 0 AK
+  - Pengembangan Diri (M) : 0 AK
+  - Jumlah II             : 419 AK
+
+GRAND TOTAL (I + II)      : 619 AK
+
+================================================================================
+4. LOGIKA PERHITUNGAN ANGKA KREDIT (DETAIL)
+================================================================================
+
+--------------------------------
+4.1 Pendidikan Formal (TETAP)
+--------------------------------
+  AK = Nilai baku sesuai jenjang
+  Tidak ada perhitungan dinamis.
+  
+  Mapping ke ref_jenis_input:
+    - id 101: Sarjana (S1)            → nilai_baku = 100.000
+    - id 104: Magister (S2) linier    → nilai_baku = 50.000
+    - id 105: Magister (S2) non-linier→ nilai_baku = 15.000
+    - id 106: Doktor (S3) linier      → nilai_baku = 50.000
+    - id 107: Doktor (S3) non-linier  → nilai_baku = 15.000
+
+--------------------------------
+4.2 Perkuliahan (DINAMIS - PRIORITAS TINGGI)
+--------------------------------
+  Input per baris: [Nama MK] [SKS] [Kelas] [Tahun] [Semester]
+  
+  Langkah 1: Kelompokkan semua MK berdasarkan (Tahun Ajaran + Semester)
+  Langkah 2: Hitung SKS_total = Σ(SKS × Kelas) untuk kelompok tersebut
+  Langkah 3: Tentukan rate per baris:
+  
+    for each baris in semester_group:
+      sks_kelas = SKS × Kelas
+      
+      if SKS_total ≤ 10:
+        rate = 1.0
+        AK_baris = sks_kelas × 1.0
+        keterangan = "SKS<=10"
+      
+      else:  // SKS_total > 10
+        // Prioritaskan baris pertama dengan rate 1.0
+        // Baris berikutnya yang menyebabkan SKS_total > 10 dapat dibagi
+        
+        // LOGIKA YANG DIPAKAI DI MOCK DATA:
+        // Beberapa MK di-split manual:
+        // Contoh: 4 SKS × 2 kelas = 8 total
+        //         Tapi kalau total semester sudah >10, 
+        //         MK baru bisa dibagi jadi (SKS_full × rate_1.0) + (SKS_excess × rate_0.5)
+        
+        // Implementasi yang lebih sederhana:
+        // Sistem menghitung AK per baris berdasarkan proporsi
+        // Jika SKS_total ≤ 10 → semua baris rate 1.0
+        // Jika SKS_total > 10 → rate bervariasi (1.0 atau 0.5)
+        // Pada mock data, rate ditentukan manual per baris
+        
+  MAKSIMUM: 11 AK per semester
+  
+  NOTE: Rate 0.5 pada mock data hanya muncul ketika SKS_total > 10.
+  Ini berarti sistem perlu menghitung AKUMULASI semester terlebih dahulu,
+  baru menentukan rate untuk setiap baris.
+
+--------------------------------
+4.3 Bimbingan TA/Skripsi (DINAMIS)
+--------------------------------
+  Input per baris: [Nama Mhs (NIM)] [Jenis] [Peran] [Tahun] [Semester]
+  
+  rate = 1.0 if Peran == "Pembimbing Utama"
+  rate = 0.5 if Peran == "Pembimbing Pendamping"
+  
+  AK = 1 (volume) × rate
+  
+  MAKSIMUM TOTAL: 32 AK (untuk seluruh periode pengajuan)
+  
+  Sub-total Gasal + Sub-total Genap ≤ 32
+
+--------------------------------
+4.4 Penguji Ujian (DINAMIS)
+--------------------------------
+  Input per baris: [Nama Mhs (NIM)] [Peran] [Tahun] [Semester]
+  
+  rate = 1.0 if Peran == "Ketua Penguji"
+  rate = 0.5 if Peran == "Anggota Penguji"
+  
+  AK = 1 (volume) × rate
+  
+  MAKSIMUM PER SEMESTER: 8 AK
+    - Ketua Penguji max  : 4 AK per semester
+    - Anggota Penguji max: 4 AK per semester
+  
+  NOTE: Perlu validasi real-time atau saat submit:
+    if total_ketua_semester > 4 → ERROR/Warning
+    if total_anggota_semester > 4 → ERROR/Warning
+    if total_semester > 8 → ERROR/Warning
+
+--------------------------------
+4.5 Jabatan Pimpinan PT (TETAP per Semester)
+--------------------------------
+  Input per baris: [Jabatan] [Unit] [Tahun] [Semester]
+  
+  Mapping jabatan ke AK:
+    f. Pembantu direktur akademi / ketua jurusan / bagian = 3 AK/semester
+  
+  AK = 1 (volume) × rate_jabatan
+  
+  NOTE: Jabatan lain (a-e, g-h) perlu konfirmasi nilai AK-nya.
+
+--------------------------------
+4.6 Lainnya (B, C, F, G, H, I, K, L, M)
+--------------------------------
+  Menggunakan nilai dari ref_nilai_kum_baku atau ref_jenis_input.
+  Pada mock data mayoritas bernilai 0 karena belum diisi.
+
+================================================================================
+5. STRUKTUR TABEL INPUT YANG DIBUTUHKAN
+================================================================================
+
+Untuk setiap sub-komponen, form input memerlukan:
+
+  detail_pengajuan (tabel utama):
+    - pengajuan_id (FK)
+    - idKomponen (FK ke ref_kegiatan_komponen)
+    - idJenisInput (FK ke ref_jenis_input, nullable)
+    - deskripsi_kegiatan
+    - angka_kredit_murni (rate per unit)
+    - angka_kredit_total
+    - volume (jumlah satuan)
+    - link_bukti_pendukung
+    - status (pending/approved/rejected)
+    - semester (Gasal/Genap)
+    - tahun_ajaran
+    - peran (untuk bimbingan/penguji: Utama/Pendamping/Ketua/Anggota)
+    - jenis_bimbingan (untuk sub-komponen D)
+    - created_at, updated_at
+
+  PERUBAHAN/PENAMBAHAN KOLOM yang diperlukan:
+    - semester (string: 'Gasal' | 'Genap')
+    - tahun_ajaran (string: '2023/2024')
+    - peran (string: nullable, untuk komponen D dan E)
+    - jenis_bimbingan (string: nullable, untuk komponen D)
+
+================================================================================
+6. VALIDASI DAN BATASAN (BUSINESS RULES)
+================================================================================
+
+[Validasi Global]
+1. Total AK per semester untuk Perkuliahan ≤ 11
+2. Total AK Bimbingan TA (seluruh periode) ≤ 32
+3. Total AK Penguji per semester ≤ 8
+   - Sub-limit: Ketua ≤ 4, Anggota ≤ 4
+4. Total AK Membina Mahasiswa ≤ 4
+5. Total AK Mengembangkan Program Kuliah ≤ 2
+6. Total AK Orasi Ilmiah ≤ 10
+
+[Validasi Per Baris]
+1. Semua field wajib diisi kecuali catatan
+2. Link bukti harus valid URL
+3. SKS, Kelas, Volume harus numeric dan > 0
+4. Tahun ajaran format: YYYY/YYYY+1
+
+[Validasi Khusus]
+1. Sub-komponen K (Membimbing Dosen) dan L (Datasering):
+   - Hanya muncul/aktif jika JFA dosen = Lektor Kepala ke atas
+2. JFA menentukan apakah komponen tertentu bisa diakses
+
+================================================================================
+7. MAPPING KE TABEL DATABASE YANG SUDAH ADA
+================================================================================
+
+ref_kegiatan_utama:
+  1 = Pendidikan
+  2 = Pelaksanaan Pendidikan
+  3 = Penelitian
+  4 = Pengabdian
+  5 = Penunjang
+
+ref_kegiatan_komponen (yang ter-cover mock data):
+  1  = I.A. Pendidikan Formal
+  2  = I.B. Diklat Prajabatan
+  3  = II.A. Melaksanakan Perkuliahan
+  4  = II.B. Membimbing Seminar
+  5  = II.C. Membimbing KKN/PKN/PKL
+  6  = II.D. Bimbingan Disertasi/Tesis/Skripsi/Laporan Akhir
+  7  = II.E. Penguji Ujian Akhir
+  8  = II.F. Membina Kegiatan Mahasiswa
+  9  = II.G. Mengembangkan Program Kuliah
+  10 = II.H. Mengembangkan Bahan Pengajaran
+  11 = II.I. Menyampaikan Orasi Ilmiah
+  12 = II.J. Menduduki Jabatan Pimpinan PT
+  13 = II.K. Membimbing Dosen Lebih Rendah
+  14 = II.L. Datasering & Pencangkokan
+  15 = II.M. Pengembangan Diri
+
+ref_jenis_input (yang sudah ada di migration):
+  101 = Sarjana (S1) → 100 AK
+  104 = Magister (S2) linier → 50 AK
+  105 = Magister (S2) non-linier → 15 AK
+  106 = Doktor (S3) linier → 50 AK
+  107 = Doktor (S3) non-linier → 15 AK
+
+================================================================================
+8. PERHITUNGAN KATEGORI YANG BELUM ADA DI MOCK DATA
+================================================================================
+
+Mock data hanya mencakup Kategori I dan II. 
+Kategori III (Penelitian), IV (Pengabdian), V (Penunjang) tidak ada data di Excel.
+Namun struktur aplikasi sudah mendukung 5 kategori.
+
+================================================================================
+9. FLOW INPUT FORM YANG DIUSULKAN
+================================================================================
+
+Langkah 1: User memilih Komponen Kegiatan (dropdown dari ref_kegiatan_komponen)
+Langkah 2: Sistem menentukan template form berdasarkan idKomponen:
+  
+  Template A - Pendidikan Formal (id=1):
+    → Dropdown: S1, S2 linier, S2 non-linier, S3 linier, S3 non-linier
+    → AK otomatis terisi dari ref_jenis_input
+    → Link bukti
+  
+  Template B - Perkuliahan (id=3):
+    → Input per baris: Nama MK, SKS, Kelas, Tahun, Semester
+    → Tombol "Tambah Baris"
+    → Setiap submit baris, sistem menghitung AK berdasarkan akumulasi semester
+    → Warning jika semester sudah mencapai 11 AK
+  
+  Template C - Bimbingan (id=6):
+    → Input per baris: Nama Mhs (NIM), Jenis, Peran, Tahun, Semester
+    → Dropdown Peran: Pembimbing Utama / Pembimbing Pendamping
+    → AK otomatis: 1.0 atau 0.5
+    → Warning jika total mendekati 32 AK
+  
+  Template D - Penguji (id=7):
+    → Input per baris: Nama Mhs (NIM), Peran, Tahun, Semester
+    → Dropdown Peran: Ketua Penguji / Anggota Penguji
+    → AK otomatis: 1.0 atau 0.5
+    → Warning jika semester mendekati limit (Ketua 4 / Anggota 4 / Total 8)
+  
+  Template E - Jabatan (id=12):
+    → Dropdown Jabatan (a-h)
+    → Input: Unit/Direktorat, Tahun, Semester
+    → AK otomatis berdasarkan jabatan
+  
+  Template F - Generic (lainnya):
+    → Deskripsi, Tahun, Semester, Link bukti
+    → AK dari ref_nilai_kum_baku
+
+Langkah 3: Preview AK Total sebelum submit
+Langkah 4: Submit dan masuk ke tabel detail_pengajuan
+
+================================================================================
+10. CATATAN IMPLEMENTASI PENTING
+================================================================================
+
+1. PERKULIAHAN memerlukan perhitungan AKUMULASI SEMESTER.
+   Ini berarti saat user input baris baru, sistem harus:
+   - Query semua baris existing dengan (Tahun + Semester) yang sama
+   - Hitung SKS_total = SUM(SKS × Kelas)
+   - Tentukan rate untuk baris baru (1.0 atau 0.5)
+   - Update keterangan semua baris di semester tersebut
+
+2. Bimbingan dan Penguji memerlukan DUAL INPUT:
+   - Deskripsi (nama mahasiswa)
+   - Peran (dropdown)
+   - Keduanya mempengaruhi nilai AK
+
+3. JABATAN memerlukan MAPPING TABEL khusus:
+   - ref_jabatan_pimpinan_pt dengan kolom: kode, nama_jabatan, ak_per_semester
+   - Atau bisa ditambahkan ke ref_nilai_kum_baku
+
+4. Semua komponen memerlukan SEMESTER dan TAHUN AJARAN:
+   - Kolom ini belum ada di tabel detail_pengajuan saat ini
+   - Perlu ditambahkan
+
+5. MOCK DATA menunjukkan SK terlampir sebagai bukti:
+   - User input link ke dokumen (OneDrive/Google Drive)
+   - Bukan upload file langsung
+
+6. Kalkulasi AK untuk komponen dengan LIMIT harus menggunakan TRIGGER
+   atau validasi di Controller, bukan hanya di Frontend.
+
+7. Format mock data menunjukkan "rumus" di kolom yang kosong:
+   - Ini adalah placeholder untuk formula otomatis
+   - Jadi user TIDAK input AK manual, sistem yang menghitung
+
+================================================================================
+11. DAFTAR KOLOM INPUT PER KOMPONEN (RINGKASAN)
+================================================================================
+
+Komponen | Input Fields
+---------|-------------
+I.A Pendidikan Formal | jenjang_pendidikan (dropdown), link_bukti
+I.B Diklat Prajabatan | nama_diklat, link_bukti
+II.A Perkuliahan | nama_mk, sks, kelas, tahun_ajaran, semester, link_bukti
+II.B Membimbing Seminar | nama_mhs_nim, tahun_ajaran, semester, link_bukti
+II.C KKN/PKL/PKN | deskripsi, tahun_ajaran, semester, link_bukti
+II.D Bimbingan TA | nama_mhs_nim, jenis_bimbingan, peran, tahun_ajaran, semester, link_bukti
+II.E Penguji Ujian | nama_mhs_nim, peran, tahun_ajaran, semester, link_bukti
+II.F Membina Mahasiswa | deskripsi, tahun_ajaran, semester, link_bukti
+II.G Prog. Kuliah | nama_mk, tahun_ajaran, semester, link_bukti
+II.H Bahan Pengajaran | jenis, tahun_ajaran, semester, link_bukti
+II.I Orasi Ilmiah | judul, tahun_ajaran, semester, link_bukti
+II.J Jabatan Pimpinan | jabatan (dropdown), unit, tahun_ajaran, semester, link_bukti
+II.K Bimbing Dosen | deskripsi, tahun_ajaran, semester, link_bukti
+II.L Datasering | deskripsi, tahun_ajaran, semester, link_bukti
+II.M Pengembangan Diri | deskripsi, tahun_ajaran, semester, link_bukti
+
+================================================================================
+12. REKOMENDASI IMPLEMENTASI PRIORITAS
+================================================================================
+
+PRIORITAS 1 (Wajib untuk MVP):
+  [✓] Template A - Pendidikan Formal (sudah ada di migration)
+  [✓] Template B - Perkuliahan (karena ini komponen terbesar: 209 AK)
+  [✓] Template C - Bimbingan TA (komponen besar: 105 AK)
+  [✓] Template D - Penguji Ujian (komponen besar: 66 AK)
+  [✓] Template E - Jabatan Pimpinan (komponen: 39 AK)
+
+PRIORITAS 2:
+  [ ] Template F - Generic untuk komponen lainnya
+  [ ] Validasi limit per semester / per periode
+  [ ] Perhitungan akumulasi semester otomatis
+
+PRIORITAS 3:
+  [ ] Komponen Penelitian (Kategori III)
+  [ ] Komponen Pengabdian (Kategori IV)
+  [ ] Komponen Penunjang (Kategori V)
+  [ ] Export PDF (Surat Pernyataan DUPAK)
+
+================================================================================
+13. KESIMPULAN
+================================================================================
+
+Mock data menunjukkan bahwa DUPAK adalah dokumen kompleks dengan:
+1. Banyak komponen (15 sub-komponen hanya untuk Kategori I+II)
+2. Berbagai rumus perhitungan (tetap, dinamis, akumulasi semester)
+3. Batasan maksimum yang ketat per komponen / per semester
+4. Bukti berupa link dokumen (SK, Ijazah, Sertifikat)
+5. Grouping per semester (Gasal/Genap) untuk sebagian besar komponen
+
+Untuk implementasi aplikasi, fokus utama adalah:
+1. Template form dinamis per komponen
+2. Perhitungan AK otomatis di backend (tidak diinput manual)
+3. Validasi batasan real-time atau saat submit
+4. Penyimpanan semester dan tahun ajaran per baris detail
+5. Preview/sub-total per komponen sebelum submit
+
+================================================================================
+END OF DOCUMENTATION
+================================================================================

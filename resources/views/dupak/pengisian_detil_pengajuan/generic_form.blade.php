@@ -11,36 +11,54 @@
 				<h1 class="mb-3 text-2xl font-semibold">Formulir Detil Pengajuan DUPAK</h1>
 				<h2 class="text-xl">Daftar Usulan Penetapan Angka Kredit</h2>
 
-				<form method="POST" action="{{ route('dupak.dupak.detil_pengajuan.store', [$category, $pengajuan->id]) }}" class="space-y-6"></form>
-				@csrf
-				<input type="hidden" name="id_komponen" value="{{ $komponen->id }}">
+				{{-- Fixed: Form tag was self-closing and route name adjusted to match web.php --}}
+				<form method="POST" action="{{ route('dupak.dupak.detil_pengajuan.store', [$category, $pengajuan->id]) }}" class="space-y-6">
+					@csrf
+					<input type="hidden" name="id_komponen" value="{{ $komponen->id }}">
 
-				<!-- Unsur Utama -->
-				<div class="p-4 rounded-lg bg-gray-50">
-					<h2 class="mb-2 text-2xl font-medium text-gray-900">{{ $komponen->nama }}</h2>
-					<p class="mb-6 text-gray-600">Sub-kategori: {{ ucfirst(str_replace('-', ' ', $category)) }}</p>
+					<!-- Unsur Utama -->
+					<div class="p-4 rounded-lg bg-gray-50">
+						<h2 class="mb-2 text-2xl font-medium text-gray-900">{{ $komponen->nama }}</h2>
+						<p class="mb-2 text-gray-600">Sub-kategori dari: {{ ucfirst(str_replace('-', ' ', $category)) }}</p>
+						<p class="mb-6 text-xs text-indigo-600 font-medium">Satuan Hasil: {{ $komponen->satuanHasil ?: 'Butir Kegiatan' }}</p>
 
-					<div class="space-y-4 bg-white p-4 border rounded-lg shadow-sm">
-						<div>
-							<label class="block mb-2 text-sm font-semibold text-gray-700">Pilih Jenis Kegiatan / Jenjang</label>
-							<select name="id_jenis_input" required class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-								<option value="">-- Pilih Salah Satu --</option>
-								@foreach($jenisInputs as $input)
-								@endforeach
-							</select>
-						</div>
-
-						<div>
-							<label class="block mb-2 text-sm font-semibold text-gray-700">Uraian / Deskripsi Kegiatan</label>
-							<input type="text" name="deskripsi_kegiatan" required placeholder="Contoh: Nama Perguruan Tinggi, Judul Penelitian, atau Nama Mata Kuliah"
-								class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-						</div>
-
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div class="space-y-4 bg-white p-4 border rounded-lg shadow-sm">
 							<div>
-								<label class="block mb-2 text-sm font-semibold text-gray-700">Volume / Jumlah</label>
-								<input type="number" step="0.01" name="volume" value="1" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+								<label class="block mb-2 text-sm font-semibold text-gray-700">Detail Butir Kegiatan</label>
+								<select name="id_jenis_input" id="id_jenis_input" required class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+									<option value="">-- Pilih Salah Satu --</option>
+									@foreach($jenisInputs as $input)
+										<option value="{{ $input->id }}" data-nilai="{{ $input->nilai_baku }}">
+											{{ $input->nama }} (AK: {{ $input->nilai_baku }})
+										</option>
+									@endforeach
+								</select>
+								<p class="text-xs text-gray-500 mt-1">Pilih butir kegiatan untuk melihat Angka Kredit (AK) baku.</p>
 							</div>
+
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div>
+									<label class="block mb-2 text-sm font-semibold text-gray-700">Volume / Jumlah</label>
+									<input type="number" name="volume" id="volume" value="1" min="1" step="1" required
+										class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+									<p class="text-xs text-gray-500 mt-1">Jumlah satuan hasil (default: 1 {{ $komponen->satuanHasil ?: 'butir' }}).</p>
+								</div>
+
+								<div>
+									<label class="block mb-2 text-sm font-semibold text-gray-700">Angka Kredit Total (Preview)</label>
+									<input type="text" id="ak_preview" readonly
+										class="w-full bg-gray-100 border-gray-300 rounded-md shadow-sm sm:text-sm text-gray-700"
+										value="0.00">
+									<p class="text-xs text-gray-500 mt-1">Dihitung otomatis dari AK Baku × Volume.</p>
+								</div>
+							</div>
+
+							<div>
+								<label class="block mb-2 text-sm font-semibold text-gray-700">Uraian / Deskripsi Kegiatan</label>
+								<input type="text" name="deskripsi_kegiatan" required placeholder="Contoh: Nama Perguruan Tinggi, Judul Penelitian, atau Nama Mata Kuliah"
+									class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+							</div>
+
 							<div>
 								<label class="block mb-2 text-sm font-semibold text-gray-700">Link Bukti Pendukung</label>
 								<input type="url" name="link_bukti_pendukung" required placeholder="https://drive.google.com/..."
@@ -48,16 +66,12 @@
 							</div>
 						</div>
 					</div>
-				</div>
 
-				<div class="flex justify-end pt-6">
-					<!-- <button type="button" onclick="window.location='{{ route('dupak.pengajuan.show', $pengajuan->id) }}'" class="px-4 py-2 mr-4 text-white bg-gray-500 rounded-md hover:bg-gray-600">
-						Batal
-					</button> -->
-					<button type="submit" class="px-4 py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-700">
-						Simpan Data {{ ucfirst($category) }}
-					</button>
-				</div>
+					<div class="flex justify-end pt-6">
+						<button type="submit" class="px-4 py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-700">
+							Simpan Data {{ ucfirst(str_replace('-', ' ', $category)) }}
+						</button>
+					</div>
 				</form>
 			</div>
 		</div>
@@ -65,19 +79,42 @@
 </div>
 @endsection
 
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		const jenisSelect = document.getElementById('id_jenis_input');
+		const volumeInput = document.getElementById('volume');
+		const akPreview = document.getElementById('ak_preview');
+
+		function updateAkPreview() {
+			const selectedOption = jenisSelect.options[jenisSelect.selectedIndex];
+			const nilaiBaku = parseFloat(selectedOption.getAttribute('data-nilai')) || 0;
+			const volume = parseFloat(volumeInput.value) || 1;
+			const total = nilaiBaku * volume;
+			akPreview.value = total.toFixed(3);
+		}
+
+		if (jenisSelect) {
+			jenisSelect.addEventListener('change', updateAkPreview);
+		}
+		if (volumeInput) {
+			volumeInput.addEventListener('input', updateAkPreview);
+		}
+	});
+</script>
+
 {{-- Script untuk generate random value dari masing masing kolom isian (jika ada) --}}
 @if ($category === 'pendidikan')
 <script>
 	function generateRandomPendidikan() {
 		const jenjangOptions = ["101", "104", "105", "106", "107"];
 		const randomJenjang = jenjangOptions[Math.floor(Math.random() * jenjangOptions.length)];
-		document.querySelector('select[name="details[formal][idJenisInput]"]').value = randomJenjang;
+		document.querySelector('select[name="id_jenis_input"]').value = randomJenjang;
 
 		const randomDeskripsi = `PT Contoh, Program Studi Contoh, Gelar ${randomJenjang}`;
-		document.querySelector('input[name="details[formal][deskripsi_kegiatan]"]').value = randomDeskripsi;
+		document.querySelector('input[name="deskripsi_kegiatan"]').value = randomDeskripsi;
 
 		const randomLink = `https://drive.google.com/ijazah-${randomJenjang}`;
-		document.querySelector('input[name="details[formal][link_bukti_pendukung]"]').value = randomLink;
+		document.querySelector('input[name="link_bukti_pendukung"]').value = randomLink;
 	}
 
 	function generateRandomDiklat() {

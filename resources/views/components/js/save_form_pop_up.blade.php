@@ -1,28 +1,40 @@
-@props([
-    'id_button'=>null,
-])
+@props(['id_button' => null])
 
+@if($id_button)
 <script>
-    function form_loading(elemen) {
-        console.log(elemen.checkValidity())
-        if (!elemen.closest('form').checkValidity()) {
-            console.log('masuk', 'cek')
-            Pop_message('Validasi Data', 'Silakan periksa kembali dan lengkapi semua field yang bertanda *.', false,
-                'warning');
-            return;
-        } {
-            console.log('masuk', 'proses')
-            Pop_message('Mohon Tunggu....', 'Sedang melakukan validasi data', true);
-        }
+document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('{{ $id_button }}');
+    if (!btn) return;
 
-    }
+    // Ganti handler onclick default agar tidak double submit
+    const originalOnclick = btn.getAttribute('onclick');
+    btn.removeAttribute('onclick');
 
-    document.addEventListener('keydown', function(e) {
-        if (e.key === "F2" || e.keyCode === 114) {
-            console.log('masuk f2')
-            e.preventDefault(); // cegah fungsi default (kalau ada)
-            document.getElementById('{{ $id_button }}').click();
-            
-        }
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const form = btn.closest('form');
+
+        Swal.fire({
+            title: 'Konfirmasi',
+            text: 'Apakah Anda yakin ingin menyimpan data ini?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#1C2762',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Simpan',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (originalOnclick) {
+                    // eslint-disable-next-line no-eval
+                    eval(originalOnclick);
+                }
+                if (form) {
+                    form.submit();
+                }
+            }
+        });
     });
+});
 </script>
+@endif

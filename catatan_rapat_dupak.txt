@@ -1,0 +1,86 @@
+# Catatan Rapat & Tanya Jawab — DUPAK
+
+> Hasil diskusi dengan Pak Dahliar dan Evi terkait fitur DUPAK.
+
+---
+
+## 1. Proses Menjadi TPAK
+
+**Pertanyaan**: Apakah perlu rekrutmen atau penunjukan langsung oleh Admin SDM?
+
+**Jawaban Pak Dahliar**:
+- Penunjukan langsung oleh Admin SDM.
+- Limit TPAK sementara dihilangkan dahulu.
+- Untuk jaga-jaga dibatasi **5 TPAK per pengajuan**.
+- Lektor Kepala: 2 TPAK, Guru Besar: 3 TPAK (jika perlu dilimit lebih ketat).
+
+---
+
+## 2. Perbedaan Nilai antar TPAK (Discrepancy)
+
+**Pertanyaan**: Bagaimana jika ada perbedaan nilai signifikan antara TPAK 1 dan TPAK 2?
+
+**Jawaban**:
+- Bisa berbeda pengakuannya.
+- 1 Review pengakuan AK kredit + catatan.
+- Ketika ada sub pengajuan detil yang tidak sesuai, TPAK memberi catatan kepada pengaju.
+- Yang bisa mengubah sub kategori: **pengaju atau pihak SDM**.
+
+---
+
+## 3. Wewenang Admin
+
+**Pertanyaan**: Apakah Admin bisa mengubah nilai AK langsung?
+
+**Jawaban**:
+- Admin hanya menyesuaikan sub kategori.
+- **Pihak SDM saja dan pengaju** yang dapat mengupdate nilai pengajuan.
+
+---
+
+## 4. Kalkulasi AK per Poin
+
+**Pertanyaan**: Perlu fitur mengatur kalkulasi nilai AK per poin?
+
+**Jawaban**:
+- 2 kolom lagi: standar minimal.
+- Ada sub total per kategori (bisa divisualisasi).
+- **Angka saja, tidak perlu visualisasi**.
+- Bisa mengubah persentase dari jumlah AKK minimal.
+- User bisa lihat target persentase per kategori kegiatan.
+
+---
+
+## 5. Masa Sanggah
+
+**Pertanyaan**: Ada periode waktu tertentu bagi dosen jika keberatan dengan hasil evaluasi TPAK?
+
+**Status**: Belum ada keputusan final.
+
+---
+
+## 6. Jabatan NJAD (Non JFA)
+
+**Pertanyaan**: Apakah NJAD punya skema target KUM berbeda?
+
+**Status**: Untuk sementara NJAD pengajuan menjadi Asisten Ahli.
+
+---
+
+## 7. Batasan SKS Pengajaran
+
+**Pertanyaan**: Perlu membatasi jumlah SKS per semester sesuai aturan BKD?
+
+**Status**: Belum ada keputusan final.
+
+---
+
+## Catatan Lain dari Rapat
+
+- **Dot besar**: hanya untuk event/acara.
+- **Dot kecil**: hanya untuk poin detil input.
+- Upload dalam bentuk **link**.
+- Detail pengajuan dibuatkan view terbatas (hindari over query).
+- Tim PAK juga dosen.
+- Catatan ada dalam kolom pengajuan (admin berkomunikasi dengan pengaju).
+- Flaging hanya dilakukan oleh admin, setiap poin kegiatan.

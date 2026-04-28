@@ -18,24 +18,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::connection($this->connection)->create('ref_kegiatan_komponen', function (Blueprint $table) {
-            
+
             $table->id(); // Auto-incrementing primary key (matches `id` int NOT NULL)
 
             // Original: `nama` varchar(200) DEFAULT NULL
             $table->string('nama', 200)->nullable()->comment('Nama sub-kegiatan komponen DUPAK (e.g., Melaksanakan perkuliahan)');
-            
+
             // Original: `idKegiatanUtama` int NOT NULL (Foreign key)
             // Asumsi: Menunjuk ke tabel ref_kegiatan_utama (yang harus dibuat sebelum ini atau sudah ada)
-            $table->unsignedBigInteger('idKegiatanUtama')->comment('Foreign key ke ref_kegiatan_utama'); 
-            
+            $table->unsignedBigInteger('idKegiatanUtama')->comment('Foreign key ke ref_kegiatan_utama');
+
             // Original: `satuanHasil` varchar(100) NOT NULL
             $table->string('satuanHasil', 100)->comment('Satuan hasil kegiatan (e.g., Ijazah, SKS, Kegiatan)');
 
             // Original: `status` int NOT NULL
             $table->unsignedTinyInteger('status')->default(1)->comment('Status aktif: 1=Aktif, 0=Tidak Aktif');
-            
+
             // Standard Laravel timestamps
-            $table->timestamps(); 
+            $table->timestamps();
 
             // Foreign Key Constraint
             // Menambahkan constraint, asumsi tabel ref_kegiatan_utama sudah ada atau akan segera dibuat

@@ -64,7 +64,7 @@ return [
         ],
 
         'dupak' => [
-            'driver' => 'mysql',
+            'driver' => env('DUPAK_DB_CONNECTION', 'mysql'),
             'url' => env('DUPAK_DB_URL'),
             'host' => env('DUPAK_DB_HOST', '127.0.0.1'),
             'port' => env('DUPAK_DB_PORT', '3306'),

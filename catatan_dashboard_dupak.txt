@@ -1,0 +1,60 @@
+# Catatan Dashboard DUPAK
+
+> Audit, bug fix, dan perbaikan pada DashboardController serta view-nya.
+
+---
+
+## Bug Critical yang Ditemukan
+
+1. **Variable `$statistik` tidak di-pass ke view** — Admin login akan error `Undefined variable`.
+2. **Breakdown KUM per komponen tidak dihitung** — Selalu menampilkan '0'.
+3. **`$user->is_dosen` tidak aman** — Property belum tentu ada di model User.
+
+---
+
+## Perbaikan yang Sudah Diterapkan
+
+| No | Fix | File |
+|----|-----|------|
+| 1 | Import `DB` diganti dengan `Illuminate\Support\Facades\DB` | `DashboardController.php` |
+| 2 | `getCurrentJFA()` memfilter `whereNull('tmt_selesai')` | `DashboardController.php` |
+| 3 | `getTargetKum()` mengakses field `kum` (bukan `minimal_kum`) | `DashboardController.php` |
+| 4 | `hasPendingSubmission()` konsisten: `['Draft','Pending','Diajukan','Revisi','Menunggu']` | `DashboardController.php` |
+| 5 | `$statistik` dihitung & dikirim ke view | `DashboardController.php` |
+| 6 | Breakdown KUM 5 kategori dihitung dari `detail_pengajuan` JOIN | `DashboardController.php` |
+| 7 | View: `$user->is_dosen` diganti `$dosen` | `dashboard.blade.php` |
+| 8 | Tombol "Menjadi TPAK": `href="javascript:void(0)"` + alert | `dashboard.blade.php` |
+| 9 | Semua `// dd(...)` dihapus dari controller | `DashboardController.php` |
+
+---
+
+## Breakdown KUM (5 Kategori)
+
+- Pendidikan
+- Pelaksanaan Pendidikan
+- Penelitian
+- Pengabdian
+- Penunjang
+
+Prioritas pengecekan string: "Pelaksanaan Pendidikan" dicek dulu sebelum "Pendidikan".
+
+---
+
+## Fitur Guru Besar — Blokir Pengajuan
+
+- **Method**: `isMaxJfa()` di `DashboardController` & `PengajuanController`
+- **Logic**: Cek riwayat JFA terakhir = elemen terakhir `$aturanPengajuanJFA` (Guru Besar)
+- **Prinsip**: Defense in Depth — Controller (hard validation) + View (UX feedback)
+- **File**:
+  - `app/Http/Controllers/Dupak/DashboardController.php`
+  - `app/Http/Controllers/Dupak/PengajuanController.php`
+  - `resources/views/dupak/dashboard.blade.php`
+  - `resources/views/dupak/pengajuan/index.blade.php`
+
+---
+
+## Yang Masih Perlu Dikerjakan
+
+- Refactor map `$aturanPengajuanJFA` ke config/helper agar tidak duplikat antar controller.
+- Implementasi fitur "Menjadi TPAK" (mode TPAK untuk dosen) sesuai item no. 21.
+- Kolom `kum` di `ref_jabatan_fungsional_akademiks` perlu diisi data seeding valid.

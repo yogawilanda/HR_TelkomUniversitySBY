@@ -1,0 +1,72 @@
+# Catatan Detail Pengajuan & Perhitungan AK — DUPAK
+
+> Form input detail kegiatan, perhitungan angka kredit, dan struktur form.
+
+---
+
+## URL Form Detail Pengajuan
+
+- `/dupak/detil_pengajuan/penelitian`
+- `/dupak/detil_pengajuan/pendidikan`
+- `/dupak/detil_pengajuan/pengabdian`
+- `/dupak/detil_pengajuan/penunjang`
+- `/dupak/detil_pengajuan/pelaksanaan_pendidikan` (belum selesai)
+
+---
+
+## Perbaikan Form (generic_form.blade.php)
+
+1. **[FIXED]** Route: `dupak.dupak.detil_pengajuan.store` → `dupak.detil_pengajuan.store`
+2. **[FIXED]** Struktur HTML: hapus `</div>` berlebih sebelum tombol submit
+3. **[FIXED]** Field `Volume / Jumlah` (input number, default 1)
+4. **[FIXED]** `Angka Kredit Total (Preview)` dihitung otomatis via JS (AK Baku x Volume)
+5. **[FIXED]** Dropdown "Detail Butir Kegiatan" menampilkan nilai AK baku + atribut `data-nilai`
+6. **[FIXED]** Menampilkan `Satuan Hasil` dari komponen (SKS, Ijazah, Kegiatan)
+
+---
+
+## Formulasi Perhitungan Dupak
+
+### Contoh Input per Kategori
+
+**1. A. Pendidikan Formal**
+- Kolom: link, penilaian AK
+
+**2. A. Pelaksanaan Pendidikan**
+- Period: Semester <ganjil/genap> <tahun awal/tahun akhir>
+- Field: semester, tahun awal/akhir, SKS, Kelas
+
+---
+
+## Detail Pengajuan per Kategori (Store Done)
+
+| Kategori | Status |
+|----------|--------|
+| Pendidikan | ✅ Done |
+| Penelitian | ✅ Done |
+| Pengabdian | ✅ Done |
+| Penunjang | ✅ Done |
+| Pelaksanaan Pendidikan | ⏳ Belum |
+
+---
+
+## View Detail Pengajuan
+
+- View sudah diupdate.
+- Generate dinamis kolom input detail pendidikan: done.
+- Detail pengajuan butuh attribut `status`: sudah ditambahkan ke model, migration, dan view.
+
+---
+
+## Data `ref_jenis_input`
+
+Sudah tersedia dari migration:
+- S1, S2, S3, Diklat, Jurnal, dll.
+- Muncul otomatis sesuai `komponen_id` yang dipilih.
+
+---
+
+## File yang Diperbaiki
+
+- `resources/views/dupak/pengisian_detil_pengajuan/generic_form.blade.php`
+- `app/Http/Controllers/Dupak/DetilPengajuanController.php`

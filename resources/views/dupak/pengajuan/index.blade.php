@@ -14,9 +14,13 @@
                         (Admin View)
                         @endif
                     </h1>
+                    @php
+                        $btnDisabled = $isMaxJfa;
+                    @endphp
                     <!-- add user id to the link so it can be used -->
-                    <a href="{{ route('dupak.pengajuan.create', ['userId' => $dosenId]) }}"
-                        class="inline-flex items-center px-4 py-2 text-xs font-semibold tracking-widest text-white uppercase bg-blue-900 border border-transparent rounded-md hover:bg-blue-950 active:bg-blue-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25">
+                    <a href="{{ $btnDisabled ? '#' : route('dupak.pengajuan.create', ['userId' => $dosenId]) }}"
+                        class="inline-flex items-center px-4 py-2 text-xs font-semibold tracking-widest text-white uppercase border border-transparent rounded-md focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300
+                        {{ $btnDisabled ? 'bg-gray-400 cursor-not-allowed opacity-60' : 'bg-blue-900 hover:bg-blue-950 active:bg-blue-900' }}">
                         Buat Pengajuan Baru
                     </a>
                 </div>
@@ -25,6 +29,20 @@
                 <div class="px-4 py-3 my-4 text-green-700 bg-green-100 border border-green-400 rounded relative"
                     role="alert">
                     <span class="block sm:inline">{{ session('success') }}</span>
+                </div>
+                @endif
+
+                @if (session('error'))
+                <div class="px-4 py-3 my-4 text-red-700 bg-red-100 border border-red-400 rounded relative"
+                    role="alert">
+                    <span class="block sm:inline">{{ session('error') }}</span>
+                </div>
+                @endif
+
+                @if ($isMaxJfa)
+                <div class="mb-4 p-3 bg-green-50 border border-green-300 text-green-800 rounded">
+                    <i class="fas fa-check-circle mr-1"></i>
+                    Anda sudah mencapai jabatan fungsional tertinggi (Guru Besar). Pengajuan kenaikan jabatan tidak tersedia.
                 </div>
                 @endif
 

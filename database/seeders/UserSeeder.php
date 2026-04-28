@@ -63,6 +63,7 @@ class UserSeeder extends Seeder
             'email_institusi' => 'admin@telkomuniversity.ac.id',
             // 'password' => 'password123',
             'is_admin' => 1,
+            'tipe_pegawai' => 'Dosen',
         ]);
         User::factory()->count(30)->create([
             'password' => 'password123',
