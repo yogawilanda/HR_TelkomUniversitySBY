@@ -171,8 +171,10 @@ class DashboardController extends Controller
             $kumPengajuan = $personalSubmission ? (float) $personalSubmission->details()->sum('angka_kredit_total') : 0;
         }
 
-        $totalKumSaatIni = (float)($user->kum ?? 0) + $kumPengajuan;
-        $jfaData = $this->getJfaAndKumData($dosen, $totalKumSaatIni);
+        $baseKum = (float)($user->kum ?? 0);
+        // Progress & tersisa dihitung dari KUM yang sudah diterima (baseKum),
+        // bukan total yang sedang diajukan (kumPengajuan) karena belum dievaluasi TPAK.
+        $jfaData = $this->getJfaAndKumData($dosen, $baseKum);
         $progress = $jfaData['progress'];
 
         $hasNoPengajuan = $dosen ? !Pengajuan::where('idDosen', $dosen->id)->exists() : true;
@@ -247,7 +249,7 @@ class DashboardController extends Controller
                 'target' => $progress['goal'],
                 'remaining' => $progress['remaining'],
                 'percent' => $progress['percent'],
-                'base_kum' => number_format($user->kum ?? 0, 2),
+                'base_kum' => number_format($baseKum, 2),
                 'pending_kum' => number_format($kumPengajuan, 2),
                 'statusColor' => $progress['statusColor'],
                 'updatedAtFormatted' => $user->kum_updated_at ? Carbon::parse($user->kum_updated_at)->diffForHumans() : 'Belum pernah diperbarui',
