@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class riwayatJenjangPendidikan extends Model
+class RiwayatJenjangPendidikan extends Model
 {
     /** @use HasFactory<\Database\Factories\RiwayatJenjangPendidikanFactory> */
     use HasFactory;
@@ -38,7 +38,19 @@ class riwayatJenjangPendidikan extends Model
 
     public function refJenjangPendidikan()
     {
-        return $this->belongsTo(refJenjangPendidikan::class, 'jenjang_pendidikan_id','id');
+        return $this->belongsTo(RefJenjangPendidikan::class, 'jenjang_pendidikan_id', 'id');
+    }
+
+    public function last_studi()
+    {
+        return $this->where('users_id', $this->users_id)
+            ->with('refJenjangPendidikan')
+            ->get()
+            ->sortBy(function ($item) {
+                // urutan paling kecil = pendidikan tertinggi
+                return $item->refJenjangPendidikan->urutan ?? PHP_INT_MAX;
+            })
+            ->first();
     }
 
     protected static function boot()
@@ -59,6 +71,4 @@ class riwayatJenjangPendidikan extends Model
     {
         return \Database\Factories\RiwayatJenjangPendidikanFactory::new();
     }
-
-
 }

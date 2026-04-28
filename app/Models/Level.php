@@ -19,6 +19,7 @@ class Level extends Model
     protected $fillable = [
         'nama_level',
         'singkatan_level',
+        'urut',
         'atasan_level',
     ];
 

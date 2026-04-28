@@ -159,7 +159,10 @@
 @foreach ($sidebars as $sidebar)
     <x-sidebar-group title="{{ $sidebar[0][0] }}" hide="{{ $sidebar[0][1] }}" icon="fa-users">
         @foreach ($sidebar[1] as $i => $button)
-            <x-sidebar-button :isactive="isset($active_sidebar) && $active_sidebar === $button[0] ? 'active-sidebar' : null" href="{{ $button[1] }}" icon="{{ $button[2] }}"
+            @php
+                $isActive = (request()->url() == $button[1]) ? 'active' : '';
+            @endphp
+            <x-sidebar-button :isactive="$isActive" href="{{ $button[1] }}" icon="{{ $button[2] }}"
                 label="{{ $button[0] }}" />
         @endforeach
     </x-sidebar-group>

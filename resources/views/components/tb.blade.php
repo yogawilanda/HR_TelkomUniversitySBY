@@ -1,5 +1,5 @@
-@props(['id' => null, 'cls' => null,'search_status'=>true])
-@aware(['table_header', 'table_column', 'put_something','search_status'])
+@props(['id' => null, 'cls' => null, 'search_status' => true])
+@aware(['table_header', 'table_column', 'put_something', 'search_status'])
 
 <style>
     .search-input {
@@ -29,18 +29,17 @@
     }
 </style>
 
-@if($search_status==true)
-
-<div class="h-auto max-h-fit w-full flex flex-row justify-center items-center gap-2.5 rounded-[6px] mb-1">
-    <div
-        class="flex items-center gap-[6px] self-stretch bg-white px-[12px] py-[8px] rounded-lg border border-[#d0d5dd] flex-grow sm:w-1/3">
-        <i class="fa-solid fa-magnifying-glass text-sm text-gray-500"></i>
-        <!-- ⚡ Bootstrap Table akan otomatis deteksi input ini -->
-        <input id="customSearchInput" type="text" placeholder="Search"
-            class="font-medium border-none outline-none p-1 focus:ring-0 w-full text-sm leading-[14.6px] text-[#344054]">
+@if ($search_status == true)
+    <div class="h-auto max-h-fit w-full flex flex-row justify-center items-center gap-2.5 rounded-[6px] mb-1">
+        <div
+            class="flex items-center gap-[6px] self-stretch bg-white px-[12px] py-[8px] rounded-lg border border-[#d0d5dd] flex-grow sm:w-1/3">
+            <i class="fa-solid fa-magnifying-glass text-sm text-gray-500"></i>
+            <!-- ⚡ Bootstrap Table akan otomatis deteksi input ini -->
+            <input id="customSearchInput" type="text" placeholder="Search"
+                class="font-medium border-none outline-none p-1 focus:ring-0 w-full text-sm leading-[14.6px] text-[#344054]">
+        </div>
+        {{ $put_something }}
     </div>
-    {{ $put_something }}
-</div>
 @endif
 
 <div class="overflow-hidden pb-2 pt-0 w-full">
@@ -63,64 +62,107 @@
                 </table>
             </div>
 
-            <script>
-                $(function() {
-                    const tableId = "{{ $id }}";
-                    const $table = $('#' + tableId);
 
-                    // ✅ Formatter untuk nomor urut
-                    window.indexFormatter = function(value, row, index) {
-                        const opts = $table.bootstrapTable('getOptions');
-                        const offset = (opts.pageNumber - 1) * opts.pageSize;
-                        return offset + index + 1;
-                    };
-
-                    // ✅ Inisialisasi tabel dengan fitur bawaan Bootstrap Table
-                    $table.bootstrapTable({
-                        onSort: function(name, order) {
-                            updateSortIcons(name, order);
-                        }
-                    });
-
-                    // ✅ Ganti ikon sort sesuai arah
-                    function updateSortIcons(columnName, order) {
-                        const $thead = $(`#${tableId}`).closest('.bootstrap-table').find(
-                        '.fixed-table-header thead, thead');
-                        $thead.find('th i.sort-icon')
-                            .removeClass('bi-sort-up bi-sort-down text-blue-500')
-                            .addClass('bi-filter text-gray-400');
-
-                        const $activeTh = $thead.find(`th[data-field="${columnName}"]`);
-                        const $icon = $activeTh.find('i.sort-icon');
-
-                        if ($icon.length) {
-                            $icon.removeClass('bi-filter text-gray-400');
-                            if (order === 'asc') $icon.addClass('bi-sort-up text-blue-500');
-                            else if (order === 'desc') $icon.addClass('bi-sort-down text-blue-500');
-                            else $icon.addClass('bi-filter text-gray-400');
-                        }
-                    }
-                });
-
-                // ✅ Responsif wrapper
-                $(function() {
-                    function updateWrapperWidth() {
-                        const sidebar = document.getElementById("sidebar");
-                        const wrapper = document.getElementById("wrapper-table");
-                        if (sidebar && wrapper) {
-                            const sidebarWidth = sidebar.offsetWidth;
-                            wrapper.style.width = `calc(100% - ${sidebarWidth}px)`;
-                        }
-                    }
-
-                    window.addEventListener("scroll", updateWrapperWidth);
-                    window.addEventListener("resize", updateWrapperWidth);
-                    document.getElementById("wrapper-table")?.addEventListener("scroll", updateWrapperWidth);
-                    updateWrapperWidth();
-                });
-            </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+            {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> //sudah ada di app --}}
 
         </div>
     </div>
 </div>
+
+<script>
+    $(function() {
+
+        const tableId = "{{ $id }}";
+        const $table = $('#' + tableId);
+
+        // =========================
+        // Formatter nomor urut
+        // =========================
+        window.indexFormatter = function(value, row, index) {
+            const opts = $table.bootstrapTable('getOptions');
+            const offset = (opts.pageNumber - 1) * opts.pageSize;
+            return offset + index + 1;
+        };
+
+        // =========================
+        // Init table hanya jika belum
+        // =========================
+        if (!$table.data('bootstrap.table')) {
+
+            $table.bootstrapTable({
+                onSort: function(name, order) {
+                    updateSortIcons(name, order);
+                }
+            });
+
+        } else {
+
+            // jika sudah diinit oleh data-toggle="table"
+            $table.on('sort.bs.table', function(e, name, order) {
+                updateSortIcons(name, order);
+            });
+
+        }
+
+        // =========================
+        // Update icon sorting
+        // =========================
+        function updateSortIcons(columnName, order) {
+
+            const $thead = $(`#${tableId}`)
+                .closest('.bootstrap-table')
+                .find('.fixed-table-header thead, thead');
+
+            $thead.find('th i.sort-icon')
+                .removeClass('bi-sort-up bi-sort-down text-blue-500')
+                .addClass('bi-filter text-gray-400');
+
+            const $activeTh = $thead.find(`th[data-field="${columnName}"]`);
+            const $icon = $activeTh.find('i.sort-icon');
+
+            if ($icon.length) {
+
+                $icon.removeClass('bi-filter text-gray-400');
+
+                if (order === 'asc') {
+                    $icon.addClass('bi-sort-up text-blue-500');
+                } else if (order === 'desc') {
+                    $icon.addClass('bi-sort-down text-blue-500');
+                } else {
+                    $icon.addClass('bi-filter text-gray-400');
+                }
+
+            }
+        }
+
+    });
+
+
+    // =========================
+    // Responsive wrapper width
+    // =========================
+    $(function() {
+
+        function updateWrapperWidth() {
+
+            const sidebar = document.getElementById("sidebar");
+            const wrapper = document.getElementById("wrapper-table");
+
+            if (sidebar && wrapper) {
+                const sidebarWidth = sidebar.offsetWidth;
+                wrapper.style.width = `calc(100% - ${sidebarWidth}px)`;
+            }
+
+        }
+
+        window.addEventListener("scroll", updateWrapperWidth);
+        window.addEventListener("resize", updateWrapperWidth);
+
+        document
+            .getElementById("wrapper-table")
+            ?.addEventListener("scroll", updateWrapperWidth);
+
+        updateWrapperWidth();
+
+    });
+</script>

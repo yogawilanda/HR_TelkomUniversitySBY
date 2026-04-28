@@ -12,11 +12,12 @@ class SK extends Model
     use HasFactory;
     protected $table = 'sks';
     protected $fillable = [
-        'users_id',
+        // 'users_id',
         'no_sk',
         'tmt_mulai',
         'file_sk',
         'tipe_sk',
+        'keterangan'
     ];
     
     public $incrementing = false;
@@ -25,6 +26,7 @@ class SK extends Model
 
     protected $casts = [
         'id' => 'string',
+        'keterangan' => 'string',
     ];
 
     protected static function newFactory()
@@ -38,10 +40,10 @@ class SK extends Model
     }
     
 
-    public static function user_data()
-    {
-        return self::where('users_id', 'id')->get();
-    }
+    // public static function user_data()
+    // {
+    //     return self::where('users_id', 'id')->get();
+    // }
 
     public static function Sk_Ypt()
     {

@@ -11,18 +11,20 @@ use Illuminate\Support\Facades\DB;
 
 class RiwayatPangkatGolonganController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         $jpgs = riwayatPangkatGolongan::all()->sortBy('dosen.pegawai.nama_lengkap');
         return view('kelola_data.pangkat-golongan.list', compact('jpgs'));
     }
 
-    public function new(){
+    public function new()
+    {
 
         $dosens = Dosen::with('pegawai')
-                ->get()
-                ->sortBy('pegawai.nama_lengkap')
-                ->values(); // reset index
-                // dd($dosens);
+            ->get()
+            ->sortBy('pegawai.nama_lengkap')
+            ->values(); // reset index
+        // dd($dosens);
 
         $jpgs = RefPangkatGolongan::orderBy('pangkat', 'desc')->get();
 
@@ -30,7 +32,8 @@ class RiwayatPangkatGolonganController extends Controller
         return view('kelola_data.pangkat-golongan.input', compact('dosens', 'jpgs', 'sk_diktis'));
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         $validated = $request->validate([
             // Dosen & JFA
             'dosen_id'      => ['required'],
@@ -76,6 +79,9 @@ class RiwayatPangkatGolonganController extends Controller
                         // DB::commit();
 
                         $validated['users_id'] = Dosen::find($validated['dosen_id'])->users_id;
+                        $validated['keterangan'] = 'Pangkat & Golongan Pegawai';
+                        $validated['keperluan'] = 'Pangkat Golongan';
+
                         $sk = SK::create($validated);
                         $validated['sk_llkdikti_id'] = $sk->id;
                     } catch (\Exception $e) {
@@ -98,7 +104,7 @@ class RiwayatPangkatGolonganController extends Controller
             // }
             // dd($validated['sk_pengakuan_ypt_id']);
 
-            
+
             riwayatPangkatGolongan::create($validated);
 
 
@@ -120,13 +126,14 @@ class RiwayatPangkatGolonganController extends Controller
         }
     }
 
-    public function update($id_pg){
+    public function update($id_pg)
+    {
         $pg_data = riwayatPangkatGolongan::find($id_pg);
         $dosens = Dosen::with('pegawai')
-                ->get()
-                ->sortBy('pegawai.nama_lengkap')
-                ->values(); // reset index
-                // dd($dosens);
+            ->get()
+            ->sortBy('pegawai.nama_lengkap')
+            ->values(); // reset index
+        // dd($dosens);
 
         $jpgs = RefPangkatGolongan::orderBy('pangkat', 'desc')->get();
 
@@ -134,7 +141,8 @@ class RiwayatPangkatGolonganController extends Controller
         return view('kelola_data.pangkat-golongan.update', compact('pg_data', 'dosens', 'jpgs', 'sk_diktis'));
     }
 
-    public function update_data(Request $request, $id_pg){
+    public function update_data(Request $request, $id_pg)
+    {
         $validated = $request->validate([
             // Dosen & JFA
             'dosen_id'      => ['required'],
@@ -177,6 +185,9 @@ class RiwayatPangkatGolonganController extends Controller
                         // DB::commit();
 
                         $validated['users_id'] = Dosen::find($validated['dosen_id'])->users_id;
+                        $validated['keterangan'] = 'Pangkat & Golongan Pegawai';
+                        $validated['keperluan'] = 'Pangkat Golongan';
+
                         $sk = SK::create($validated);
                         $validated['sk_llkdikti_id'] = $sk->id;
                     } catch (\Exception $e) {
@@ -199,7 +210,7 @@ class RiwayatPangkatGolonganController extends Controller
             // }
             // dd($validated['sk_pengakuan_ypt_id']);
 
-            
+
             // riwayatPangkatGolongan::create($validated);
             $jfa_update = riwayatPangkatGolongan::findOrFail($id_pg);
             $jfa_update->update($validated);

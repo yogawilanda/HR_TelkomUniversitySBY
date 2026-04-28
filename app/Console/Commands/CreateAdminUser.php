@@ -38,16 +38,16 @@ class CreateAdminUser extends Command
 
         // Get user input
         $nama_lengkap = $this->ask('Enter admin nama_lengkap', 'Admin');
-        $email = $this->ask('Enter admin email', 'admin@telkomuniversity.ac.id');
+        $email_institusi = $this->ask('Enter admin email institusi', 'admin@telkomuniversity.ac.id');
 
         // Validate email
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($email_institusi, FILTER_VALIDATE_EMAIL)) {
             $this->error('Invalid email address!');
             return 1;
         }
 
         // Check if email already exists
-        if (User::where('email', $email)->exists()) {
+        if (User::where('email_institusi', $email_institusi)->exists()) {
             $this->error('A user with this email already exists!');
             return 1;
         }
@@ -70,8 +70,8 @@ class CreateAdminUser extends Command
         try {
             $admin = User::create([
                 'nama_lengkap' => $nama_lengkap,
-                'email' => $email,
-                'password_hash' => Hash::make($password),
+                'email_institusi' => $email_institusi,
+                'password' => Hash::make($password),
                 'is_admin' => true,
                 'email_verified_at' => now(),
             ]);
@@ -79,7 +79,7 @@ class CreateAdminUser extends Command
             $this->info('✅ Admin user created successfully!');
             $this->table(
                 ['ID', 'Nama Lengkap', 'Email', 'Is Admin', 'Created At'],
-                [[$admin->id, $admin->nama_lengkap, $admin->email, $admin->is_admin ? 'Yes' : 'No', $admin->created_at]]
+                [[$admin->id, $admin->nama_lengkap, $admin->email_institusi, $admin->is_admin ? 'Yes' : 'No', $admin->created_at]]
             );
 
             return 0;

@@ -1,6 +1,6 @@
 @props(['target_id' => null])
 <button id="printTableBtn" data-id-table="{{$target_id}}" 
-    class="group flex h-full rounded-md transition-all duration-200 ease-in-out">
+    class="group flex h-full rounded-md transition-all duration-200 ease-in-out hover:scale-105 active:scale-95">
     <div
         class="flex justify-center items-center gap-2 bg-[#eef6ff] px-3 py-2.5 
         rounded-md border border-[#b6d4fe] text-[#1e429f]

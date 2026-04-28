@@ -41,7 +41,6 @@
             <x-slot:table_column>
                 @foreach ($targetKinerja as $index => $item)
                     <x-tb-cl id="{{ $item->id }}">
-                        {{-- <x-tb-cl-fill>{{ $index + 1 }}</x-tb-cl-fill> --}}
                         <x-tb-cl-fill>{{ $item->nama }}</x-tb-cl-fill>
                         <x-tb-cl-fill>{{ $item->bobot }}</x-tb-cl-fill>
                         <x-tb-cl-fill>{{ $item->responsibility ?? '-' }}</x-tb-cl-fill>

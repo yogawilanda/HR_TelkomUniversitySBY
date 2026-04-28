@@ -37,9 +37,35 @@ class work_position extends Model
         return $this->belongsTo(work_position::class, 'parent_id', 'id');
     }
 
+    public function prodi_parent()
+    {
+        return $this->belongsToMany(
+            work_position::class,  // target model self
+            'prodis',              // table yang menyimpan relasi
+            'prodi_id',            // kolom di prodis yang menunjuk ke anak (this->id)
+            'fakultas_id'          // kolom di prodis yang menunjuk ke parent
+        );
+    }
+
+    // Relasi ke children via table prodis
+    public function fakultas_children()
+    {
+        return $this->belongsToMany(
+            work_position::class,  // target model self
+            'prodis',              // table yang menyimpan relasi
+            'fakultas_id',         // kolom di prodis yang menunjuk ke parent (this->id)
+            'prodi_id'             // kolom di prodis yang menunjuk ke anak
+        );
+    }
+
     public function dosen()
     {
         return $this->hasMany(Dosen::class, 'prodi_id', 'id');
+    }
+
+    public function tpa()
+    {
+        return $this->hasMany(Tpa::class, 'bagian_id', 'id');
     }
 
     public static function boot()

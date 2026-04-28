@@ -5,7 +5,7 @@
             <!-- Left: Logo -->
             <div class="flex items-center">
                 <div class="flex items-center shrink-0 active:scale-90">
-                    <a href="{{ route('home') }}">
+                    <a href="{{ route('home') }}" class="route_pop_up">
                         <x-application-logo class="block w-auto text-white fill-current h-9 dark:text-gray-200" />
                     </a>
                 </div>

@@ -40,15 +40,15 @@ INSERT INTO `work_positions` (`id`, `type_work_position`, `position_name`, `kode
   ('a2d9a0da-fb8d-4eb8-9b62-c8cd738d527e', 'Program Studi', 'Rekayasa Perangkat Lunak', 'RPL',"Dosen",'2025-11-13 10:59:33', '2025-11-13 10:59:33'),
   ('a7403562-943a-467e-8723-3984e540588b', 'Program Studi', 'Teknik Industri', 'TI',"Dosen",'2025-11-13 10:59:33', '2025-11-13 10:59:33');
 
-INSERT INTO `levels` (`id`, `nama_level`, `singkatan_level`, `atasan_level`, `created_at`, `updated_at`, `icon`) VALUES
-  ('f091dbb2-7532-4c5e-b94f-9e4bc045dc7a', 'Direktur', 'DIR', NULL, '2025-11-13 10:59:33', '2025-11-13 10:59:33', 'fa-solid fa-crown'),
-  ('0de96d16-c872-4195-9f45-e837d659b571', 'Wakil Direktur', 'WADIR', 'f091dbb2-7532-4c5e-b94f-9e4bc045dc7a', '2025-11-13 10:59:33', '2025-11-13 10:59:33', 'fa-solid fa-user-tie'),
-  ('316e0668-9bb5-4f27-867d-5a209cbcd228', 'Kepala Bagian', 'KABAG', '0de96d16-c872-4195-9f45-e837d659b571', '2025-11-13 10:59:33', '2025-11-13 10:59:33', 'fa-solid fa-briefcase'),
-  ('be5adb40-ae9f-4fa4-aeeb-d6b37394b1e7', 'Dekan', 'DEKAN', '0de96d16-c872-4195-9f45-e837d659b571', '2025-11-13 10:59:33', '2025-11-13 10:59:33', 'fa-solid fa-building-columns'),
-  ('037b9e77-a77b-4bee-820d-e52b62c74c92', 'Kepala Urusan', 'KAUR', '316e0668-9bb5-4f27-867d-5a209cbcd228', '2025-11-13 10:59:33', '2025-11-13 10:59:33', 'fa-solid fa-clipboard-check'),
-  ('e33399cf-0049-45bb-b9e7-db5cd8661b18', 'Kepala Program Studi', 'KAPRODI', '0de96d16-c872-4195-9f45-e837d659b571', '2025-11-13 10:59:33', '2025-11-13 10:59:33', 'fa-solid fa-book-open'),
-  ('05e59440-c012-4b20-83e7-eb841bb44525', 'Anggota Bagian', 'ANGGOTA', '037b9e77-a77b-4bee-820d-e52b62c74c92', '2025-11-13 10:59:33', '2025-11-13 10:59:33', 'fa-solid fa-user'),
-  ('813b1182-c975-406a-a60a-e75b7ace942d', 'Anggota Program Studi', 'ANGGOTA', 'e33399cf-0049-45bb-b9e7-db5cd8661b18', '2025-11-13 10:59:33', '2025-11-13 10:59:33', 'fa-solid fa-graduation-cap');
+INSERT INTO `levels` (`id`, `nama_level`,`urut`, `singkatan_level`, `atasan_level`, `created_at`, `updated_at`, `icon`) VALUES
+  ('f091dbb2-7532-4c5e-b94f-9e4bc045dc7a', 'Direktur', '1','DIR', NULL, '2025-11-13 10:59:33', '2025-11-13 10:59:33', 'fa-solid fa-crown'),
+  ('0de96d16-c872-4195-9f45-e837d659b571', 'Wakil Direktur','2', 'WADIR', 'f091dbb2-7532-4c5e-b94f-9e4bc045dc7a', '2025-11-13 10:59:33', '2025-11-13 10:59:33', 'fa-solid fa-user-tie'),
+  -- ('316e0668-9bb5-4f27-867d-5a209cbcd228', 'Kepala Bagian', 'KABAG', '0de96d16-c872-4195-9f45-e837d659b571', '2025-11-13 10:59:33', '2025-11-13 10:59:33', 'fa-solid fa-briefcase'),
+  ('be5adb40-ae9f-4fa4-aeeb-d6b37394b1e7', 'Dekan','3', 'DEKAN', '0de96d16-c872-4195-9f45-e837d659b571', '2025-11-13 10:59:33', '2025-11-13 10:59:33', 'fa-solid fa-building-columns'),
+  ('037b9e77-a77b-4bee-820d-e52b62c74c92', 'Kepala Urusan','3', 'KAUR', '0de96d16-c872-4195-9f45-e837d659b571', '2025-11-13 10:59:33', '2025-11-13 10:59:33', 'fa-solid fa-clipboard-check'),
+  ('e33399cf-0049-45bb-b9e7-db5cd8661b18', 'Kepala Program Studi','4', 'KAPRODI', 'be5adb40-ae9f-4fa4-aeeb-d6b37394b1e7', '2025-11-13 10:59:33', '2025-11-13 10:59:33', 'fa-solid fa-book-open'),
+  ('05e59440-c012-4b20-83e7-eb841bb44525', 'Anggota Bagian','5', 'ANGGOTA', '037b9e77-a77b-4bee-820d-e52b62c74c92', '2025-11-13 10:59:33', '2025-11-13 10:59:33', 'fa-solid fa-user'),
+  ('813b1182-c975-406a-a60a-e75b7ace942d', 'Anggota Program Studi','5', 'ANGGOTA', 'e33399cf-0049-45bb-b9e7-db5cd8661b18', '2025-11-13 10:59:33', '2025-11-13 10:59:33', 'fa-solid fa-graduation-cap');
 
 
 INSERT INTO `faculties` (`id`,`nama_fakultas`,`kode`) VALUES
@@ -93,10 +93,10 @@ INSERT INTO `formations` (`id`, `nama_formasi`, `level_id`, `atasan_formasi_id`,
   ('ad38c9f9-19d6-4bb8-9f21-332fdfe66113', 'Dekan Fakultas Bisnis', 'be5adb40-ae9f-4fa4-aeeb-d6b37394b1e7', 'd4b8f5e9-22ef-44af-9a21-8123df453104', '5852287b-2284-43cf-9fef-bc2742e68d93', 1, '2025-11-13 10:59:33', '2025-11-13 10:59:33'),
   ('eb16a7d5-77c1-49f5-9543-118cbced4111', 'Dekan Fakultas Rekayasa industri ', 'be5adb40-ae9f-4fa4-aeeb-d6b37394b1e7', 'd4b8f5e9-22ef-44af-9a21-8123df453104',  '2eb0b147-3553-4ac5-83c5-6750b004c8b9', 1, '2025-11-13 10:59:33', '2025-11-13 10:59:33'),
   ('fc27b8e3-88f4-4d70-baf3-227aeedf5112', 'Dekan Fakultas Informatika', 'be5adb40-ae9f-4fa4-aeeb-d6b37394b1e7', 'd4b8f5e9-22ef-44af-9a21-8123df453104',  '426d4553-31a7-4b3f-8965-4e39b1750eb0', 1, '2025-11-13 10:59:33', '2025-11-13 10:59:33'),
-  ('e5c7a8d3-66d1-4cd8-8b1f-927fa9e76105', 'Kepala Bagian Keuangan', '316e0668-9bb5-4f27-867d-5a209cbcd228', 'b2d6c2a1-93cb-4c3e-bb12-8e5af7542102', 'fb96d10d-9048-430a-9f01-955aa2db4d79',  1, '2025-11-13 10:59:33', '2025-11-13 10:59:33'),
-  ('b8f3d4a9-52c1-4e7a-ab20-11afe7fa1108', 'Kepala Bagian SDM', '316e0668-9bb5-4f27-867d-5a209cbcd228', 'b2d6c2a1-93cb-4c3e-bb12-8e5af7542102', '0455c397-1669-4a63-b01d-0405fded2311', 1, '2025-11-13 10:59:33', '2025-11-13 10:59:33'),
-  ('c9a4e5b8-10ac-43f9-bbb3-aa23e5cd2109', 'Kepala Urusan SDM', '037b9e77-a77b-4bee-820d-e52b62c74c92', 'b8f3d4a9-52c1-4e7a-ab20-11afe7fa1108', '0455c397-1669-4a63-b01d-0405fded2311', 1, '2025-11-13 10:59:33', '2025-11-13 10:59:33'),
-  ('f6d4b9a7-88f3-4c9b-ae55-b75ebfa98106', 'Kepala Urusan Keuangan', '037b9e77-a77b-4bee-820d-e52b62c74c92', 'e5c7a8d3-66d1-4cd8-8b1f-927fa9e76105', 'fb96d10d-9048-430a-9f01-955aa2db4d79',  1, '2025-11-13 10:59:33', '2025-11-13 10:59:33'),
+  -- ('e5c7a8d3-66d1-4cd8-8b1f-927fa9e76105', 'Kepala Bagian Keuangan', '316e0668-9bb5-4f27-867d-5a209cbcd228', 'b2d6c2a1-93cb-4c3e-bb12-8e5af7542102', 'fb96d10d-9048-430a-9f01-955aa2db4d79',  1, '2025-11-13 10:59:33', '2025-11-13 10:59:33'),
+  -- ('b8f3d4a9-52c1-4e7a-ab20-11afe7fa1108', 'Kepala Bagian SDM', '316e0668-9bb5-4f27-867d-5a209cbcd228', 'b2d6c2a1-93cb-4c3e-bb12-8e5af7542102', '0455c397-1669-4a63-b01d-0405fded2311', 1, '2025-11-13 10:59:33', '2025-11-13 10:59:33'),
+  ('c9a4e5b8-10ac-43f9-bbb3-aa23e5cd2109', 'Kepala Urusan SDM', '037b9e77-a77b-4bee-820d-e52b62c74c92', 'b2d6c2a1-93cb-4c3e-bb12-8e5af7542102', '0455c397-1669-4a63-b01d-0405fded2311', 1, '2025-11-13 10:59:33', '2025-11-13 10:59:33'),
+  ('f6d4b9a7-88f3-4c9b-ae55-b75ebfa98106', 'Kepala Urusan Keuangan', '037b9e77-a77b-4bee-820d-e52b62c74c92', 'b2d6c2a1-93cb-4c3e-bb12-8e5af7542102', 'fb96d10d-9048-430a-9f01-955aa2db4d79',  1, '2025-11-13 10:59:33', '2025-11-13 10:59:33'),
   ('be49daf8-20f8-49fc-84a2-449cfffa7114', 'Kaprodi Rekayasa Perangkat Lunak', 'e33399cf-0049-45bb-b9e7-db5cd8661b18', 'fc27b8e3-88f4-4d70-baf3-227aeedf5112',  'a2d9a0da-fb8d-4eb8-9b62-c8cd738d527e', 1, '2025-11-13 10:59:33', '2025-11-13 10:59:33'),
   ('d06bfcf5-42fa-4ccf-9b77-66cbdffc9116', 'Kaprodi Sistem Informasi', 'e33399cf-0049-45bb-b9e7-db5cd8661b18', 'fc27b8e3-88f4-4d70-baf3-227aeedf5112',  '20b2cde9-3349-42ac-a31e-2d4f6562cb7d', 1, '2025-11-13 10:59:33', '2025-11-13 10:59:33'),
   ('cf5aebc7-31e9-4dad-a155-55abcffb8115', 'Anggota Prodi RPL', '813b1182-c975-406a-a60a-e75b7ace942d', 'be49daf8-20f8-49fc-84a2-449cfffa7114',  'a2d9a0da-fb8d-4eb8-9b62-c8cd738d527e', 8, '2025-11-13 10:59:33', '2025-11-13 10:59:33'),
@@ -130,9 +130,9 @@ INSERT INTO `ref_jabatan_fungsional_keahlians` (`id`, `nama_jfk`, `created_at`, 
 INSERT INTO `ref_jenjang_pendidikans` (`id`, `jenjang_pendidikan`, `tingkat`, `created_at`, `updated_at`, `urutan`, `kode_gelar`) VALUES
   ('32c575b5-af32-4ae7-b516-79c07557dc65', 'S3', 'Doktoral', '2025-11-13 10:59:33', '2025-11-13 10:59:33',1,'Dr'),
   ('1e188057-e031-438d-b24c-b081e09eba9a', 'S2', 'Magister', '2025-11-13 10:59:33', '2025-11-13 10:59:33',2,'M'),
-  ('15f76180-52ad-4b4f-91cc-7dd55c01c333', 'D3', 'Diploma', '2025-11-13 10:59:33', '2025-11-13 10:59:33',3,'A.Md'),
-  ('106c9de7-941d-4bcb-9904-f7ed99593571', 'D4', 'Diploma IV / Sarjana Terapan', '2025-11-13 10:59:33', '2025-11-13 10:59:33',4,'S.Tr'),
-  ('abd63eb0-93af-4d02-b980-2278a033edc8', 'S1', 'Sarjana', '2025-11-13 10:59:33', '2025-11-13 10:59:33',4,'S');
+  ('15f76180-52ad-4b4f-91cc-7dd55c01c333', 'D3', 'Diploma III', '2025-11-13 10:59:33', '2025-11-13 10:59:33',4,'A.Md'),
+  ('106c9de7-941d-4bcb-9904-f7ed99593571', 'D4', 'Diploma IV / Sarjana Terapan', '2025-11-13 10:59:33', '2025-11-13 10:59:33',3,'S.Tr'),
+  ('abd63eb0-93af-4d02-b980-2278a033edc8', 'S1', 'Sarjana', '2025-11-13 10:59:33', '2025-11-13 10:59:33',3,'S');
 
 INSERT INTO `ref_pangkat_golongans` (`id`, `pangkat`, `golongan`, `created_at`, `updated_at`) VALUES
   ('136286e7-7ccb-4f66-88f2-e5b9e9c06eb7', 'Pembina Utama Muda', 'IV/c', '2025-11-13 10:59:33', '2025-11-13 10:59:33'),

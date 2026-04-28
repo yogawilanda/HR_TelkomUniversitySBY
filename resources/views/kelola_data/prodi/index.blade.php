@@ -113,7 +113,7 @@
                 <h4 class="font-semibold text-blue-900 mb-2">Informasi</h4>
                 <p class="text-sm text-blue-800">
                     Untuk melihat statistik dosen per prodi (Pendidikan, Jabatan Fungsional, Kepegawaian),
-                    silakan buka menu <strong>"Dashboard Prodi"</strong> di sidebar.
+                    silakan buka menu <strong><a href="{{ route('manage.jenjang-pendidikan.list') }}" class="route_pop_up">"Dashboard Prodi"</a></strong> di sidebar.
                 </p>
             </div>
         </div>

@@ -84,6 +84,15 @@ class User extends Authenticatable
             ->whereNull('tmt_selesai');
     }
 
+    public function last_studi()
+    {
+        // Relasi ke riwayat jenjang pendidikan terakhir berdasarkan urutan tertinggi
+        return $this->hasOne(RiwayatJenjangPendidikan::class, 'users_id')
+            ->join('ref_jenjang_pendidikans as ref', 'ref.id', '=', 'riwayat_jenjang_pendidikans.jenjang_pendidikan_id')
+            ->orderByDesc('ref.urutan')
+            ->select('riwayat_jenjang_pendidikans.*', 'ref.jenjang_pendidikan', 'ref.urutan');
+    }
+
     public function riwayatNipFirst()
     {
         return $this->hasOne(RiwayatNip::class, 'users_id');
@@ -91,12 +100,12 @@ class User extends Authenticatable
 
     public function riwayatJenjangPendidikan()
     {
-        return $this->hasMany(riwayatJenjangPendidikan::class, 'users_id');
+        return $this->hasMany(RiwayatJenjangPendidikan::class, 'users_id');
     }
 
     public function jabatan()
     {
-        return $this->hasMany(pengawakan::class, 'users_id', 'id');
+        return $this->hasMany(Pengawakan::class, 'users_id', 'id');
     }
 
     public function tpa()

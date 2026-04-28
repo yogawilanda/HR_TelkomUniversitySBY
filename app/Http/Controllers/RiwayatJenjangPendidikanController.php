@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\refJenjangPendidikan;
+use App\Models\RefJenjangPendidikan;
 use App\Models\riwayatJenjangPendidikan;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -54,7 +54,7 @@ class RiwayatJenjangPendidikanController extends Controller
         
         $data_user = user::where('id', request()->id_user)->first();
         // dd($data_user);
-        $jenjang_pendidikans = refJenjangPendidikan::all()->sortBy('jenjang_pendidikan');
+        $jenjang_pendidikans = RefJenjangPendidikan::all()->sortBy('jenjang_pendidikan');
         $users = user::all()->sortBy('nama_lengkap');
         return view('kelola_data.jenjang-pendidikan.input', compact('jenjang_pendidikans', 'users','data_user'));
     }
@@ -136,8 +136,8 @@ class RiwayatJenjangPendidikanController extends Controller
     public function update($id_jp)
     {
         // dd($id_jp);
-        $data_user = riwayatJenjangPendidikan::where('id', $id_jp)->first();
-        $jenjang_pendidikans = refJenjangPendidikan::all()->sortBy('jenjang_pendidikan');
+        $data_user = RiwayatJenjangPendidikan::where('id', $id_jp)->first();
+        $jenjang_pendidikans = RefJenjangPendidikan::all()->sortBy('jenjang_pendidikan');
         $users = user::all()->sortBy('nama_lengkap');
         // dd($users[0]->id);
         return view('kelola_data.jenjang-pendidikan.update', compact('jenjang_pendidikans', 'users','data_user','id_jp'));
@@ -227,7 +227,7 @@ class RiwayatJenjangPendidikanController extends Controller
     public function profileRiwayatPendidikan($idUser){
         $user = (new ProfileController)->based_user_data($idUser);
         // $user['pendidikan'] = riwayatJenjangPendidikan::with(['refJenjangPendidikan'])->find($user['id']);
-        $user['pendidikan'] = riwayatJenjangPendidikan::with('refJenjangPendidikan')->where('users_id',$user['id'])->get()->sortBy(fn ($item) => optional($item->refJenjangPendidikan)->urutan);
+        $user['pendidikan'] = RiwayatJenjangPendidikan::with('refJenjangPendidikan')->where('users_id',$user['id'])->get()->sortBy(fn ($item) => optional($item->refJenjangPendidikan)->urutan);
         // dd($user['pendidikan'][0]['refJenjangPendidikan']);
         return view('kelola_data.pegawai.view.history.pendidikan',['user'=>$user]);
     }

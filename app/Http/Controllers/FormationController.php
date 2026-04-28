@@ -132,6 +132,15 @@ class FormationController extends Controller
         }
     }
 
+    public function get_structure_top($id_pemetaan){
 
+    }
 
+    public function get_structure_down($id_pemetaan){
+        
+    }
+
+    public function get_structure_top_down($id_pemetaan){
+
+    }
 }
