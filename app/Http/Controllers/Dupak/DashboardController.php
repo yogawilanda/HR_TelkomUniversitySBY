@@ -164,17 +164,38 @@ class DashboardController extends Controller
         $latestSubmission = $this->getLatestSubmission($user, $dosen);
 
         $kumPengajuan = 0;
+        $kumDisetujui = 0;
         $personalSubmission = null;
 
         if ($dosen) {
             $personalSubmission = Pengajuan::where('idDosen', $dosen->id)->latest()->first();
-            $kumPengajuan = $personalSubmission ? (float) $personalSubmission->details()->sum('angka_kredit_total') : 0;
+
+            if ($personalSubmission) {
+                // Ambil ID detail kegiatan yang sudah memiliki penilaian dari TPAK
+                $evaluatedIds = \App\Models\Dupak\HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
+                    ->where('detail_pengajuan.pengajuan_id', $personalSubmission->id)
+                    ->where('hasil_evaluasi.peran_pemeriksa', 'TPAK')
+                    ->pluck('detail_pengajuan.id');
+
+                // KUM Pending: Butir kegiatan yang BELUM dinilai sama sekali oleh TPAK
+                $kumPengajuan = (float) $personalSubmission->details()
+                    ->whereNotIn('id', $evaluatedIds)
+                    ->sum('angka_kredit_total');
+
+                // KUM Disetujui: Akumulasi nilai yang sudah diberikan TPAK (rata-rata jika penilai > 1)
+                $kumDisetujui = (float) \App\Models\Dupak\HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
+                    ->where('detail_pengajuan.pengajuan_id', $personalSubmission->id)
+                    ->where('hasil_evaluasi.peran_pemeriksa', 'TPAK')
+                    ->groupBy('hasil_evaluasi.detail_pengajuan_id')
+                    ->selectRaw('AVG(hasil_evaluasi.nilai_angka_kredit) as avg_nilai')
+                    ->get()
+                    ->sum('avg_nilai');
+            }
         }
 
         $baseKum = (float)($user->kum ?? 0);
-        // Progress & tersisa dihitung dari KUM yang sudah diterima (baseKum),
-        // bukan total yang sedang diajukan (kumPengajuan) karena belum dievaluasi TPAK.
-        $jfaData = $this->getJfaAndKumData($dosen, $baseKum);
+        // Progress sekarang menghitung Base KUM profil + KUM yang sudah divalidasi TPAK di pengajuan aktif
+        $jfaData = $this->getJfaAndKumData($dosen, $baseKum + $kumDisetujui);
         $progress = $jfaData['progress'];
 
         $hasNoPengajuan = $dosen ? !Pengajuan::where('idDosen', $dosen->id)->exists() : true;
@@ -244,13 +265,15 @@ class DashboardController extends Controller
             'totalSeluruhPengajuan' => $totalSeluruhPengajuan,
             'isMaxJfa' => $isMaxJfa,
 
+            // kum['pending_kum'] = Kum yang diajukan oleh pengaju
+            // kum['current'] = Kum yang sudah di acc oleh TPAK dan dianggap sebagai progress oleh bar
             'kum' => [
                 'current' => $progress['current'],
+                'pending_kum' => number_format($kumPengajuan, 2),
                 'target' => $progress['goal'],
                 'remaining' => $progress['remaining'],
                 'percent' => $progress['percent'],
                 'base_kum' => number_format($baseKum, 2),
-                'pending_kum' => number_format($kumPengajuan, 2),
                 'statusColor' => $progress['statusColor'],
                 'updatedAtFormatted' => $user->kum_updated_at ? Carbon::parse($user->kum_updated_at)->diffForHumans() : 'Belum pernah diperbarui',
                 'pendidikan' => $kumBreakdown['pendidikan'],
