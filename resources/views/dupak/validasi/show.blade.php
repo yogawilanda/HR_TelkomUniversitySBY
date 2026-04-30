@@ -114,6 +114,7 @@
                                     'Doubt' => 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100',
                                     'Fake' => 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100',
                                     'Pending' => 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100',
+                                    'Verified' => '',
                                     ][$currentFlag];
                                     @endphp
                                     <tr class="hover:bg-blue-50/30 transition-colors group">
