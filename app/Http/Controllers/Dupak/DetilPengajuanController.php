@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Dosen;
 use App\Models\Dupak\DetailPengajuan;
 use App\Models\Dupak\Pengajuan;
+use App\Models\Dupak\RefKomponen as RefKategori;
+use App\Helpers\DupakScoringHelper;
 use App\Models\Dupak\RefKegiatanKomponen;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -54,6 +56,12 @@ class DetilPengajuanController extends Controller
         $idUtama = $categoryMap[strtolower($category)] ?? null;
         $komponenId = $request->query('komponen_id');
 
+        // <!-- For II. Pelaksanaan pendidikan. Melaksanakan perkuliahan -->
+        // 						<!-- There is special input which pengaju need to fill -->
+        // 						 <!-- Periode Pengajuan Ex. "Semester Ganjil 2025/2026", SKS Ex. 4 Kelas Ex. 2  this will be calculcated for the scoring -->
+
+        $isPerkuliahan = ($komponenId == 3);
+
         // dd($category, $pengajuan->id);
 
         // Ambil komponen berdasarkan ID dan pastikan sesuai dengan kategori utama
@@ -68,7 +76,15 @@ class DetilPengajuanController extends Controller
             ->get(); // This populates the "Detail Butir Kegiatan" dropdown
         // dd($jenisInputs);
 
-        return view('dupak.pengisian_detil_pengajuan.generic_form', compact('pengajuan', 'komponen', 'jenisInputs', 'category'));
+
+
+        return view('dupak.pengisian_detil_pengajuan.generic_form', compact(
+            'pengajuan',
+            'komponen',
+            'jenisInputs',
+            'category',
+            'isPerkuliahan'
+        ));
     }
 
     /**

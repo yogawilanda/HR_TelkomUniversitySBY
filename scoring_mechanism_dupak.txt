@@ -1,0 +1,196 @@
+# DUPAK Scoring Mechanism Documentation
+# Based on analysis of mockdata_dupak.xlsx and codebase
+
+## ================================================================================
+## 1. BASIC FORMULA: ANGKA KREDIT (KUM) CALCULATION
+## ================================================================================
+
+For Each Submission:
+    Angka Kredit Total = Nilai Baku × Volume
+
+Where:
+- Nilai Baku    = Base credit value from reference table (ref_nilai_kum_baku)
+- Volume       = Number of units/activities performed
+
+### Examples from mockdata:
+
+| Activity                              | Nilai Baku | Volume | Calculation | Result |
+|---------------------------------------|------------|--------|-------------|--------|
+| Pendidikan S1                        | 100        | 1      | 1 × 100     | 100    |
+| Pendidikan S2                         | 50         | 1      | 1 × 50      | 50     |
+| MK 4 SKS, 2 classes                   | 1          | 4×2=8  | 8 × 1       | 8      |
+| Thesis guidance (Main Supervisor)     | 1          | 1      | 1 × 1       | 1      |
+| Thesis guidance (Assistant Supervisor)| 0.5        | 1      | 1 × 0.5     | 0.5    |
+| Exam committee (Chairman)             | 1          | 1      | 1 × 1       | 1      |
+| Exam committee (Member)              | 0.5        | 1      | 1 × 0.5     | 0.5    |
+
+## ================================================================================
+## 2. SCORING MECHANISM FOR EACH SUBMISSION (TPAK VALIDATION)
+## ================================================================================
+
+When TPAK evaluates each activity detail, the formula is:
+
+    Nilai Angka Kredit (Approved) = Angka Kredit Total × (Score % / 100)
+
+Parameters:
+- score (0-100) : Percentage given by TPAK evaluator
+- flag         : OK | Doubt | Fake
+
+### Logic Table:
+
+| Flag  | Status    | Meaning             | Credit Given           |
+|-------|-----------|--------------------|-----------------------|
+| OK    | approved  | Valid activity     | Full × Score%         |
+| Doubt | revision  | Need revision     | 0 (pending)           |
+| Fake  | rejected  | Invalid/fake       | 0                     |
+
+## ================================================================================
+## 3. VOLUME-BASED SCORING (SPECIAL CASES)
+## ================================================================================
+
+### a. Teaching (Melaksanakan Perkuliahan):
+- SKS ≤ 10  : Full score (1 per SKS-class)
+- SKS > 10  : Split calculation with 0.5 factor for overload
+
+**THE DOUBLE CALCULATION MECHANISM (SKS > 10):**
+
+When semester total SKS > 10, Excel stores TWO calculations in ONE row:
+- Each cell contains two values separated by newlines "\n"
+- First line = normal portion (factor 1.0)
+- Second line = overload portion (factor 0.5)
+
+Actual data from mockdata (Row 102):
+    Cell[4] = "4 x 1\n4 x 1"     → Two volume entries
+    Cell[5] = "1\n0.5"            → Two credit values  
+    Cell[6] = "4x1x1=4\n4x1x0.5=2" → Two calculations
+    
+    Excel display columns:
+    - [8]=4, [9]=2, [10]=6  → "4" from normal, "2" from overload, "6" = Total
+
+Formula for DOUBLE calculation:
+    Total_SKS = SKS × kelas
+    
+    IF Total_SKS > 10:
+        Normal_Portion  = MIN(Total_SKS, 10) × 1.0 = up to 10
+        Overload_Portion = MAX(0, Total_SKS - 10) × 0.5 = remaining × 0.5
+        Total_KUM       = Normal + Overload
+    
+    ELSE:
+        Total_KUM = Total_SKS × 1.0
+
+Example 1 - Row 102 (Semester 2021/2022 with 11 SKS total):
+    Subject: 4 SKS, 1 class = 4 total
+    - Part 1: 4 × 1 × 1.0 = 4 (normal)
+    - Part 2: 4 × 1 × 0.5 = 2 (overload)
+    - Total: 6
+
+Example 2 - Row 109 (Semester 2022/2023 with 11 SKS total):
+    Subject: 4 SKS, 2 classes = 8 total
+    - Part 1: 6 × 1 × 1.0 = 6 (first 6 SKS of 8)
+    - Part 2: 2 × 1 × 0.5 = 1 (remaining 2 SKS × 0.5)
+    - Total: 7
+
+**IMPORTANT - Why TWO entries per row:**
+
+The "Jumlah" column (column G/10) shows combined total, but TPAK validation 
+needs to evaluate BOTH the normal and overload portions separately. Each portion 
+can have different validation status (OK/Doubt/Fake) and scores.
+
+For proper implementation, when semester SKS > 10, store TWO detail records:
+1. Record A: angka_kredit with factor 1.0 for normal portion
+2. Record B: angka_kredit with factor 0.5 for overload portion
+
+### b. Thesis/Dissertation Guidance (Membimbing Skripsi/Tesis):
+- Main Supervisor (Pembimbing Utama)     : Full 1.0
+- Assistant Supervisor (Pembimbing Pendamping): 0.5
+
+### c. Exam Committee (Bertugas sebagai Penguji Ujian):
+- Chairman (Ketua Penguji)  : Full 1.0
+- Member (Anggota Penguji)   : 0.5
+
+## ================================================================================
+## 4. CATEGORY-BASED MAX LIMITS
+## ================================================================================
+
+Each category has maximum KUM limits per semester:
+
+| Category                              | Max KUM |
+|---------------------------------------|---------|
+| Pelaksanaan Pendidikan (Teaching)     | 11 per semester |
+| Thesis Guidance (Bimbing LA/Skripsi)  | 32 |
+| Exam Committee (Ujian Akhir)          | 8 |
+| Student Activities (Membina Kegiatan)    | 4 |
+| Course Development (Mengembangkan)      | 2 |
+| Orasi Ilmiah                         | 10 |
+| Leadership (Jabatan Pimpinan)         | Per position |
+
+## ================================================================================
+## 5. TOTAL KUM CALCULATION
+## ================================================================================
+
+Total KUM = Sum of all approved activities across categories:
+
+    Jumlah I (Pendidikan)         = Pendidikan Formal + Diklat Pra Jabatan
+    Jumlah II (Pelaksanaan Pend.)  = A+B+C+D+E+F+G+H+I+J+K+L+M
+    Jumlah Total                  = Jumlah I + Jumlah II
+
+From mockdata example (Row 1224):
+    Jumlah I   = 200 (S1+S2+S3 education)
+    Jumlah II = 419 (all teaching activities)
+    Jumlah    = 619
+
+## ================================================================================
+## 6. IMPLEMENTATION IN CODE
+## ================================================================================
+
+### a. Storing Activity (DetilPengajuanController):
+
+    $nilaiBaku = $refInput->nilai_baku;  // From ref_jenis_input
+    $volume = $request->input('volume', 1);
+    $detail->angka_kredit_murni = $nilaiBaku;
+    $detail->angka_kredit_total = $nilaiBaku * $volume;
+
+### b. TPAK Validation (ValidasiController):
+
+    $scorePercent = $request->score / 100;
+    $approvedCredit = $detail->angka_kredit_total * $scorePercent;
+
+    // Save evaluation
+    HasilEvaluasi::updateOrCreate([
+        'nilai_angka_kredit' => $approvedCredit,
+        'status_evaluasi' => $flag, // OK/Doubt/Fake
+    ]);
+
+## ================================================================================
+## 7. SUMMARY FLOW
+## ================================================================================
+
+1. Dosen submits activity
+   → Stores with: angka_kredit_total = nilai_baku × volume
+
+2. TPAK evaluates
+   → Gives score (0-100%) and flag (OK/Doubt/Fake)
+
+3. Calculate approved credit
+   → approved = total × (score/100)
+
+4. Sum all approved
+   → Total KUM for DUPAK application
+
+## ================================================================================
+## REFERENCE COLUMNS IN EXCEL (mockdata_dupak.xlsx)
+## ================================================================================
+
+Column structure:
+- NO        : Activity number
+- URAIAN KEGIATAN : Activity description
+- TANGGAL   : Date/semester
+- SATUAN HASIL : Unit type (SKS, Lulusan, Semester, etc)
+- JUMLAH VOLUME KEGIATAN : Volume calculation
+- ANGKA KREDIT : Base credit (nilai_baku)
+- JUMLAH ANGKA KREDIT : Total credit (nilai_baku × volume)
+- KETERANGAN / BUKTI FISIK : Reference/SK number
+
+## ================================================================================
+## END OF DOCUMENTATION
+## ================================================================================
