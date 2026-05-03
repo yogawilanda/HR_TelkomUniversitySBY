@@ -21,7 +21,7 @@ return new class extends Migration
 
             // Primary Key
             // Menggunakan unsignedSmallInteger karena ID-nya relatif kecil
-            $table->unsignedSmallInteger('id')->primary();
+            $table->unsignedSmallInteger('id')->primary()->autoIncrement();
 
             // Foreign Key ke ref_kegiatan_komponen
             $table->unsignedBigInteger('idKomponen')->comment('Foreign key ke ref_kegiatan_komponen (sub-kegiatan)');
