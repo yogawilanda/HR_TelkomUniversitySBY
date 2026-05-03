@@ -61,6 +61,7 @@ class DetilPengajuanController extends Controller
         // 						 <!-- Periode Pengajuan Ex. "Semester Ganjil 2025/2026", SKS Ex. 4 Kelas Ex. 2  this will be calculcated for the scoring -->
 
         $isPerkuliahan = ($komponenId == 3);
+        $isBimbinganTA = ($komponenId == 6);
 
         // dd($category, $pengajuan->id);
 
@@ -83,7 +84,8 @@ class DetilPengajuanController extends Controller
             'komponen',
             'jenisInputs',
             'category',
-            'isPerkuliahan'
+            'isPerkuliahan',
+            'isBimbinganTA'
         ));
     }
 

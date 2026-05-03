@@ -28,7 +28,7 @@
                                     @foreach($jenisInputs as $input)
                                     <option value="{{ $input->id }}" data-nilai="{{ $input->nilai_baku }}">
                                         {{ $input->nama }} (AK: {{ $input->nilai_baku }})
-                                    </option>
+                                    </option>tung
                                     @endforeach
                                 </select>
                                 <p class="text-xs text-gray-500 mt-1">Pilih butir kegiatan untuk melihat Angka Kredit (AK) baku.</p>
@@ -48,6 +48,26 @@
                                     <label class="block mb-1 text-xs font-bold text-gray-700">Jumlah Kelas</label>
                                     <input type="number" name="jumlah_kelas" class="w-full border-gray-300 rounded-md shadow-sm text-sm">
                                 </div>
+                            </div>
+                            @endif
+
+                            @if($isBimbinganTA)
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 p-3 bg-indigo-50 rounded-md border border-indigo-100">
+                                <div>
+                                    <label class="block mb-1 text-xs font-bold text-gray-700">Periode</label>
+                                    <input type="text" name="tahun_ajaran" placeholder="Contoh: 2023/2024" class="w-full border-gray-300 rounded-md shadow-sm text-sm">
+                                </div>
+                                <div>
+                                    <label class="block mb-1 text-xs font-bold text-gray-700">Peran Pembimbing</label>
+                                    <select name="peran" id="peran_bimbingan" required class="w-full border-gray-300 rounded-md shadow-sm text-sm">
+                                        <option value="Pembimbing Utama">Pembimbing Utama</option>
+                                        <option value="Pembimbing Pendamping">Pembimbing Pendamping</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="p-2 bg-yellow-50 border-l-4 border-yellow-400 text-xs text-yellow-700 mt-2">
+                                <strong>Info Capping:</strong> Maksimal AK Bimbingan TA adalah 32 per periode pengajuan. 
+                                Kuota mahasiswa per kategori: Disertasi (4), Tesis (6), Skripsi (8), Laporan Akhir (10).
                             </div>
                             @endif
 
@@ -152,11 +172,26 @@
         const jenisSelect = document.getElementById('id_jenis_input');
         const volumeInput = document.getElementById('volume');
         const akPreview = document.getElementById('ak_preview');
+        const peranSelect = document.getElementById('peran_bimbingan');
 
         if (!jenisSelect || !volumeInput || !akPreview) return;
 
         const selectedOption = jenisSelect.options[jenisSelect.selectedIndex];
-        const nilaiBaku = parseFloat(selectedOption.getAttribute('data-nilai')) || 0;
+
+        // Logika khusus Bimbingan TA (Component 6)
+        if (peranSelect) {
+            const jenisNama = selectedOption.text.toLowerCase();
+            const peran = peranSelect.value;
+
+            if (jenisNama.includes('disertasi')) {
+                nilaiBaku = (peran === 'Pembimbing Utama') ? 8.0 : 6.0;
+            } else if (jenisNama.includes('tesis')) {
+                nilaiBaku = (peran === 'Pembimbing Utama') ? 3.0 : 2.0;
+            } else if (jenisNama.includes('skripsi') || jenisNama.includes('laporan akhir')) {
+                nilaiBaku = (peran === 'Pembimbing Utama') ? 1.0 : 0.5;
+            }
+        }
+
         const volume = parseFloat(volumeInput.value) || 0;
         
         const total = nilaiBaku * volume;
@@ -169,6 +204,7 @@
         const volumeInput = document.getElementById('volume');
         const sksInput = document.querySelector('input[name="sks"]');
         const kelasInput = document.querySelector('input[name="jumlah_kelas"]');
+        const peranSelect = document.getElementById('peran_bimbingan');
 
         // Listeners untuk SKS & Kelas (Jika ada di view)
         if (sksInput && kelasInput) {
@@ -180,6 +216,10 @@
         // Listeners untuk perubahan dropdown kegiatan atau volume
         if (jenisSelect) {
             jenisSelect.addEventListener('change', updateAkPreview);
+        }
+
+        if (peranSelect) {
+            peranSelect.addEventListener('change', updateAkPreview);
         }
         
         if (volumeInput) {
@@ -193,22 +233,5 @@
             updateAkPreview();
         }
     });
-
-    // Helper: Generate Random Data (Pendidikan Only)
-    @if ($category === 'pendidikan')
-    function generateRandomPendidikan() {
-        const jenjangOptions = ["101", "104", "105", "106", "107"];
-        const randomJenjang = jenjangOptions[Math.floor(Math.random() * jenjangOptions.length)];
-        const select = document.querySelector('select[name="id_jenis_input"]');
-        
-        if (select) {
-            select.value = randomJenjang;
-            select.dispatchEvent(new Event('change'));
-        }
-
-        document.querySelector('input[name="deskripsi_kegiatan"]').value = `Pendidikan Tinggi Jenjang ${randomJenjang}`;
-        document.querySelector('input[name="link_bukti_pendukung"]').value = `https://drive.google.com/sample-ijazah`;
-    }
-    @endif
 </script>
 @endsection

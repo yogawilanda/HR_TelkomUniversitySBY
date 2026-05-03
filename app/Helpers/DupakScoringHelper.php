@@ -24,6 +24,28 @@ class DupakScoringHelper
     public const NORMAL_FACTOR = 1.0;
 
     /**
+     * Rates for Thesis/Dissertation guidance based on Type and Role.
+     * Based on logika_dupak.txt section 2.D
+     */
+    public const BIMBINGAN_RATES = [
+        'disertasi' => [
+            'utama' => 8.0,
+            'pendamping' => 6.0,
+            'quota' => 4
+        ],
+        'tesis' => [
+            'utama' => 3.0,
+            'pendamping' => 2.0,
+            'quota' => 6
+        ],
+        'skripsi' => [
+            'utama' => 1.0,
+            'pendamping' => 0.5,
+            'quota' => 8
+        ],
+    ];
+
+    /**
      * Calculate teaching activity credit with SKS overload logic.
      * 
      * When semester total SKS > 10, the formula splits into:
@@ -88,19 +110,19 @@ class DupakScoringHelper
     }
 
     /**
-     * Calculate thesis/dissertation guidance credit.
+     * Calculate thesis/dissertation guidance rate.
      * 
+     * @param string $jenis 'disertasi'|'tesis'|'skripsi'|'laporan_akhir'
      * @param string $jenisPembimbing Type: 'utama' or 'pendamping'
-     * @param int $jumlahBimbingan Number of students supervised
-     * @param float|null $nilaiBaku Override default nilai_baku
-     * @return float Total angka kredit
      */
-    public static function calculateThesisCredit($jenisPembimbing, $jumlahBimbingan = 1, $nilaiBaku = null)
+    public static function getBimbinganRate($jenis, $jenisPembimbing)
     {
-        $factor = ($jenisPembimbing === 'utama') ? 1.0 : 0.5;
-        $nilaiBaku = $nilaiBaku ?? 1.0;
+        $jenis = strtolower($jenis);
+        // Laporan Akhir shares rates with Skripsi
+        $key = ($jenis === 'laporan_akhir' || $jenis === 'laporan akhir') ? 'skripsi' : $jenis;
+        $role = strtolower($jenisPembimbing) === 'pembimbing utama' ? 'utama' : 'pendamping';
 
-        return $jumlahBimbingan * $nilaiBaku * $factor;
+        return self::BIMBINGAN_RATES[$key][$role] ?? 0;
     }
 
     /**

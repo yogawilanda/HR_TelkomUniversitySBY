@@ -53,8 +53,9 @@ I. PENDIDIKAN (idKegiatanUtama = 1)
 --------------------------------
 II. PELAKSANAAN PENDIDIKAN (idKegiatanUtama = 2)
 --------------------------------
+Finished
 
-[Sub-Komponen A] Melaksanakan Perkuliahan (idKomponen = 3)
+[Sub-Komponen A] Melaksanakan Perkuliahan (idKomponen = 3) 
   Satuan Hasil: SKS
   Grouping: Per Semester (Gasal / Genap) per Tahun Ajaran
   ----------------------------------------------------------------
@@ -103,6 +104,7 @@ II. PELAKSANAAN PENDIDIKAN (idKegiatanUtama = 2)
     - Keterangan: "SKS<=10" atau "SKS>10"
 
 [Sub-Komponen B] Membimbing Seminar (idKomponen = 4)
+  Finished
   Satuan Hasil: Kegiatan
   Grouping: Per Semester (Gasal/Genap)
   Logic: Perlu nilai dari ref_nilai_kum_baku
@@ -112,8 +114,11 @@ II. PELAKSANAAN PENDIDIKAN (idKegiatanUtama = 2)
     - Semester
     - Link bukti (SK)
   NOTE: Pada mock data, nilainya 0 (belum diisi)
+  Nilai Per Submisi 1
+  Max unlimited 999
 
 [Sub-Komponen C] Membimbing KKN/PKN/PKL (idKomponen = 5)
+  Finished
   Satuan Hasil: Kegiatan
   Grouping: Per Semester (Gasal/Genap)
   Logic: Perlu nilai dari ref_nilai_kum_baku
@@ -123,34 +128,55 @@ II. PELAKSANAAN PENDIDIKAN (idKegiatanUtama = 2)
     - Semester
     - Link bukti (SK)
   NOTE: Pada mock data, nilainya 0 (belum diisi)
+  Nilai Per Submisi 1
+  Max unlimited 999
 
 [Sub-Komponen D] Membimbing Disertasi/Tesis/Skripsi/Laporan Akhir (idKomponen = 6)
+  Status Implementasi : ongoing
   Satuan Hasil: Lulusan
   Grouping: Per Semester (Gasal/Genap) per Tahun Ajaran
-  ----------------------------------------------------------------
-  RUMUS PERHITUNGAN:
-  ----------------------------------------------------------------
-  Per mahasiswa yang dibimbing:
-    - Pembimbing UTAMA     : 1.0 AK
-    - Pembimbing PENDAMPING: 0.5 AK
-  
-  MAKSIMUM TOTAL: 32 AK untuk seluruh periode
-  
-  Contoh perhitungan dari mock data:
-    - 30109419 - Marsheilla Mustika | Pembimbing Utama | Laporan akhir studi
-      Volume = 1, Rate = 1, AK = 1 × 1 = 1
-      
-    - 30110089 - Irwan Harianto     | Pembimbing Pendamping | Laporan akhir studi
-      Volume = 1, Rate = 0.5, AK = 1 × 0.5 = 0.5
-  
-  Kolom Input User PER BARIS:
-    - Nama Mahasiswa (NIM)
-    - Jenis Bimbingan (Disertasi/Tesis/Skripsi/Laporan Akhir Studi)
-    - Peran (Pembimbing Utama / Pembimbing Pendamping)
-    - Tahun Ajaran
-    - Semester (Gasal/Genap)
-    - Link bukti (SK/Surat Tugas)
-    - Keterangan otomatis: "Pembimbing Utama [Jenis]" / "Pembimbing Pendamping [Jenis]"
+  RUMUS PERHITUNGAN & ATURAN CAPPING:
+  Logika Skor per Mahasiswa (Rate):
+
+  Kolom Input User Tambahan : 
+    1. Peran (Pembimbing Utama/Pembimbing Pendamping)
+    2. Jenis Bimbingan (Laporan Akhir Studi/Disertasi/Skripsi/Tesis)
+
+  Disertasi: Utama (8.0), Pendamping (6.0)
+
+  Tesis: Utama (3.0), Pendamping (2.0)
+
+  Skripsi: Utama (1.0), Pendamping (0.5)
+
+  Laporan Akhir: Utama (1.0), Pendamping (0.5)
+
+  Batas Kuota Mahasiswa (Plafon per Kategori):
+
+  Disertasi: Max 4 Mahasiswa
+
+  Tesis: Max 6 Mahasiswa
+
+  Skripsi: Max 8 Mahasiswa
+
+  Laporan Akhir: Max 10 Mahasiswa
+
+  Algoritma Kalkulasi:
+
+  Langkah A: Hitung total mahasiswa per kategori (Jenis + Peran).
+
+  Langkah B: Jika jumlah mahasiswa > Kuota, gunakan (Kuota * Rate).
+
+  Langkah C: Jika jumlah mahasiswa <= Kuota, gunakan (Jumlah * Rate).
+
+  Langkah D: TOTAL AK = Sum(Hasil Langkah B/C).
+
+  Langkah E: FINAL AK = Jika TOTAL AK > 32, maka 32. Jika tidak, TOTAL AK.
+
+  MAKSIMUM TOTAL: 32 AK untuk seluruh periode pengajuan.
+
+  Contoh perhitungan (Kasus Over-Quota):
+  Input: 12 Mahasiswa Skripsi (Pembimbing Utama)
+  Kalkulasi: 8 (Kuota Max) * 1.0 (Rate) = 8.0 AK (Bukan 12 AK).
 
 [Sub-Komponen E] Bertugas sebagai Penguji Ujian Akhir (idKomponen = 7)
   Satuan Hasil: Lulusan

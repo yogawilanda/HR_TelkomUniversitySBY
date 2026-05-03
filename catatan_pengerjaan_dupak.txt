@@ -52,3 +52,7 @@ php artisan db:full-refresh --seed
     {
         return $this->belongsTo(User::class, 'users_id', 'id');
     }
+
+
+1. Tambahkan Periode (string) di kolom catatan_detail_pengajuan dupak
+2. 
