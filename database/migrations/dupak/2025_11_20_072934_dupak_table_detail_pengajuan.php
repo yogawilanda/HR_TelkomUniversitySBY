@@ -35,6 +35,10 @@ return new class extends Migration
             // Periode Pengajuan
             $table->string('periode_pengajuan')->nullable();
 
+            // Variable Tambahan 
+            $table->string('variable_a')->nullable()->comment('Tambahan input dari user');
+            $table->string('variabel_b')->nullable();
+
             // Status Flagging (Sesuai catatan pengerjaan: flaging hanya dilakukan oleh admin)
             $table->boolean('is_verified')->nullable()->comment('Apakah detil pengajuan sudah diverifikasi oleh admin?');
             $table->text('catatan_pemeriksa')->nullable()->comment('Catatan revisi per poin kegiatan');
