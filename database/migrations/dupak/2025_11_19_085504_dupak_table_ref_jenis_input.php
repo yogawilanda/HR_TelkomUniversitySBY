@@ -32,7 +32,7 @@ return new class extends Migration
 
             // Nilai Angka Kredit / Bobot Baku
             // Menggunakan decimal(5, 3) untuk fleksibilitas AK, meskipun data awal Anda integer.
-            $table->decimal('nilai_baku', 5, 3)->comment('Nilai Angka Kredit baku atau bobot yang ditetapkan');
+            $table->decimal('nilai_baku', 6, 3)->comment('Nilai Angka Kredit baku atau bobot yang ditetapkan');
 
             // Jenis Input (Klasifikasi untuk frontend/logic)
             $table->unsignedTinyInteger('jenisInput')->comment('Jenis klasifikasi input (e.g., 1: Publikasi, 2: Pendidikan)');

@@ -53,9 +53,9 @@ I. PENDIDIKAN (idKegiatanUtama = 1)
 --------------------------------
 II. PELAKSANAAN PENDIDIKAN (idKegiatanUtama = 2)
 --------------------------------
-Finished
 
-[Sub-Komponen A] Melaksanakan Perkuliahan (idKomponen = 3) 
+Progress : Done
+[Sub-Komponen A] Melaksanakan Perkuliahan (idKomponen = 3)
   Satuan Hasil: SKS
   Grouping: Per Semester (Gasal / Genap) per Tahun Ajaran
   ----------------------------------------------------------------
@@ -103,8 +103,8 @@ Finished
     - Akumulasi SKS semester
     - Keterangan: "SKS<=10" atau "SKS>10"
 
+Status : Done
 [Sub-Komponen B] Membimbing Seminar (idKomponen = 4)
-  Finished
   Satuan Hasil: Kegiatan
   Grouping: Per Semester (Gasal/Genap)
   Logic: Perlu nilai dari ref_nilai_kum_baku
@@ -142,41 +142,28 @@ Finished
     1. Peran (Pembimbing Utama/Pembimbing Pendamping)
     2. Jenis Bimbingan (Laporan Akhir Studi/Disertasi/Skripsi/Tesis)
 
-  Disertasi: Utama (8.0), Pendamping (6.0)
+    Disertasi: Utama (8.0), Pendamping (6.0)
+    Tesis: Utama (3.0), Pendamping (2.0)
+    Skripsi: Utama (1.0), Pendamping (0.5)
+    Laporan Akhir: Utama (1.0), Pendamping (0.5)
+    Batas Kuota Mahasiswa (Plafon per Kategori):
+    Disertasi: Max 4 Mahasiswa
+    Tesis: Max 6 Mahasiswa
+    Skripsi: Max 8 Mahasiswa
+    Laporan Akhir: Max 10 Mahasiswa
 
-  Tesis: Utama (3.0), Pendamping (2.0)
+    Algoritma Kalkulasi:
+    - Langkah A: Hitung total mahasiswa per kategori (Jenis + Peran).
+    - Langkah B: Jika jumlah mahasiswa > Kuota, gunakan (Kuota * Rate).
+    - Langkah C: Jika jumlah mahasiswa <= Kuota, gunakan (Jumlah * Rate).
+    - Langkah D: TOTAL AK = Sum(Hasil Langkah B/C).
+    - Langkah E: FINAL AK = Jika TOTAL AK > 32, maka 32. Jika tidak, TOTAL AK.
+    
+    MAKSIMUM TOTAL: 32 AK untuk seluruh periode pengajuan.
 
-  Skripsi: Utama (1.0), Pendamping (0.5)
-
-  Laporan Akhir: Utama (1.0), Pendamping (0.5)
-
-  Batas Kuota Mahasiswa (Plafon per Kategori):
-
-  Disertasi: Max 4 Mahasiswa
-
-  Tesis: Max 6 Mahasiswa
-
-  Skripsi: Max 8 Mahasiswa
-
-  Laporan Akhir: Max 10 Mahasiswa
-
-  Algoritma Kalkulasi:
-
-  Langkah A: Hitung total mahasiswa per kategori (Jenis + Peran).
-
-  Langkah B: Jika jumlah mahasiswa > Kuota, gunakan (Kuota * Rate).
-
-  Langkah C: Jika jumlah mahasiswa <= Kuota, gunakan (Jumlah * Rate).
-
-  Langkah D: TOTAL AK = Sum(Hasil Langkah B/C).
-
-  Langkah E: FINAL AK = Jika TOTAL AK > 32, maka 32. Jika tidak, TOTAL AK.
-
-  MAKSIMUM TOTAL: 32 AK untuk seluruh periode pengajuan.
-
-  Contoh perhitungan (Kasus Over-Quota):
-  Input: 12 Mahasiswa Skripsi (Pembimbing Utama)
-  Kalkulasi: 8 (Kuota Max) * 1.0 (Rate) = 8.0 AK (Bukan 12 AK).
+    Contoh perhitungan (Kasus Over-Quota):
+    - Input: 12 Mahasiswa Skripsi (Pembimbing Utama)
+    - Kalkulasi: 8 (Kuota Max) * 1.0 (Rate) = 8.0 AK (Bukan 12 AK).
 
 [Sub-Komponen E] Bertugas sebagai Penguji Ujian Akhir (idKomponen = 7)
   Status: Ongoing
@@ -274,16 +261,19 @@ Finished
   Kolom Input Tambahan User PER BARIS:
     - Jenis Bimbingan Dropdown sesuai 1-2
  
-
 [Sub-Komponen M] Pengembangan Diri (idKomponen = 15)
+  Status : Ongoing 
   Satuan Hasil: Sertifikat
-  Grouping: Semester Gasal + Semester Genap
-  Kolom Input User PER BARIS:
-    - Deskripsi kegiatan
-    - Tahun Ajaran
-    - Semester
-    - Link bukti (SK/Sertifikat)
-  NOTE: Pada mock data, nilainya 0 (belum diisi)
+  Isian Dari Kolom Tambahan dan AK yang didapat : 
+    1 Lamanya > 960 jam = 15 AK
+    2 Lamanya 641-960 jam = 9 AK
+    3 Lamanya 481-640 jam = 6 AK
+    4 Lamanya 161-480 jam = 3 AK
+    5 Lamanya 81-160 jam = 2 AK
+    6 Lamanya 31-80 jam = 1 AK
+    7 Lamanya 10-30 jam = 0.5 AK
+  Kolom Input Tambahan User PER BARIS:
+  Jenis Bimbingan Dropdown sesuai 1-7
 
 ================================================================================
 3. REKAPITULASI TOTAL DARI MOCK DATA
