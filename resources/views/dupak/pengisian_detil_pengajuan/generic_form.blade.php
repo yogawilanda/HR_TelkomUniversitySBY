@@ -20,6 +20,7 @@
                         <p class="mb-2 text-gray-600">Sub-kategori dari: {{ ucfirst(str_replace('-', ' ', $category)) }}</p>
                         <p class="mb-6 text-xs text-indigo-600 font-medium">Satuan Hasil: {{ $komponen->satuanHasil ?: 'Butir Kegiatan' }}</p>
 
+
                         <div class="space-y-4 bg-white p-4 border rounded-lg shadow-sm">
                             <div>
                                 <label class="block mb-2 text-sm font-semibold text-gray-700">Detail Butir Kegiatan</label>
@@ -34,12 +35,14 @@
                                 <p class="text-xs text-gray-500 mt-1">Pilih butir kegiatan untuk melihat Angka Kredit (AK) baku.</p>
                             </div>
 
+                            <div>
+                                <label class="block mb-1 text-xs font-bold text-gray-700">Periode Pengajuan</label>
+                                <input id="periode_pengajuan" name="periode_pengajuan" type="text" name="periode" class="w-full border-gray-300 rounded-md shadow-sm text-sm" placeholder="Contoh: Semester Ganjil 2025/2026">
+                            </div>
+
                             @if($isPerkuliahan)
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 p-3 bg-blue-50 rounded-md border border-blue-100">
-                                <div>
-                                    <label class="block mb-1 text-xs font-bold text-gray-700">Periode Pengajuan</label>
-                                    <input type="text" name="periode" class="w-full border-gray-300 rounded-md shadow-sm text-sm" placeholder="Contoh: Semester Ganjil 2025/2026">
-                                </div>
+
                                 <div>
                                     <label class="block mb-1 text-xs font-bold text-gray-700">Jumlah SKS</label>
                                     <input type="number" step="0.1" name="sks" class="w-full border-gray-300 rounded-md shadow-sm text-sm">
@@ -66,7 +69,7 @@
                                 </div>
                             </div>
                             <div class="p-2 bg-yellow-50 border-l-4 border-yellow-400 text-xs text-yellow-700 mt-2">
-                                <strong>Info Capping:</strong> Maksimal AK Bimbingan TA adalah 32 per periode pengajuan. 
+                                <strong>Info Capping:</strong> Maksimal AK Bimbingan TA adalah 32 per periode pengajuan.
                                 Kuota mahasiswa per kategori: Disertasi (4), Tesis (6), Skripsi (8), Laporan Akhir (10).
                             </div>
                             @endif
@@ -75,20 +78,20 @@
                                 <div>
                                     <label class="block mb-2 text-sm font-semibold text-gray-700">Volume / Jumlah</label>
                                     <input type="number" name="volume" id="volume" value="1" min="0.1" step="0.1" required
-                                           {{ $isPerkuliahan ? 'readonly' : '' }}
-                                           class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm {{ $isPerkuliahan ? 'bg-gray-100 cursor-not-allowed' : '' }}">
-                                    
+                                        {{ $isPerkuliahan ? 'readonly' : '' }}
+                                        class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm {{ $isPerkuliahan ? 'bg-gray-100 cursor-not-allowed' : '' }}">
+
                                     <!-- Tempat breakdown kalkulasi SKS muncul -->
                                     <div id="perkuliahan-calc-preview" class="mt-1 min-h-[1rem]"></div>
-                                    
+
                                     <p class="text-xs text-gray-500 mt-1">Jumlah satuan hasil (default: 1 {{ $komponen->satuanHasil ?: 'butir' }}).</p>
                                 </div>
 
                                 <div>
                                     <label class="block mb-2 text-sm font-semibold text-gray-700">Angka Kredit Total (Preview)</label>
                                     <input type="text" id="ak_preview" readonly
-                                           class="w-full bg-gray-100 border-gray-300 rounded-md shadow-sm sm:text-sm text-gray-700 font-bold"
-                                           value="0.000">
+                                        class="w-full bg-gray-100 border-gray-300 rounded-md shadow-sm sm:text-sm text-gray-700 font-bold"
+                                        value="0.000">
                                     <p class="text-xs text-gray-500 mt-1">Dihitung otomatis dari AK Baku × Volume[cite: 1].</p>
                                 </div>
                             </div>
@@ -96,13 +99,13 @@
                             <div>
                                 <label class="block mb-2 text-sm font-semibold text-gray-700">Uraian / Deskripsi Kegiatan</label>
                                 <input type="text" name="deskripsi_kegiatan" required placeholder="Contoh: Nama Perguruan Tinggi, Judul Penelitian, atau Nama Mata Kuliah"
-                                       class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                    class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                             </div>
 
                             <div>
                                 <label class="block mb-2 text-sm font-semibold text-gray-700">Link Bukti Pendukung</label>
                                 <input type="url" name="link_bukti_pendukung" required placeholder="https://drive.google.com/..."
-                                       class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                    class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                             </div>
                         </div>
                     </div>
@@ -142,7 +145,7 @@
         if (totalSks > 10) {
             const normalPortion = 10;
             const overloadPortion = totalSks - 10;
-            
+
             // 10 SKS pertama faktor 1.0, sisanya faktor 0.5[cite: 1]
             finalVolume = (normalPortion * 1.0) + (overloadPortion * 0.5);
             calculationLabel = `(10 × 1.0) + (${overloadPortion.toFixed(1)} × 0.5)`;
@@ -193,7 +196,7 @@
         }
 
         const volume = parseFloat(volumeInput.value) || 0;
-        
+
         const total = nilaiBaku * volume;
         akPreview.value = total.toFixed(3);
     }
@@ -221,7 +224,7 @@
         if (peranSelect) {
             peranSelect.addEventListener('change', updateAkPreview);
         }
-        
+
         if (volumeInput) {
             volumeInput.addEventListener('input', updateAkPreview);
         }

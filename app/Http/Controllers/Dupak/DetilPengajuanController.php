@@ -105,6 +105,7 @@ class DetilPengajuanController extends Controller
             'id_jenis_input' => 'required',
             'deskripsi_kegiatan' => 'required|string',
             'link_bukti_pendukung' => 'required|url',
+            
             'volume' => 'nullable|numeric',
         ]);
 
@@ -125,6 +126,7 @@ class DetilPengajuanController extends Controller
         $detail->deskripsi_kegiatan = $request->deskripsi_kegiatan;
         $detail->angka_kredit_murni = $nilaiBaku;
         $detail->angka_kredit_total = $nilaiBaku * $volume;
+        $detail->periode_pengajuan = $request->periode_pengajuan;
         $detail->status = 'pending';
         $detail->link_bukti_pendukung = $request->link_bukti_pendukung;
         $detail->volume = $volume;
