@@ -132,7 +132,7 @@ Finished
   Max unlimited 999
 
 [Sub-Komponen D] Membimbing Disertasi/Tesis/Skripsi/Laporan Akhir (idKomponen = 6)
-  Status Implementasi : ongoing
+  Status Implementasi : 80%, perhitungan masih salah
   Satuan Hasil: Lulusan
   Grouping: Per Semester (Gasal/Genap) per Tahun Ajaran
   RUMUS PERHITUNGAN & ATURAN CAPPING:
@@ -179,6 +179,7 @@ Finished
   Kalkulasi: 8 (Kuota Max) * 1.0 (Rate) = 8.0 AK (Bukan 12 AK).
 
 [Sub-Komponen E] Bertugas sebagai Penguji Ujian Akhir (idKomponen = 7)
+  Status: Ongoing
   Satuan Hasil: Lulusan
   Grouping: Per Semester (Gasal/Genap) per Tahun Ajaran
   ----------------------------------------------------------------
@@ -196,104 +197,83 @@ Finished
     - Predy Gito (30109054) | Ketua Penguji | AK = 1 × 1 = 1
     - Sabar F. Sianturi     | Anggota Penguji | AK = 1 × 0.5 = 0.5
   
-  Kolom Input User PER BARIS:
-    - Nama Mahasiswa (NIM)
-    - Peran (Ketua Penguji / Anggota Penguji)
-    - Tahun Ajaran
-    - Semester (Gasal/Genap)
-    - Link bukti (SK)
+  Kolom Input Tambahan User PER BARIS:
+    - Periode Semester
+    - Peran (Ketua Penguji / Anggota Penguji) 
 
 [Sub-Komponen F] Membina Kegiatan Mahasiswa (idKomponen = 8)
+  Status : Ongoing
   Satuan Hasil: Semester
   Grouping: Per Semester (Gasal/Genap)
-  MAKSIMUM: 4 AK
-  Kolom Input User PER BARIS:
-    - Deskripsi kegiatan
-    - Tahun Ajaran
-    - Semester
-    - Link bukti (SK)
+  MAKSIMUM: 4 Detil Pengajuan Per semester
   NOTE: Pada mock data, nilainya 0 (belum diisi)
 
 [Sub-Komponen G] Mengembangkan Program Kuliah (idKomponen = 9)
+  Status : Ongoing
   Satuan Hasil: Semester
   Grouping: Per Semester (Gasal/Genap)
-  MAKSIMUM: 2 AK
-  Kolom Input User PER BARIS:
-    - Nama Mata Kuliah
-    - Tahun Ajaran
-    - Semester
-    - Link bukti (SK)
+  Nilai Per Pengajuan : 2 AK
+  Kolom Input User Tambahan: Tidak Ada N/A
+
   NOTE: Pada mock data, nilainya 0 (belum diisi)
 
 [Sub-Komponen H] Mengembangkan Bahan Pengajaran (idKomponen = 10)
+  Status : Ongoing
   Satuan Hasil: Eksampelar
-  Grouping: Semester Gasal + Semester Genap (terpisah)
-  Kolom Input User PER BARIS:
-    - Jenis (buku ajar / diktat / modul)
-    - Tahun Ajaran
-    - Semester
-    - Link bukti (SK)
-  NOTE: Pada mock data, nilainya 0 (belum diisi)
+  Nilai Per Pengajuan : Diktat/Modul Persemester = 5, Buku Pertahun = 20
+  Limit Per Pengajuan = N/A
+  Kolom Input User Tambahan:
+   1. Jenis Bahan Pengajaran (Diktat/Modul Persemester / Buku Pertahun)
 
 [Sub-Komponen I] Menyampaikan Orasi Ilmiah (idKomponen = 11)
+  Status : Ongoing
   Satuan Hasil: Orasi
-  Grouping: Semester Gasal + Semester Genap
   MAKSIMUM: 10 AK
-  Kolom Input User PER BARIS:
-    - Judul makalah / buku
-    - Tahun Ajaran
-    - Semester
-    - Link bukti (SK)
-  NOTE: Pada mock data, nilainya 0 (belum diisi)
+  Kolom Input User Tambahan : N/A
 
 [Sub-Komponen J] Menduduki Jabatan Pimpinan Perguruan Tinggi (idKomponen = 12)
+  Status : Ongoing
   Satuan Hasil: Semester
-  Grouping: Semester Gasal + Semester Genap
   ----------------------------------------------------------------
   RUMUS PERHITUNGAN:
   ----------------------------------------------------------------
+  Status : Ongoing
   Nilai AK per semester TETAP berdasarkan jabatan:
-    a. Rektor                                              : ? AK
-    b. Pembantu rektor / dekan / direktur pasca sarjana    : ? AK
-    c. Ketua sekolah tinggi / pembantu dekan / asisten direktur : ? AK
-    d. Pembantu ketua sekolah tinggi / pembantu direktur politeknik : ? AK
-    e. Direktur akademi                                    : ? AK
-    f. Pembantu direktur akademi / ketua jurusan / bagian  : 3 AK per semester
-    g. Ketua jurusan politeknik / akademi / sekretaris jurusan : ? AK
-    h. Sekretaris jurusan / kepala laboratorium            : ? AK
-  
-  Dari mock data, yang terisi hanya jabatan (f) = 3 AK/semester.
-  
+    a. Rektor: 6 AK
+    b. Pembantu Rektor / Dekan / Direktur Pascasarjana: 5 AK
+    c. Ketua Sekolah Tinggi / Pembantu Dekan / Asisten Direktur Pasca / Direktur Politeknik: 4 AK
+    d. Pembantu Ketua Sekolah Tinggi / Pembantu Direktur Politeknik: 4 AK
+    e. Direktur Akademi: 4 AK
+    f. Pembantu Direktur Akademi / Ketua Jurusan / Ketua Bagian (Univ/Inst/ST): 3 AK
+    g. Ketua Jurusan (Poltek/Akademi) / Sekretaris Jurusan (Univ/Inst/ST): 3 AK
+    h. Sekretaris Jurusan (Poltek/Akademi) / Kepala Laboratorium: 3 AK
+
+  Limit Input Detil = 999/Tidak Ada batasan
   Kolom Input User PER BARIS:
     - Nama Jabatan (dropdown sesuai level a-h)
-    - Unit/Direktorat
-    - Tahun Ajaran
-    - Semester (Gasal/Genap)
-    - Link bukti (SK)
-  
-  Total dari mock data: 39 AK (Gasal) + 21 AK (Genap, termasuk 2024/2025)
 
-[Sub-Komponen K] Membimbing Dosen yang Lebih Rendah (idKomponen = 13)
+[Sub-Komponen K] Membimbing Dosen yang Lebih Rendah  (idKomponen = 13)
+  Status : Ongoing
   Satuan Hasil: Kegiatan
-  Syarat: Hanya untuk dosen Lektor Kepala ke atas
-  Grouping: Semester Gasal + Semester Genap
-  Kolom Input User PER BARIS:
-    - Deskripsi kegiatan
-    - Tahun Ajaran
-    - Semester
-    - Link bukti (SK)
-  NOTE: Pada mock data, nilainya 0 (belum diisi)
+  Batasan Jabatan : Lektor Kepala ke atas
+  Batasan Pengajuan : Tidak ada / 999
+  Isian Dari Kolom Tambahan : 
+    1. Pembimbing pencangkokan persemester
+    2. Reguler Persemester
+  Kolom Input Tambahan User PER BARIS:
+    - Jenis Bimbingan Dropdown sesuai 1-2
 
 [Sub-Komponen L] Datasering & Pencangkokan (idKomponen = 14)
+  Status : Ongoing
   Satuan Hasil: Kegiatan
-  Syarat: Hanya untuk dosen Lektor Kepala ke atas
-  Grouping: Semester Gasal + Semester Genap
-  Kolom Input User PER BARIS:
-    - Deskripsi kegiatan
-    - Tahun Ajaran
-    - Semester
-    - Link bukti (SK)
-  NOTE: Pada mock data, nilainya 0 (belum diisi)
+  Batasan Jabatan : Lektor Kepala ke atas
+  Batasan Pengajuan : N/A / 999
+  Isian Dari Kolom Tambahan : 
+    1. Detasering persemester
+    2. Pencangkokan persemester
+  Kolom Input Tambahan User PER BARIS:
+    - Jenis Bimbingan Dropdown sesuai 1-2
+ 
 
 [Sub-Komponen M] Pengembangan Diri (idKomponen = 15)
   Satuan Hasil: Sertifikat
