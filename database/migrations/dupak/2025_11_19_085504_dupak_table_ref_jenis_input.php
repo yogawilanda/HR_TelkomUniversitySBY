@@ -248,19 +248,38 @@ return new class extends Migration
             ['id' => 4020, 'idKomponen' => 20, 'nama' => 'b. Nasional (4 Penulis ke-4)', 'nilai_baku' => 3.750, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
 
             // Kategori c: Lokal (10 AK)
-            ['id' => 4021, 'idKomponen' => 20, 'nama' => 'c. Lokal (1 Penulis)', 'nilai_baku' => 10.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 4022, 'idKomponen' => 20, 'nama' => 'c. Lokal (2 Penulis ke-1)', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 4023, 'idKomponen' => 20, 'nama' => 'c. Lokal (2 Penulis ke-2)', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 4024, 'idKomponen' => 20, 'nama' => 'c. Lokal (3 Penulis ke-1)', 'nilai_baku' => 3.330, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 4025, 'idKomponen' => 20, 'nama' => 'c. Lokal (3 Penulis ke-2)', 'nilai_baku' => 3.330, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 4026, 'idKomponen' => 20, 'nama' => 'c. Lokal (3 Penulis ke-3)', 'nilai_baku' => 3.330, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 4027, 'idKomponen' => 20, 'nama' => 'c. Lokal (4 Penulis ke-1)', 'nilai_baku' => 2.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 4028, 'idKomponen' => 20, 'nama' => 'c. Lokal (4 Penulis ke-2)', 'nilai_baku' => 2.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 4029, 'idKomponen' => 20, 'nama' => 'c. Lokal (4 Penulis ke-3)', 'nilai_baku' => 2.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 4030, 'idKomponen' => 20, 'nama' => 'c. Lokal (4 Penulis ke-4)', 'nilai_baku' => 2.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4821, 'idKomponen' => 20, 'nama' => 'c. Lokal (1 Penulis)', 'nilai_baku' => 10.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4822, 'idKomponen' => 20, 'nama' => 'c. Lokal (2 Penulis ke-1)', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4823, 'idKomponen' => 20, 'nama' => 'c. Lokal (2 Penulis ke-2)', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4824, 'idKomponen' => 20, 'nama' => 'c. Lokal (3 Penulis ke-1)', 'nilai_baku' => 3.330, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4825, 'idKomponen' => 20, 'nama' => 'c. Lokal (3 Penulis ke-2)', 'nilai_baku' => 3.330, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4826, 'idKomponen' => 20, 'nama' => 'c. Lokal (3 Penulis ke-3)', 'nilai_baku' => 3.330, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4827, 'idKomponen' => 20, 'nama' => 'c. Lokal (4 Penulis ke-1)', 'nilai_baku' => 2.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4828, 'idKomponen' => 20, 'nama' => 'c. Lokal (4 Penulis ke-2)', 'nilai_baku' => 2.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4829, 'idKomponen' => 20, 'nama' => 'c. Lokal (4 Penulis ke-3)', 'nilai_baku' => 2.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4830, 'idKomponen' => 20, 'nama' => 'c. Lokal (4 Penulis ke-4)', 'nilai_baku' => 2.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
 
             // idKomponen 21: Membuat rancangan dan karya Seni / Seni Pertunjukan yang tidak terdaftar di HaKI Angka Kreditnya
-            // WARNING: Konflik ID dengan 21 Menduduki Jabatan, maka harusnya antara memilih untuk menggeser, atau mengganti id ini menjadi id baru contoh 99
+            // WARNING: Konflik ID dengan 21 Menduduki Jabatan, maka sementara saya jadikan idnya 99 biar ngga chain error/bug
+            // idKomponen 99: Karya Seni Monumental / Pertunjukan (Temporary ID)
+
+            // Kategori a: Internasional (20 AK)
+            ['id' => 9901, 'idKomponen' => 99, 'nama' => 'a. Internasional (1 Penulis)', 'nilai_baku' => 20.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 9902, 'idKomponen' => 99, 'nama' => 'a. Internasional (2 Penulis)', 'nilai_baku' => 10.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 9903, 'idKomponen' => 99, 'nama' => 'a. Internasional (3 Penulis)', 'nilai_baku' => 6.660, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 9904, 'idKomponen' => 99, 'nama' => 'a. Internasional (4 Penulis)', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            // Kategori b: Nasional (15 AK)
+            ['id' => 9911, 'idKomponen' => 99, 'nama' => 'b. Nasional (1 Penulis)', 'nilai_baku' => 15.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 9912, 'idKomponen' => 99, 'nama' => 'b. Nasional (2 Penulis)', 'nilai_baku' => 7.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 9913, 'idKomponen' => 99, 'nama' => 'b. Nasional (3 Penulis)', 'nilai_baku' => 4.995, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 9914, 'idKomponen' => 99, 'nama' => 'b. Nasional (4 Penulis)', 'nilai_baku' => 3.750, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            // Kategori c: Lokal (10 AK)
+            ['id' => 9921, 'idKomponen' => 99, 'nama' => 'c. Lokal (1 Penulis)', 'nilai_baku' => 10.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 9922, 'idKomponen' => 99, 'nama' => 'c. Lokal (2 Penulis)', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 9923, 'idKomponen' => 99, 'nama' => 'c. Lokal (3 Penulis)', 'nilai_baku' => 3.330, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 9924, 'idKomponen' => 99, 'nama' => 'c. Lokal (4 Penulis)', 'nilai_baku' => 2.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
 
             // UTAMA 4: PENGABDIAN
             // idKomponen 21: Menduduki jabatan pimpinan
