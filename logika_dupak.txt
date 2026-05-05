@@ -117,18 +117,13 @@ Status : Done
   Nilai Per Submisi 1
   Max unlimited 999
 
+Finished
 [Sub-Komponen C] Membimbing KKN/PKN/PKL (idKomponen = 5)
-  Finished
   Satuan Hasil: Kegiatan
   Grouping: Per Semester (Gasal/Genap)
   Logic: Perlu nilai dari ref_nilai_kum_baku
-  Kolom Input User PER BARIS:
-    - Nama Kegiatan / Deskripsi
-    - Tahun Ajaran
-    - Semester
-    - Link bukti (SK)
   NOTE: Pada mock data, nilainya 0 (belum diisi)
-  Nilai Per Submisi 1
+  Nilai Per Submisi 1 AK
   Max unlimited 999
 
 [Sub-Komponen D] Membimbing Disertasi/Tesis/Skripsi/Laporan Akhir (idKomponen = 6)
@@ -165,8 +160,9 @@ Status : Done
     - Input: 12 Mahasiswa Skripsi (Pembimbing Utama)
     - Kalkulasi: 8 (Kuota Max) * 1.0 (Rate) = 8.0 AK (Bukan 12 AK).
 
+
+Status: Done
 [Sub-Komponen E] Bertugas sebagai Penguji Ujian Akhir (idKomponen = 7)
-  Status: Ongoing
   Satuan Hasil: Lulusan
   Grouping: Per Semester (Gasal/Genap) per Tahun Ajaran
   ----------------------------------------------------------------

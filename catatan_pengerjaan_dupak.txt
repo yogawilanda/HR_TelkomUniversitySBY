@@ -57,3 +57,9 @@ php artisan db:full-refresh --seed
 1. Tambahkan Periode (string) di kolom detail_pengajuan dupak : done
 2. Penelitian B. menyadur : ID Komponen 17 1 Penulis Menerjemahkan/menyadur BUKU ILMIAH perse.
 3.  ID 21 Menduduki Jabatan Pimpinan - Pengabdian AK 5.5
+
+
+Bug :
+1. Angka Kredit Total di http://127.0.0.1:8000/dupak/detil_pengajuan/pendidikan/3?komponen_id=1 tidak bekerja ketika user sudah memilih jenis detail pengajuan.
+2. Notifikasi buatan evi masih ada bug bahwa jika user kembali tanpa melakukan apapun dianggap sukses.
+3. 
