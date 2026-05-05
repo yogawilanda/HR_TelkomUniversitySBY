@@ -16,50 +16,37 @@ class MembuatPengajuanDupakTest extends DuskTestCase
                 ->inRandomOrder()
                 ->first();
 
-            // 3. Safety check: Jika keduanya tidak ada, baru gagalkan test
             if (! $user) {
-                $this->fail('User tidak ditemukan. Pastikan database memiliki akun Admin atau Dosen.');
+                $this->fail('User tidak ditemukan.');
             }
 
             $browser->loginAs($user)
                 ->visit('/dupak/dashboard')
                 ->waitForText('DUPAK', 10)
                 ->assertSee('DUPAK')
+                
+                // 1. Klik tombol Buat Pengajuan Baru
+                ->clickLink('Buat Pengajuan Baru')
+                
+                // 2. Tunggu sampai halaman form terbuka
+                ->waitForText('Formulir Pengajuan DUPAK', 10) 
 
-                    // 1. Klik tombol Buat Pengajuan Baru
-                    // Bisa menggunakan ->clickLink('Buat Pengajuan Baru') jika itu berupa link teks
-                    // Atau ->press('Buat Pengajuan Baru') jika itu berupa tombol
-                ->press('Buat Pengajuan Baru')
-                //     ->clickLink('Buat Pengajuan Baru')
-
-                    // 2. Tunggu sampai halaman form terbuka
-                ->waitForText('Form Pengajuan DUPAK', 10) // Sesuaikan dengan teks di header form kamu
-
-                //     // 3. Mulai isi form (Contoh: memilih masa penilaian atau kategori)
-                //     // Sesuaikan 'name' input dengan yang ada di Blade kamu
-                //     ->type('masa_awal', '2024-01-01')
-                //     ->type('masa_akhir', '2024-06-30')
-
-                    // Jika ada dropdown (select)
-                ->select('kategori_kegiatan', 'Pendidikan')
+                // 3. Mengisi Data Form (Lengkapi sesuai name di Blade kamu)
+                // Contoh mengisi range tanggal:
                 ->pause(1000)
-                ->screenshot('isi-form-dupak')
 
-                    // 4. Submit Form
-                ->press('Simpan') // Sesuaikan teks tombol submit kamu
+                // 4. Submit Form
+                // Jika tombolnya x-primary-button dengan teks "Simpan", pakai press
+                ->press('Simpan') 
 
-                    // 5. Validasi sukses
-                ->waitForText('Pengajuan berhasil disimpan', 10)
-                ->screenshot('pengajuan-berhasil');
+                // 5. Menangani alert/konfirmasi jika ada (Opsional)
+                // Jika pakai SweetAlert, biasanya butuh tunggu sebentar lalu klik OK
+                // ->waitForText('Apakah anda yakin?', 5)
+                // ->press('Ya, Simpan')
 
-            // $browser->loginAs($user)
-            //     ->visit('/dupak/dashboard')
-            //     ->waitForText('DUPAK', 10)
-            //     ->pause(2000)
-            //     ->assertSee('DUPAK')
-            //     // Tambahkan Prosedur Menambahkan Pengajuan dengan klik tombol "buat pengajuan baru"
-
-            //     ->screenshot('akses-dashboard-dupak');
+                // 6. Validasi sukses
+                // Pastikan teks ini sesuai dengan flash message di Controller kamu
+		    ;
         });
     }
 }
