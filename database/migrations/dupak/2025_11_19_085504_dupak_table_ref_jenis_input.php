@@ -136,7 +136,131 @@ return new class extends Migration
             ['id' => 3709, 'idKomponen' => 17, 'nama' => '4 Penulis (ke-3)', 'nilai_baku' => 3.750, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['id' => 3710, 'idKomponen' => 17, 'nama' => '4 Penulis (ke-4)', 'nilai_baku' => 3.750, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
 
-            
+            // idKomponen 18: Mengedit Menyunting Karya Ilmiah
+            ['id' => 3801, 'idKomponen' => 18, 'nama' => '1 Penulis', 'nilai_baku' => 10.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3802, 'idKomponen' => 18, 'nama' => '2 Penulis (ke-1)', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3803, 'idKomponen' => 18, 'nama' => '2 Penulis (ke-2)', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3804, 'idKomponen' => 18, 'nama' => '3 Penulis (ke-1)', 'nilai_baku' => 3.330, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3805, 'idKomponen' => 18, 'nama' => '3 Penulis (ke-2)', 'nilai_baku' => 3.330, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3806, 'idKomponen' => 18, 'nama' => '3 Penulis (ke-3)', 'nilai_baku' => 3.330, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3807, 'idKomponen' => 18, 'nama' => '4 Penulis (ke-1)', 'nilai_baku' => 2.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3808, 'idKomponen' => 18, 'nama' => '4 Penulis (ke-2)', 'nilai_baku' => 2.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3809, 'idKomponen' => 18, 'nama' => '4 Penulis (ke-3)', 'nilai_baku' => 2.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3810, 'idKomponen' => 18, 'nama' => '4 Penulis (ke-4)', 'nilai_baku' => 2.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            // idKomponen 19: Paten & HaKI
+            // Kategori a: Internasional Industri (60 AK)
+            ['id' => 3901, 'idKomponen' => 19, 'nama' => 'a. Internasional Industri (1 Penulis)', 'nilai_baku' => 60.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3902, 'idKomponen' => 19, 'nama' => 'a. Internasional Industri (2 Penulis ke-1)', 'nilai_baku' => 30.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3903, 'idKomponen' => 19, 'nama' => 'a. Internasional Industri (2 Penulis ke-2)', 'nilai_baku' => 30.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3904, 'idKomponen' => 19, 'nama' => 'a. Internasional Industri (3 Penulis ke-1)', 'nilai_baku' => 19.980, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3905, 'idKomponen' => 19, 'nama' => 'a. Internasional Industri (3 Penulis ke-2)', 'nilai_baku' => 19.980, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3906, 'idKomponen' => 19, 'nama' => 'a. Internasional Industri (3 Penulis ke-3)', 'nilai_baku' => 19.980, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3907, 'idKomponen' => 19, 'nama' => 'a. Internasional Industri (4 Penulis ke-1)', 'nilai_baku' => 15.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3908, 'idKomponen' => 19, 'nama' => 'a. Internasional Industri (4 Penulis ke-2)', 'nilai_baku' => 15.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3909, 'idKomponen' => 19, 'nama' => 'a. Internasional Industri (4 Penulis ke-3)', 'nilai_baku' => 15.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3910, 'idKomponen' => 19, 'nama' => 'a. Internasional Industri (4 Penulis ke-4)', 'nilai_baku' => 15.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            // Kategori b: Internasional (50 AK)
+            ['id' => 3911, 'idKomponen' => 19, 'nama' => 'b. Internasional (1 Penulis)', 'nilai_baku' => 50.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3912, 'idKomponen' => 19, 'nama' => 'b. Internasional (2 Penulis ke-1)', 'nilai_baku' => 25.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3913, 'idKomponen' => 19, 'nama' => 'b. Internasional (2 Penulis ke-2)', 'nilai_baku' => 25.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3914, 'idKomponen' => 19, 'nama' => 'b. Internasional (3 Penulis ke-1)', 'nilai_baku' => 16.650, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3915, 'idKomponen' => 19, 'nama' => 'b. Internasional (3 Penulis ke-2)', 'nilai_baku' => 16.650, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3916, 'idKomponen' => 19, 'nama' => 'b. Internasional (3 Penulis ke-3)', 'nilai_baku' => 16.650, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3917, 'idKomponen' => 19, 'nama' => 'b. Internasional (4 Penulis ke-1)', 'nilai_baku' => 12.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3918, 'idKomponen' => 19, 'nama' => 'b. Internasional (4 Penulis ke-2)', 'nilai_baku' => 12.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3919, 'idKomponen' => 19, 'nama' => 'b. Internasional (4 Penulis ke-3)', 'nilai_baku' => 12.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3920, 'idKomponen' => 19, 'nama' => 'b. Internasional (4 Penulis ke-4)', 'nilai_baku' => 12.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            // Kategori c: Nasional Industri (40 AK)
+            ['id' => 3921, 'idKomponen' => 19, 'nama' => 'c. Nasional Industri (1 Penulis)', 'nilai_baku' => 40.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3922, 'idKomponen' => 19, 'nama' => 'c. Nasional Industri (2 Penulis ke-1)', 'nilai_baku' => 20.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3923, 'idKomponen' => 19, 'nama' => 'c. Nasional Industri (2 Penulis ke-2)', 'nilai_baku' => 20.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3924, 'idKomponen' => 19, 'nama' => 'c. Nasional Industri (3 Penulis ke-1)', 'nilai_baku' => 13.320, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3925, 'idKomponen' => 19, 'nama' => 'c. Nasional Industri (3 Penulis ke-2)', 'nilai_baku' => 13.320, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3926, 'idKomponen' => 19, 'nama' => 'c. Nasional Industri (3 Penulis ke-3)', 'nilai_baku' => 13.320, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3927, 'idKomponen' => 19, 'nama' => 'c. Nasional Industri (4 Penulis ke-1)', 'nilai_baku' => 10.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3928, 'idKomponen' => 19, 'nama' => 'c. Nasional Industri (4 Penulis ke-2)', 'nilai_baku' => 10.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3929, 'idKomponen' => 19, 'nama' => 'c. Nasional Industri (4 Penulis ke-3)', 'nilai_baku' => 10.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3930, 'idKomponen' => 19, 'nama' => 'c. Nasional Industri (4 Penulis ke-4)', 'nilai_baku' => 10.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            // Kategori d: Nasional (30 AK)
+            ['id' => 3931, 'idKomponen' => 19, 'nama' => 'd. Nasional (1 Penulis)', 'nilai_baku' => 30.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3932, 'idKomponen' => 19, 'nama' => 'd. Nasional (2 Penulis ke-1)', 'nilai_baku' => 15.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3933, 'idKomponen' => 19, 'nama' => 'd. Nasional (2 Penulis ke-2)', 'nilai_baku' => 15.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3934, 'idKomponen' => 19, 'nama' => 'd. Nasional (3 Penulis ke-1)', 'nilai_baku' => 9.990, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3935, 'idKomponen' => 19, 'nama' => 'd. Nasional (3 Penulis ke-2)', 'nilai_baku' => 9.990, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3936, 'idKomponen' => 19, 'nama' => 'd. Nasional (3 Penulis ke-3)', 'nilai_baku' => 9.990, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3937, 'idKomponen' => 19, 'nama' => 'd. Nasional (4 Penulis ke-1)', 'nilai_baku' => 7.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3938, 'idKomponen' => 19, 'nama' => 'd. Nasional (4 Penulis ke-2)', 'nilai_baku' => 7.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3939, 'idKomponen' => 19, 'nama' => 'd. Nasional (4 Penulis ke-3)', 'nilai_baku' => 7.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3940, 'idKomponen' => 19, 'nama' => 'd. Nasional (4 Penulis ke-4)', 'nilai_baku' => 7.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            // Kategori e: Paten Sederhana (20 AK)
+            ['id' => 3941, 'idKomponen' => 19, 'nama' => 'e. Paten Sederhana (1 Penulis)', 'nilai_baku' => 20.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3942, 'idKomponen' => 19, 'nama' => 'e. Paten Sederhana (2 Penulis ke-1)', 'nilai_baku' => 10.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3943, 'idKomponen' => 19, 'nama' => 'e. Paten Sederhana (2 Penulis ke-2)', 'nilai_baku' => 10.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3944, 'idKomponen' => 19, 'nama' => 'e. Paten Sederhana (3 Penulis ke-1)', 'nilai_baku' => 6.660, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3945, 'idKomponen' => 19, 'nama' => 'e. Paten Sederhana (3 Penulis ke-2)', 'nilai_baku' => 6.660, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3946, 'idKomponen' => 19, 'nama' => 'e. Paten Sederhana (3 Penulis ke-3)', 'nilai_baku' => 6.660, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3947, 'idKomponen' => 19, 'nama' => 'e. Paten Sederhana (4 Penulis ke-1)', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3948, 'idKomponen' => 19, 'nama' => 'e. Paten Sederhana (4 Penulis ke-2)', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3949, 'idKomponen' => 19, 'nama' => 'e. Paten Sederhana (4 Penulis ke-3)', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3950, 'idKomponen' => 19, 'nama' => 'e. Paten Sederhana (4 Penulis ke-4)', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            // Kategori f: Karya Ciptaan (15 AK)
+            ['id' => 3951, 'idKomponen' => 19, 'nama' => 'f. Karya Ciptaan (1 Penulis)', 'nilai_baku' => 15.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3952, 'idKomponen' => 19, 'nama' => 'f. Karya Ciptaan (2 Penulis ke-1)', 'nilai_baku' => 7.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3953, 'idKomponen' => 19, 'nama' => 'f. Karya Ciptaan (2 Penulis ke-2)', 'nilai_baku' => 7.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3954, 'idKomponen' => 19, 'nama' => 'f. Karya Ciptaan (3 Penulis ke-1)', 'nilai_baku' => 4.995, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3955, 'idKomponen' => 19, 'nama' => 'f. Karya Ciptaan (3 Penulis ke-2)', 'nilai_baku' => 4.995, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3956, 'idKomponen' => 19, 'nama' => 'f. Karya Ciptaan (3 Penulis ke-3)', 'nilai_baku' => 4.995, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3957, 'idKomponen' => 19, 'nama' => 'f. Karya Ciptaan (4 Penulis ke-1)', 'nilai_baku' => 3.750, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3958, 'idKomponen' => 19, 'nama' => 'f. Karya Ciptaan (4 Penulis ke-2)', 'nilai_baku' => 3.750, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3959, 'idKomponen' => 19, 'nama' => 'f. Karya Ciptaan (4 Penulis ke-3)', 'nilai_baku' => 3.750, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3960, 'idKomponen' => 19, 'nama' => 'f. Karya Ciptaan (4 Penulis ke-4)', 'nilai_baku' => 3.750, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            // idKomponen 20: Membuat rancangan dan karya teknologi yang Tidak dipatenkan atau Tidak terdaftar HKI tetapi telah dipresentasikan pada Forum Teragenda
+            // idKomponen 20: Karya Teknologi Tidak Dipatenkan (Forum Teragenda)
+            // Kategori a: Internasional (20 AK)
+            ['id' => 4001, 'idKomponen' => 20, 'nama' => 'a. Internasional (1 Penulis)', 'nilai_baku' => 20.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4002, 'idKomponen' => 20, 'nama' => 'a. Internasional (2 Penulis ke-1)', 'nilai_baku' => 10.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4003, 'idKomponen' => 20, 'nama' => 'a. Internasional (2 Penulis ke-2)', 'nilai_baku' => 10.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4004, 'idKomponen' => 20, 'nama' => 'a. Internasional (3 Penulis ke-1)', 'nilai_baku' => 6.660, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4005, 'idKomponen' => 20, 'nama' => 'a. Internasional (3 Penulis ke-2)', 'nilai_baku' => 6.660, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4006, 'idKomponen' => 20, 'nama' => 'a. Internasional (3 Penulis ke-3)', 'nilai_baku' => 6.660, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4007, 'idKomponen' => 20, 'nama' => 'a. Internasional (4 Penulis ke-1)', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4008, 'idKomponen' => 20, 'nama' => 'a. Internasional (4 Penulis ke-2)', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4009, 'idKomponen' => 20, 'nama' => 'a. Internasional (4 Penulis ke-3)', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4010, 'idKomponen' => 20, 'nama' => 'a. Internasional (4 Penulis ke-4)', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            // Kategori b: Nasional (15 AK)
+            ['id' => 4011, 'idKomponen' => 20, 'nama' => 'b. Nasional (1 Penulis)', 'nilai_baku' => 15.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4012, 'idKomponen' => 20, 'nama' => 'b. Nasional (2 Penulis ke-1)', 'nilai_baku' => 7.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4013, 'idKomponen' => 20, 'nama' => 'b. Nasional (2 Penulis ke-2)', 'nilai_baku' => 7.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4014, 'idKomponen' => 20, 'nama' => 'b. Nasional (3 Penulis ke-1)', 'nilai_baku' => 4.995, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4015, 'idKomponen' => 20, 'nama' => 'b. Nasional (3 Penulis ke-2)', 'nilai_baku' => 4.995, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4016, 'idKomponen' => 20, 'nama' => 'b. Nasional (3 Penulis ke-3)', 'nilai_baku' => 4.995, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4017, 'idKomponen' => 20, 'nama' => 'b. Nasional (4 Penulis ke-1)', 'nilai_baku' => 3.750, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4018, 'idKomponen' => 20, 'nama' => 'b. Nasional (4 Penulis ke-2)', 'nilai_baku' => 3.750, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4019, 'idKomponen' => 20, 'nama' => 'b. Nasional (4 Penulis ke-3)', 'nilai_baku' => 3.750, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4020, 'idKomponen' => 20, 'nama' => 'b. Nasional (4 Penulis ke-4)', 'nilai_baku' => 3.750, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            // Kategori c: Lokal (10 AK)
+            ['id' => 4021, 'idKomponen' => 20, 'nama' => 'c. Lokal (1 Penulis)', 'nilai_baku' => 10.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4022, 'idKomponen' => 20, 'nama' => 'c. Lokal (2 Penulis ke-1)', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4023, 'idKomponen' => 20, 'nama' => 'c. Lokal (2 Penulis ke-2)', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4024, 'idKomponen' => 20, 'nama' => 'c. Lokal (3 Penulis ke-1)', 'nilai_baku' => 3.330, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4025, 'idKomponen' => 20, 'nama' => 'c. Lokal (3 Penulis ke-2)', 'nilai_baku' => 3.330, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4026, 'idKomponen' => 20, 'nama' => 'c. Lokal (3 Penulis ke-3)', 'nilai_baku' => 3.330, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4027, 'idKomponen' => 20, 'nama' => 'c. Lokal (4 Penulis ke-1)', 'nilai_baku' => 2.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4028, 'idKomponen' => 20, 'nama' => 'c. Lokal (4 Penulis ke-2)', 'nilai_baku' => 2.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4029, 'idKomponen' => 20, 'nama' => 'c. Lokal (4 Penulis ke-3)', 'nilai_baku' => 2.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4030, 'idKomponen' => 20, 'nama' => 'c. Lokal (4 Penulis ke-4)', 'nilai_baku' => 2.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            // idKomponen 21: Membuat rancangan dan karya Seni / Seni Pertunjukan yang tidak terdaftar di HaKI Angka Kreditnya
+            // WARNING: Konflik ID dengan 21 Menduduki Jabatan, maka harusnya antara memilih untuk menggeser, atau mengganti id ini menjadi id baru contoh 99
 
             // UTAMA 4: PENGABDIAN
             // idKomponen 21: Menduduki jabatan pimpinan

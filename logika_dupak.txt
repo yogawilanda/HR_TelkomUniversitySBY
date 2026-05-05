@@ -298,6 +298,18 @@ Status : CEK LAGI
   Isian Dari Kolom Tambahan dan AK yang didapat : 
     ...
   Kolom Input Tambahan User PER BARIS:
+
+Status : Ongoing
+[Sub-Komponen] Mengedit/Menyunting Karya Ilmiah (idKomponen = 18)
+  Satuan Hasil: Buku
+  Batasan Pengajuan: 1 Buku per semester
+  Nilai AK Dasar: 10 AK (TETAP)
+  Logika Perhitungan AK per Penulis (10 AK × %):
+  1 Penulis: 100% dari 10 = 10.000
+  2 Penulis: 50% dari 10 = 5.000
+  3 Penulis: 33.3% dari 10 = 3.330
+  4 Penulis: 25% dari 10 = 2.500
+
   
 
 ================================================================================
