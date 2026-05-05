@@ -160,7 +160,6 @@ Finished
     - Input: 12 Mahasiswa Skripsi (Pembimbing Utama)
     - Kalkulasi: 8 (Kuota Max) * 1.0 (Rate) = 8.0 AK (Bukan 12 AK).
 
-
 Status: Done
 [Sub-Komponen E] Bertugas sebagai Penguji Ujian Akhir (idKomponen = 7)
   Satuan Hasil: Lulusan
@@ -184,11 +183,12 @@ Status: Done
     - Periode Semester
     - Peran (Ketua Penguji / Anggota Penguji) 
 
+
+Status : Ongoing
 [Sub-Komponen F] Membina Kegiatan Mahasiswa (idKomponen = 8)
-  Status : Ongoing
   Satuan Hasil: Semester
   Grouping: Per Semester (Gasal/Genap)
-  MAKSIMUM: 4 Detil Pengajuan Per semester
+  Limit: 4 Detil Pengajuan Per semester
   NOTE: Pada mock data, nilainya 0 (belum diisi)
 
 [Sub-Komponen G] Mengembangkan Program Kuliah (idKomponen = 9)

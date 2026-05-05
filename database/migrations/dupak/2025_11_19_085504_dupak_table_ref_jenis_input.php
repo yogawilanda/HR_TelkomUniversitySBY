@@ -56,7 +56,7 @@ return new class extends Migration
             // UTAMA 2: PELAKSANAAN PENDIDIKAN
             // idKomponen 3: Melaksanakan Perkuliahan
             ['id' => 2301, 'idKomponen' => 3, 'nama' => 'Melaksanakan perkuliahan (Per SKS)', 'nilai_baku' => 1.000, 'jenisInput' => 2, 'created_at' => now(), 'updated_at' => now()],
-            
+
             // idKomponen 4: Membimbing Seminar
             ['id' => 2401, 'idKomponen' => 4, 'nama' => 'Membimbing Seminar Mahasiswa', 'nilai_baku' => 1.000, 'jenisInput' => 2, 'created_at' => now(), 'updated_at' => now()],
             
@@ -70,8 +70,11 @@ return new class extends Migration
             ['id' => 2603, 'idKomponen' => 6, 'nama' => 'Bimbingan Skripsi/Laporan Akhir', 'nilai_baku' => 5.000, 'jenisInput' => 2, 'created_at' => now(), 'updated_at' => now()],
             
             // idKomponen 7: Bertugas sebagai penguji pada Ujian Akhir
-            ['id' => 2511, 'idKomponen' => 7, 'nama' => 'Ketua Penguji - Bertugas di Ujian Akhir', 'nilai_baku' => 1.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 2512, 'idKomponen' => 7, 'nama' => 'Anggota Penguji - Bertugas di Ujian Akhir', 'nilai_baku' => 0.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2721, 'idKomponen' => 7, 'nama' => 'Ketua Penguji - Bertugas di Ujian Akhir', 'nilai_baku' => 1.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2722, 'idKomponen' => 7, 'nama' => 'Anggota Penguji - Bertugas di Ujian Akhir', 'nilai_baku' => 0.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            // idKomponen 8: Membina kegiatan mahasiswa
+            ['id' => 2811, 'idKomponen' => 8, 'nama' => 'Membina kegiatan mahasiswa per semester', 'nilai_baku' => 1.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
 
 
             // UTAMA 3: PENELITIAN
