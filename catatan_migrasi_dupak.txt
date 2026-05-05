@@ -41,6 +41,9 @@ Tim menggunakan custom command:
 php artisan db:full-refresh --seed
 ```
 
+kalau php versi tidak dikenali dan pakai powershell
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User") di terminal vscode
+
 Command ini menghapus dan membuat ulang semua tabel, jadi:
 - **Edit langsung migration existing** (file `create` table).
 - Semua perubahan schema dilakukan di file migration yang sudah ada.
