@@ -14,3 +14,16 @@ Whitebox Testing
 
 http://127.0.0.1:8000/dupak/validasi
 ketika ditolak harusnya warna merah, dan penilaian harusnya dilakukan per detail, bukan penilaian dilakukan untuk semua detail
+
+-------- Black Box Testing ------------------
+Initial Test
+
+
+Login Test
+php artisan dusk tests/Browser/LoginTest.php
+
+Masuk ke dashboard dupak sebagai Admin
+ php artisan dusk tests/Browser/AksesDashboardAdminDupakTest.php
+
+Masuk ke dashboard dupak sebagai Dosen
+ php artisan dusk tests/Browser/AksesDashboardDupakTest.php

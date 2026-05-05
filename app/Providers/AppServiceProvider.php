@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Routing\Router;
+use Illuminate\Support\ServiceProvider;
+use Laravel\Dusk\DuskServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -12,7 +14,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Testing untuk Dusk Tester
+        if ($this->app->environment('local', 'testing')) {
+            $this->app->register(DuskServiceProvider::class);
+        }
     }
 
     /**
@@ -22,6 +27,6 @@ class AppServiceProvider extends ServiceProvider
     {
         // Ensure admin middleware is properly registered
         $router = $this->app->make(Router::class);
-        $router->aliasMiddleware('admin', \App\Http\Middleware\AdminMiddleware::class);
+        $router->aliasMiddleware('admin', AdminMiddleware::class);
     }
 }
