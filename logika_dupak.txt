@@ -184,38 +184,39 @@ Status: Done
     - Peran (Ketua Penguji / Anggota Penguji) 
 
 
-Status : Ongoing
+Status : Ongoing - Limitnya belum diatur
 [Sub-Komponen F] Membina Kegiatan Mahasiswa (idKomponen = 8)
   Satuan Hasil: Semester
   Grouping: Per Semester (Gasal/Genap)
   Limit: 4 Detil Pengajuan Per semester
   NOTE: Pada mock data, nilainya 0 (belum diisi)
 
+Status : Ongoing - Limitnya belum diatur
 [Sub-Komponen G] Mengembangkan Program Kuliah (idKomponen = 9)
-  Status : Ongoing
   Satuan Hasil: Semester
   Grouping: Per Semester (Gasal/Genap)
   Nilai Per Pengajuan : 2 AK
+  Limit: 2x per periode pengajuan
   Kolom Input User Tambahan: Tidak Ada N/A
 
   NOTE: Pada mock data, nilainya 0 (belum diisi)
 
+Status : Done
 [Sub-Komponen H] Mengembangkan Bahan Pengajaran (idKomponen = 10)
-  Status : Ongoing
   Satuan Hasil: Eksampelar
   Nilai Per Pengajuan : Diktat/Modul Persemester = 5, Buku Pertahun = 20
   Limit Per Pengajuan = N/A
   Kolom Input User Tambahan:
    1. Jenis Bahan Pengajaran (Diktat/Modul Persemester / Buku Pertahun)
 
+Status : Done
 [Sub-Komponen I] Menyampaikan Orasi Ilmiah (idKomponen = 11)
-  Status : Ongoing
   Satuan Hasil: Orasi
   MAKSIMUM: 10 AK
   Kolom Input User Tambahan : N/A
 
+Status : Done
 [Sub-Komponen J] Menduduki Jabatan Pimpinan Perguruan Tinggi (idKomponen = 12)
-  Status : Ongoing
   Satuan Hasil: Semester
   ----------------------------------------------------------------
   RUMUS PERHITUNGAN:
@@ -235,30 +236,42 @@ Status : Ongoing
   Kolom Input User PER BARIS:
     - Nama Jabatan (dropdown sesuai level a-h)
 
-[Sub-Komponen K] Membimbing Dosen yang Lebih Rendah  (idKomponen = 13)
-  Status : Ongoing
+
+Status : Done
+[Sub-Komponen K] Membimbing Dosen yang Lebih Rendah (idKomponen = 13)
   Satuan Hasil: Kegiatan
   Batasan Jabatan : Lektor Kepala ke atas
   Batasan Pengajuan : Tidak ada / 999
-  Isian Dari Kolom Tambahan : 
-    1. Pembimbing pencangkokan persemester
-    2. Reguler Persemester
-  Kolom Input Tambahan User PER BARIS:
-    - Jenis Bimbingan Dropdown sesuai 1-2
 
+  Nilai AK per semester TETAP berdasarkan jabatan (Sesuai Formula Excel):
+  a. Rektor: 6 AK
+  b. Pembantu rektor/dekan/direktur program pasca sarjana: 5 AK
+  c. Ketua sekolah tinggi/pembantu dekan/asisten direktur program pasca sarjana/direktur politeknik: 4 AK
+  d. Pembantu ketua sekolah tinggi/pembantu direktur politeknik: 4 AK
+  e. Direktur akademi: 4 AK
+  f. Pembantu direktur akademi/ketua jurusan/bagian pada universitas/institut/sekolah tinggi: 3 AK
+  g. Ketua jurusan pada politeknik/akademi/sekretaris jurusan/bagian pada universitas/institu/sekolah tinggi: 3 AK
+  h. Sekretaris jurusan pada politeknik/akademi dan kepala laboratorium universitas/institut/sekolah tinggi/politeknik/akademi: 3 AK
+
+  Kolom Input Tambahan User PER BARIS:
+  - Jenis Bimbingan (Dropdown): Sesuai pilihan a-h di atas
+
+  Formula Excel Pelacakan:
+  =IF(I1128<>"",IF(I1128="a.Rektor",6,IF(I1128="b.Pembantu rektor/dekan/direktur program pasca sarjana",5,IF(I1128="c.Ketua sekolah tinggi/pembantu dekan/asisten direktur program pasca sarjana/direktur politeknik",4,IF(I1128="d.Pembantu ketua sekolah tinggi/pembantu direktur politeknik",4,IF(I1128="e.Direktur akademi",4,IF(I1128="f.Pembantu direktur akademi/ketua jurusan/bagian pada universitas/institut/sekolah tinggi",3,IF(I1128="g.Ketua jurusan pada politeknik/akademi/sekretaris jurusan/bagian pada universitas/institu/sekolah tinggi",3,IF(I1128="h.Sekretaris jurusan pada politeknik/akademi dan kepala laboratorium universitas/institut/sekolah tinggi/politeknik/akademi",3,"")))))))),"")
+
+Status : Done
 [Sub-Komponen L] Datasering & Pencangkokan (idKomponen = 14)
-  Status : Ongoing
   Satuan Hasil: Kegiatan
   Batasan Jabatan : Lektor Kepala ke atas
   Batasan Pengajuan : N/A / 999
-  Isian Dari Kolom Tambahan : 
-    1. Detasering persemester
-    2. Pencangkokan persemester
+  Isian Dari Kolom Tambahan dan nilai per kegiatan: 
+    1. Detasering persemester : 4 AK
+    2. Pencangkokan persemester : 3 AK
   Kolom Input Tambahan User PER BARIS:
     - Jenis Bimbingan Dropdown sesuai 1-2
  
+  Status : Done 
 [Sub-Komponen M] Pengembangan Diri (idKomponen = 15)
-  Status : Ongoing 
   Satuan Hasil: Sertifikat
   Isian Dari Kolom Tambahan dan AK yang didapat : 
     1 Lamanya > 960 jam = 15 AK
@@ -270,6 +283,22 @@ Status : Ongoing
     7 Lamanya 10-30 jam = 0.5 AK
   Kolom Input Tambahan User PER BARIS:
   Jenis Bimbingan Dropdown sesuai 1-7
+
+Status : CEK LAGI 
+[Sub-Komponen N] Menghasilkan Karya Ilmiah (idKomponen = 16)
+  Satuan Hasil: Sertifikat
+  Isian Dari Kolom Tambahan dan AK yang didapat : 
+    ...
+  Kolom Input Tambahan User PER BARIS:
+  Jenis Bimbingan Dropdown sesuai 1-7
+
+Status : CEK LAGI 
+[Sub-Komponen O] Menghasilkan Karya Ilmiah (idKomponen = 17)
+  Satuan Hasil: Sertifikat
+  Isian Dari Kolom Tambahan dan AK yang didapat : 
+    ...
+  Kolom Input Tambahan User PER BARIS:
+  
 
 ================================================================================
 3. REKAPITULASI TOTAL DARI MOCK DATA

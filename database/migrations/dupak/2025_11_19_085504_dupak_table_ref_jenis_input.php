@@ -59,28 +59,84 @@ return new class extends Migration
 
             // idKomponen 4: Membimbing Seminar
             ['id' => 2401, 'idKomponen' => 4, 'nama' => 'Membimbing Seminar Mahasiswa', 'nilai_baku' => 1.000, 'jenisInput' => 2, 'created_at' => now(), 'updated_at' => now()],
-            
-            // idKomponen 5: 
+
+            // idKomponen 5:
             ['id' => 2501, 'idKomponen' => 5, 'nama' => 'Membimbing KKN/PKL/PKN/PKL per semester', 'nilai_baku' => 1.000, 'jenisInput' => 2, 'created_at' => now(), 'updated_at' => now()],
 
-            
             // idKomponen 6: Membimbing Tugas Akhir (Disertasi, Tesis, Skripsi)
             ['id' => 2601, 'idKomponen' => 6, 'nama' => 'Bimbingan Disertasi', 'nilai_baku' => 12.000, 'jenisInput' => 2, 'created_at' => now(), 'updated_at' => now()],
             ['id' => 2602, 'idKomponen' => 6, 'nama' => 'Bimbingan Tesis', 'nilai_baku' => 8.000, 'jenisInput' => 2, 'created_at' => now(), 'updated_at' => now()],
             ['id' => 2603, 'idKomponen' => 6, 'nama' => 'Bimbingan Skripsi/Laporan Akhir', 'nilai_baku' => 5.000, 'jenisInput' => 2, 'created_at' => now(), 'updated_at' => now()],
-            
+
             // idKomponen 7: Bertugas sebagai penguji pada Ujian Akhir
             ['id' => 2721, 'idKomponen' => 7, 'nama' => 'Ketua Penguji - Bertugas di Ujian Akhir', 'nilai_baku' => 1.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['id' => 2722, 'idKomponen' => 7, 'nama' => 'Anggota Penguji - Bertugas di Ujian Akhir', 'nilai_baku' => 0.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
 
-            // idKomponen 8: Membina kegiatan mahasiswa
-            ['id' => 2811, 'idKomponen' => 8, 'nama' => 'Membina kegiatan mahasiswa per semester', 'nilai_baku' => 1.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            // idKomponen 8: Membina kegiatan mahasiswa (Limit 4x pengajuan Per Semester)
+            ['id' => 2811, 'idKomponen' => 8, 'nama' => 'Membina kegiatan mahasiswa per semester', 'nilai_baku' => 2.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
 
+            // idKomponen 9: Mengembangkan program kuliah (Limit 2x Per Semester)
+            ['id' => 2911, 'idKomponen' => 9, 'nama' => 'Mengembangkan program kuliah per semester', 'nilai_baku' => 2.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            // idKomponen 10: Mengembangkan bahan pengajaran (No Limit)
+            ['id' => 2101, 'idKomponen' => 10, 'nama' => 'Buku Pertahun', 'nilai_baku' => 20.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2102, 'idKomponen' => 10, 'nama' => 'Buku Pertahun', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            // idKomponen 11: Menyampaikan Orasi Ilmiah (Limit 10 Per periode)
+            ['id' => 2111, 'idKomponen' => 11, 'nama' => 'Buku Pertahun', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            // idKomponen 12: Menduduki jabatan pimpinan perguruan  (No Limit)
+            ['id' => 2121, 'idKomponen' => 12, 'nama' => 'Rektor', 'nilai_baku' => 6.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2122, 'idKomponen' => 12, 'nama' => 'Pembantu Rektor / Dekan / Direktur Pascasarjana', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2123, 'idKomponen' => 12, 'nama' => 'Ketua Sekolah Tinggi / Pembantu Dekan / Asisten Direktur Pasca / Direktur Politeknik', 'nilai_baku' => 4.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2124, 'idKomponen' => 12, 'nama' => 'Pembantu Ketua Sekolah Tinggi / Pembantu Direktur Politeknik', 'nilai_baku' => 4.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2125, 'idKomponen' => 12, 'nama' => 'Direktur Akademi', 'nilai_baku' => 4.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2126, 'idKomponen' => 12, 'nama' => 'Pembantu Direktur Akademi / Ketua Jurusan / Ketua Bagian (Univ/Inst/ST)', 'nilai_baku' => 3.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2127, 'idKomponen' => 12, 'nama' => 'Ketua Jurusan (Poltek/Akademi) / Sekretaris Jurusan (Univ/Inst/ST)', 'nilai_baku' => 3.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2128, 'idKomponen' => 12, 'nama' => 'Sekretaris Jurusan (Poltek/Akademi) / Kepala Laboratorium', 'nilai_baku' => 3.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            // idKomponen 13: Membimbing Dosen yang Lebih Rendah Untuk lektor kepala dan jabatan selanjutnya saja (No Limit)
+            ['id' => 2311, 'idKomponen' => 13, 'nama' => 'Jabatan Pimpinan (Rektor)', 'nilai_baku' => 6.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2312, 'idKomponen' => 13, 'nama' => 'Pembantu rektor/dekan/direktur pasca', 'nilai_baku' => 5.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2313, 'idKomponen' => 13, 'nama' => 'Ketua ST/Pd.Dekan/As.Dir Pasca/Dir Poltek', 'nilai_baku' => 4.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2314, 'idKomponen' => 13, 'nama' => 'Pembantu ketua ST/Pd.Dir Poltek', 'nilai_baku' => 4.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2315, 'idKomponen' => 13, 'nama' => 'Direktur akademi', 'nilai_baku' => 4.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2316, 'idKomponen' => 13, 'nama' => 'Pd.Dir Akad/Ketua Jurusan/Bagian Univ/Inst/ST', 'nilai_baku' => 3.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2317, 'idKomponen' => 13, 'nama' => 'Ketua Jur Poltek/Akad/Sekr Jur/Bag Univ/Inst/ST', 'nilai_baku' => 3.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2318, 'idKomponen' => 13, 'nama' => 'Sekr Jur Poltek/Akad/Kepala Lab', 'nilai_baku' => 3.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            // idKomponen 14: Datasering dan pencangkokan di luar institusi tempat bekerja Untuk lektor kepala dan jabatan selanjutnya saja (No Limit)
+            ['id' => 2411, 'idKomponen' => 14, 'nama' => 'Detasering Per Semester', 'nilai_baku' => 4.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2412, 'idKomponen' => 14, 'nama' => 'Pencangkokan Per Semester', 'nilai_baku' => 3.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            // idKomponen 15: Pengembangan diri untuk meningkatkan potensi (No Limit)
+            // 1 Lamanya > 960 jam = 15 AK
+            ['id' => 2511, 'idKomponen' => 15, 'nama' => 'Lamanya > 960 jam', 'nilai_baku' => 15.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2512, 'idKomponen' => 15, 'nama' => 'Lamanya 641 - 960 jam', 'nilai_baku' => 9.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2513, 'idKomponen' => 15, 'nama' => 'Lamanya 481 - 640 jam', 'nilai_baku' => 6.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2514, 'idKomponen' => 15, 'nama' => 'Lamanya 161 - 480 jam', 'nilai_baku' => 3.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2515, 'idKomponen' => 15, 'nama' => 'Lamanya 81 - 160 jam', 'nilai_baku' => 2.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2516, 'idKomponen' => 15, 'nama' => 'Lamanya 31 - 80 jam', 'nilai_baku' => 1.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2517, 'idKomponen' => 15, 'nama' => 'Lamanya 10 - 30 jam', 'nilai_baku' => 0.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
 
             // UTAMA 3: PENELITIAN
             // idKomponen 16: Menghasilkan Karya Ilmiah
             ['id' => 3601, 'idKomponen' => 16, 'nama' => 'Jurnal Internasional Bereputasi', 'nilai_baku' => 40.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['id' => 3602, 'idKomponen' => 16, 'nama' => 'Jurnal Nasional Terakreditasi', 'nilai_baku' => 25.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            // idKomponen 17: Menerjemahkan/Menyadur Buku Ilmiah
+            ['id' => 3701, 'idKomponen' => 17, 'nama' => '1 Penulis', 'nilai_baku' => 15.000, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3702, 'idKomponen' => 17, 'nama' => '2 Penulis (ke-1)', 'nilai_baku' => 7.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3703, 'idKomponen' => 17, 'nama' => '2 Penulis (ke-2)', 'nilai_baku' => 7.500, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3704, 'idKomponen' => 17, 'nama' => '3 Penulis (ke-1)', 'nilai_baku' => 4.995, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3705, 'idKomponen' => 17, 'nama' => '3 Penulis (ke-2)', 'nilai_baku' => 4.995, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3706, 'idKomponen' => 17, 'nama' => '3 Penulis (ke-3)', 'nilai_baku' => 4.995, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3707, 'idKomponen' => 17, 'nama' => '4 Penulis (ke-1)', 'nilai_baku' => 3.750, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3708, 'idKomponen' => 17, 'nama' => '4 Penulis (ke-2)', 'nilai_baku' => 3.750, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3709, 'idKomponen' => 17, 'nama' => '4 Penulis (ke-3)', 'nilai_baku' => 3.750, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3710, 'idKomponen' => 17, 'nama' => '4 Penulis (ke-4)', 'nilai_baku' => 3.750, 'jenisInput' => 1, 'created_at' => now(), 'updated_at' => now()],
+
+            
 
             // UTAMA 4: PENGABDIAN
             // idKomponen 21: Menduduki jabatan pimpinan
