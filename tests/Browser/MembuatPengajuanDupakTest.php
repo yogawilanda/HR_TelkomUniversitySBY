@@ -24,12 +24,11 @@ class MembuatPengajuanDupakTest extends DuskTestCase
                 ->visit('/dupak/dashboard')
                 ->waitForText('DUPAK', 10)
                 ->assertSee('DUPAK')
-                
                 // 1. Klik tombol Buat Pengajuan Baru
                 ->clickLink('Buat Pengajuan Baru')
                 
                 // 2. Tunggu sampai halaman form terbuka
-                ->waitForText('Formulir Pengajuan DUPAK', 10) 
+                ->waitForText('Formulir Pengajuan DUPAK', 3) 
 
                 // 3. Mengisi Data Form (Lengkapi sesuai name di Blade kamu)
                 // Contoh mengisi range tanggal:
@@ -37,16 +36,7 @@ class MembuatPengajuanDupakTest extends DuskTestCase
 
                 // 4. Submit Form
                 // Jika tombolnya x-primary-button dengan teks "Simpan", pakai press
-                ->press('Simpan') 
-
-                // 5. Menangani alert/konfirmasi jika ada (Opsional)
-                // Jika pakai SweetAlert, biasanya butuh tunggu sebentar lalu klik OK
-                // ->waitForText('Apakah anda yakin?', 5)
-                // ->press('Ya, Simpan')
-
-                // 6. Validasi sukses
-                // Pastikan teks ini sesuai dengan flash message di Controller kamu
-		    ;
+                ->press('Simpan');
         });
     }
 }
