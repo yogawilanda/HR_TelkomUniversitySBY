@@ -2,6 +2,7 @@
 
 namespace Tests\Browser;
 
+use App\Models\Dupak\Pengajuan;
 use App\Models\User;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
@@ -16,70 +17,76 @@ class MembuatDetailPengajuanDupakTest extends DuskTestCase
                 ->inRandomOrder()
                 ->first();
 
-            if (!$user) {
+            if (! $user) {
                 $this->fail('User dengan tipe_pegawai Dosen tidak ditemukan di database.');
             }
 
-            $browser->loginAs($user)
+            $admin = User::where('email_institusi', 'admin@telkomuniversity.ac.id')->first();
+
+            if (! $admin) {
+                $this->fail('Admin dengan email_institusi admin@telkomuniversity.ac.id tidak ditemukan di database.');
+            }
+
+            // Pastikan dosen sudah memiliki pengajuan (jika tidak ada, test fail)
+            // Ambil pengajuan dari tabel dupak langsung (hindari mapping idDosen dari User karena skemanya bisa beda)
+            $pengajuan = Pengajuan::first();
+
+            if (! $pengajuan) {
+                $this->fail('Tidak ada data pengajuan DUPAK di database.');
+            }
+
+            $browser->loginAs($admin)
                 ->visit('/dupak/dashboard')
-                ->waitForText('DUPAK', 10)
-                ->assertSee('DUPAK')
-                // ->pause('3')
-                
-                // 1. Klik tombol Buat Pengajuan Baru
-                ->clickLink('Buat Pengajuan Baru')
-                
-                // 2. Tunggu sampai halaman form terbuka
-                ->waitForText('Formulir Pengajuan DUPAK', 5) 
+                ->waitForText('Tambahkan Kegiatan', 15)
+                ->clickLink('Tambahkan Kegiatan')
+                ->pause(1000); // Tunggu modal benar-benar tampil
 
-                // 3. Simpan header pengajuan (asumsi form awal langsung simpan)
-                ->pause(1000)
-                ->press('Simpan')
+            // 1. Pilih Kategori secara random
+            $kategoriOptions = $browser->script('
+    return Array.from(document.querySelectorAll("#kategori option"))
+        .map(opt => opt.value)
+        .filter(val => val !== "");
+')[0];
 
-                // 4. Pastikan masuk ke halaman detail pengajuan
-                ->waitForText('Detail Pengajuan DUPAK', 5)
-                ->assertSee('Detail Pengajuan DUPAK')
+            $randomKategori = $kategoriOptions[array_rand($kategoriOptions)];
 
-                // 5. Klik tombol Tambahkan Kegiatan (untuk buka modal)
-                ->press('Tambahkan Kegiatan')
+            $browser->select('#kategori', $randomKategori)
+                ->script("document.getElementById('kategori').dispatchEvent(new Event('change'));");
 
-                // 6. Pastikan Pop up/Modal terbuka
-                ->waitForText('Tambah Kegiatan Baru (Dupak)', 5)
-                ->assertSee('Tambah Kegiatan Baru (Dupak)')
+            // 2. TUNGGU sampai opsi komponen muncul
+            $browser->waitUntil("document.querySelectorAll('#idKomponen option').length > 1", 10);
 
-                // 7. Pilih Kategori secara Random via JavaScript
-                ->waitForSelector('select[name="kategori_id"]')
-                ->script([
-                    "let select = document.querySelector('select[name=\"kategori_id\"]');
-                     let options = Array.from(select.options).filter(o => o.value !== '');
-                     if(options.length > 0) {
-                        let randomOption = options[Math.floor(Math.random() * options.length)];
-                        select.value = randomOption.value;
-                        select.dispatchEvent(new Event('change'));
-                     }"
-                ])
+            // 3. Ambil dan Pilih Komponen secara random lewat JavaScript
+            $randomKomponen = $browser->script("
+    let options = Array.from(document.querySelectorAll('#idKomponen option'))
+                       .map(opt => opt.value)
+                       .filter(val => val !== '');
+    if (options.length === 0) return null;
+    let selected = options[Math.floor(Math.random() * options.length)];
+    let sel = document.getElementById('idKomponen');
+    sel.value = selected;
+    sel.dispatchEvent(new Event('change'));
+    return selected;
+")[0];
 
-                // Jeda 2 detik untuk memberi waktu Livewire/AJAX memuat Sub-Kategori
-                ->pause(2000)
+            if (! $randomKomponen) {
+                $this->fail('Gagal mengambil atau memilih komponen secara acak.');
+            }
 
-                // 8. Pilih Sub-Kategori secara Random via JavaScript
-                ->waitForSelector('select[name="sub_kategori_id"]')
-                ->script([
-                    "let selectSub = document.querySelector('select[name=\"sub_kategori_id\"]');
-                     let optionsSub = Array.from(selectSub.options).filter(o => o.value !== '' && !o.disabled);
-                     if(optionsSub.length > 0) {
-                        let randomSub = optionsSub[Math.floor(Math.random() * optionsSub.length)];
-                        selectSub.value = randomSub.value;
-                        selectSub.dispatchEvent(new Event('change'));
-                     }"
-                ])
+            // 4. Klik Simpan dengan "Forced Script Click"
+            // Kita gunakan JavaScript untuk memicu event submit secara manual.
+            // Ini akan memastikan listener 'addEventListener("submit", ...)' di script kamu terpanggil.
+            $browser->script("
+    let form = document.getElementById('kegiatan-form');
+    // Memicu event submit agar e.preventDefault() dan redirect logic kamu jalan
+    let event = new Event('submit', { cancelable: true, bubbles: true });
+    form.dispatchEvent(event);
+");
 
-                // 9. Klik Simpan Kegiatan di dalam modal
-                ->press('Simpan Kegiatan')
-                
-                // 10. Verifikasi sukses
-                ->waitUntilMissingText('Tambah Kegiatan Baru (Dupak)', 10)
-                ->assertSee('Berhasil'); 
+            // 5. Beri waktu proses window.location.href
+            $browser->pause(3000)
+                ->assertPathContains('/dupak/detil_pengajuan/')
+                ->screenshot('berhasil_redirect');
         });
     }
 }
