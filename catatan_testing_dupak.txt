@@ -27,3 +27,6 @@ Masuk ke dashboard dupak sebagai Admin
 
 Masuk ke dashboard dupak sebagai Dosen
  php artisan dusk tests/Browser/AksesDashboardDupakTest.php
+
+Membuat Detail Pengajuan - Admin&TPAK&Dosen
+ php artisan dusk --filter MembuatDetailPengajuanDupakTest
