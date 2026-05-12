@@ -28,7 +28,7 @@ class ValidasiController extends Controller
             ->exists();
     }
 
-    /**
+/**
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -41,39 +41,65 @@ class ValidasiController extends Controller
         $dosen = Dosen::where('users_id', $userId)->first();
         $tpakDosenId = $dosen?->id;
 
-        if ($tpakDosenId) {
-            $query = \App\Models\Dupak\DetailPengajuan::with(['pengajuan.dosen', 'komponen'])
-                ->join('pengajuan', 'detail_pengajuan.pengajuan_id', '=', 'pengajuan.id')
-                ->join('penunjukan_tpak', 'pengajuan.id', '=', 'penunjukan_tpak.pengajuan_id')
-                ->where('penunjukan_tpak.idDosenTpak', $tpakDosenId)
-                ->select('detail_pengajuan.*');
+if ($tpakDosenId) {
+            // Get pengajuan IDs where this TPAK is assigned
+            $assignedPengajuanIds = PenunjukanTPAKModel::where('idDosenTpak', $tpakDosenId)
+                ->pluck('pengajuan_id')
+                ->toArray();
+            
+            // Query pengajuan dengan eager loading details dan komponen
+            $query = Pengajuan::with(['details.komponen'])
+                ->whereIn('id', $assignedPengajuanIds);
         } else {
-            $query = \App\Models\Dupak\DetailPengajuan::query()->whereRaw('1 = 0');
+            $query = Pengajuan::query()->whereRaw('1 = 0');
         }
 
         if ($search) {
-            $query->whereHas('pengajuan', function ($q) use ($search) {
-                $q->where('nama_dosen', 'LIKE', "%{$search}%");
-            });
+            $query->where('nama_dosen', 'LIKE', "%{$search}%");
         }
 
         if ($statusFilter) {
-            $query->whereHas('pengajuan', function ($q) use ($statusFilter) {
-                $q->where('status', $statusFilter);
-            });
+            $query->where('status', $statusFilter);
         }
 
-        $detailPengajuanTPAK = $query->orderBy('detail_pengajuan.created_at', 'desc')->paginate(15);
+        $pengajuanList = $query->orderBy('created_at', 'desc')->paginate(15);
 
-        // Ambil semua detail_id yang ditampilkan
-        $allDetailIds = $detailPengajuanTPAK->pluck('id')->toArray();
+        // Ambil semua pengajuan_id yang ditampilkan
+        $allPengajuanIds = $pengajuanList->pluck('id')->toArray();
 
-        // Hitung evaluasi yang sudah dilakukan TPAK ini
-        $evaluatedIds = HasilEvaluasi::whereIn('detail_pengajuan_id', $allDetailIds)
-            ->where('idUserPemeriksa', $userId)
-            ->pluck('detail_pengajuan_id')
-            ->toArray();
+// Ambil semua detail per pengajuan untuk ditampilkan di accordion
+        // Include evaluasi juga agar status display bisa benar
+        $allDetailsMap = [];
+        $detailPengajuan = \App\Models\Dupak\DetailPengajuan::whereIn('pengajuan_id', $allPengajuanIds)
+            ->with('komponen')
+            ->get();
 
+        // Collect semua detail IDs
+        $allDetailIds = $detailPengajuan->pluck('id')->toArray();
+
+        // Ambil evaluasi oleh TPAK ini saja
+        $evaluationsByDetail = [];
+        if (!empty($allDetailIds)) {
+            $evaluations = HasilEvaluasi::whereIn('detail_pengajuan_id', $allDetailIds)
+                ->where('idUserPemeriksa', $userId)
+                ->get()
+                ->keyBy('detail_pengajuan_id');
+            $evaluationsByDetail = $evaluations->toArray();
+        }
+
+// Group detail by pengajuan_id - tetap preserve semua detail, tidak perlu filter!
+        foreach ($detailPengajuan as $detail) {
+            $pid = $detail->pengajuan_id;
+            if (!isset($allDetailsMap[$pid])) {
+                $allDetailsMap[$pid] = [];
+            }
+            // Attach evaluasi ke detail object untuk view access
+            $detail->evaluation = $evaluationsByDetail[$detail->id] ?? null;
+            $allDetailsMap[$pid][] = $detail;
+        }
+
+        // Hitung evaluasi yang sudah dilakukan - dari $evaluationsByDetail keys
+        $evaluatedIds = array_keys($evaluationsByDetail);
         $selesaiCount = count($evaluatedIds);
         $totalTugas = count($allDetailIds);
 
@@ -85,27 +111,36 @@ class ValidasiController extends Controller
                 ->get();
 
             $totalPercent = 0;
+            $counted = 0;
             foreach ($evalData as $eval) {
                 $detail = \App\Models\Dupak\DetailPengajuan::find($eval->detail_pengajuan_id);
                 if ($detail && $detail->angka_kredit_total > 0) {
                     $totalPercent += ($eval->nilai_angka_kredit / $detail->angka_kredit_total) * 100;
+                    $counted++;
                 }
             }
-            $avgScore = round($totalPercent / $selesaiCount, 1);
+            $avgScore = $counted > 0 ? round($totalPercent / $counted, 1) : 0;
         }
 
-        // Mapping progress per detail
+// Mapping progress per pengajuan (berdasarkan detail yang sudah di-evaluasi)
         $progressMap = [];
-        foreach ($detailPengajuanTPAK as $item) {
-            $isEvaluated = in_array($item->id, $evaluatedIds);
-            $progressMap[$item->id] = [
-                'evaluated' => $isEvaluated,
-                'percent' => $isEvaluated ? 100 : 0,
+        foreach ($allDetailsMap as $pid => $details) {
+            $detailIds = array_map(function($d) { return $d->id; }, $details);
+            $evaluated = array_intersect($detailIds, $evaluatedIds);
+            $totalDetail = count($detailIds);
+            $evaluatedCount = count($evaluated);
+            
+            $progressMap[$pid] = [
+                'evaluated' => $evaluatedCount === $totalDetail && $totalDetail > 0,
+                'percent' => $totalDetail > 0 ? round(($evaluatedCount / $totalDetail) * 100) : 0,
+                'totalDetail' => $totalDetail,
+                'evaluatedCount' => $evaluatedCount,
             ];
         }
 
         return view('dupak.validasi.index', compact(
-            'detailPengajuanTPAK',
+            'pengajuanList',
+            'allDetailsMap',
             'selesaiCount',
             'totalTugas',
             'avgScore',
@@ -135,12 +170,78 @@ class ValidasiController extends Controller
             ->where('idUserPemeriksa', '!=', Auth::id())
             ->get()
             ->groupBy('detail_pengajuan_id');
+        
+        // Fetch the PenunjukanTPAKModel for overall notes
+        $tpakDosen = Dosen::where('users_id', Auth::id())->first();
+        $penunjukan = null;
+        if ($tpakDosen) {
+            $penunjukan = PenunjukanTPAKModel::where('pengajuan_id', $pengajuan->id)
+                ->where('idDosenTpak', $tpakDosen->id)
+                ->first();
+        }
+        $overallNotes = $penunjukan->catatan ?? ''; // Pass this to the view
 
-        return view('dupak.validasi.show', compact('pengajuan', 'myEvaluations', 'otherEvaluations'));
+        return view('dupak.validasi.show', compact('pengajuan', 'myEvaluations', 'otherEvaluations', 'overallNotes'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Save evaluation for single detail kegiatan (per-component).
+     */
+    public function saveDetail(Request $request, $pengajuanId, $detailId)
+    {
+        $pengajuan = Pengajuan::findOrFail($pengajuanId);
+        $detail = DetailPengajuan::where('id', $detailId)
+            ->where('pengajuan_id', $pengajuanId)
+            ->firstOrFail();
+
+        if (!$this->isAuthorizedTpak($pengajuan->id)) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'score' => 'required|numeric|min:0|max:100',
+            'flag' => 'required|in:OK,Doubt,Fake',
+            'note' => 'nullable|string|max:1000',
+        ]);
+
+        $scorePercent = $request->score / 100;
+        $approvedCredit = $detail->angka_kredit_total * $scorePercent;
+
+        HasilEvaluasi::updateOrCreate(
+            [
+                'detail_pengajuan_id' => $detailId,
+                'idUserPemeriksa' => Auth::id(),
+            ],
+            [
+                'peran_pemeriksa' => 'TPAK',
+                'status_evaluasi' => $request->flag,
+                'catatan' => $request->note,
+                'nilai_angka_kredit' => $approvedCredit,
+            ]
+        );
+
+        // Update detail status
+        $detailStatus = match ($request->flag) {
+            'OK' => 'approved',
+            'Doubt' => 'revision',
+            'Fake' => 'rejected',
+            default => 'pending',
+        };
+        $detail->update(['status' => $detailStatus]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Evaluasi disimpan untuk kegiatan ini.',
+            'data' => [
+                'score' => $request->score,
+                'flag' => $request->flag,
+                'approved_ak' => round($approvedCredit, 2),
+            ]
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage (batch).
      */
     public function update(Request $request, $id)
     {
@@ -151,12 +252,8 @@ class ValidasiController extends Controller
         }
 
         $request->validate([
-            'status' => 'nullable|in:Approved,Rejected,Revision,Diajukan',
-            'scores' => 'required|array',
             'scores.*' => 'nullable|numeric|min:0|max:100',
-            'flags' => 'required|array',
             'flags.*' => 'nullable|in:OK,Doubt,Fake',
-            'notes' => 'nullable|array',
             'notes.*' => 'nullable|string',
             'overall_notes' => 'nullable|string',
         ]);
@@ -168,10 +265,10 @@ class ValidasiController extends Controller
 
         $savedCount = 0;
 
-        try {
-            DB::beginTransaction();
-
+        DB::transaction(function () use ($request, $pengajuan, &$savedCount, $tpakDosen) {
             foreach ($request->scores as $detailId => $score) {
+                if (empty($score) && empty($request->flags[$detailId])) continue;
+
                 $flag = $request->flags[$detailId] ?? 'OK';
                 $note = $request->notes[$detailId] ?? null;
 
@@ -196,68 +293,29 @@ class ValidasiController extends Controller
                     ]
                 );
 
-                $savedCount++;
-            }
-
-            // Update status detail pengajuan berdasarkan flag TPAK
-            foreach ($request->flags as $detailId => $flag) {
-                $detail = DetailPengajuan::where('id', $detailId)
-                    ->where('pengajuan_id', $pengajuan->id)
-                    ->first();
-
-                if (!$detail) continue;
-
-                // Mapping flag ke status detail
+                // Update detail status
                 $detailStatus = match ($flag) {
                     'OK' => 'approved',
                     'Fake' => 'rejected',
                     'Doubt' => 'revision',
                     default => 'pending',
                 };
-
                 $detail->update(['status' => $detailStatus]);
+
+                $savedCount++;
             }
 
-            // Update status pengajuan secara keseluruhan jika disediakan
-            if ($request->filled('status')) {
-                $statusMapping = [
-                    'Approved' => 'Diterima',
-                    'Rejected' => 'Ditolak',
-                    'Revision' => 'Revisi',
-                    'Diajukan' => 'Diajukan',
-                ];
-
-                $newStatus = $statusMapping[$request->status] ?? $pengajuan->status;
-                $pengajuan->update(['status' => $newStatus]);
-            }
-
-            // Simpan catatan umum ke record penunjukan TPAK yang bersangkutan
+            // Update catatan TPAK
             $penunjukan = PenunjukanTPAKModel::where('pengajuan_id', $pengajuan->id)
                 ->where('idDosenTpak', $tpakDosen->id)
                 ->first();
 
-            if ($penunjukan) {
-                $penunjukan->update([
-                    'catatan' => $request->overall_notes ?? $penunjukan->catatan,
-                ]);
+            if ($penunjukan && $request->overall_notes) {
+                $penunjukan->update(['catatan' => $request->overall_notes]);
             }
+        });
 
-            DB::commit();
-
-            // Redirect kembali ke halaman show agar user lihat flash message & hasil
-            return redirect()->route('dupak.validasi.show', $pengajuan->id)
-                ->with('success', "Validasi berhasil disimpan. {$savedCount} detail kegiatan dinilai.");
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Gagal menyimpan validasi TPAK', [
-                'message' => $e->getMessage(),
-                'pengajuan_id' => $id,
-                'tpak_id' => Auth::id(),
-            ]);
-
-            $debug = config('app.debug') ? ' [DEBUG: ' . $e->getMessage() . ']' : '';
-
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan validasi. Silakan coba lagi.' . $debug);
-        }
+        return redirect()->route('dupak.validasi.show', $pengajuan->id)
+            ->with('success', "Berhasil menyimpan {$savedCount} evaluasi kegiatan.");
     }
 }

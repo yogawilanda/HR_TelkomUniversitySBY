@@ -17,6 +17,7 @@ class DetailPengajuan extends DupakModel
 		'deskripsi_kegiatan',
 		'angka_kredit_murni',
 		'angka_kredit_total',
+		'periode_pengajuan',
 		'volume',
 		'status',
 		'link_bukti_pendukung',

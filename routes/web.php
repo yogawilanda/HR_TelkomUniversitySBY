@@ -412,6 +412,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('validasi', ValidasiController::class)
             ->only(['index', 'show', 'update', 'store']);
 
+        Route::post('validasi/{pengajuan}/detail/{detail}/save', [ValidasiController::class, 'saveDetail'])
+            ->name('validasi.detail.save');
+
         // Rute Dinamis untuk Input Form Detail Pengajuan
         Route::get('detil_pengajuan/{category}/{id}', [DetilPengajuanController::class, 'showForm'])
             ->name('dupak.detil_pengajuan.form');

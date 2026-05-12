@@ -10,6 +10,7 @@ use App\Models\Dupak\RefKegiatanUtama;
 use App\Models\RiwayatJabatanFungsional;
 use App\Models\riwayatJabatanFungsionalAkademik;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -196,11 +197,22 @@ class PengajuanController extends Controller
                 ->with('error', 'Tidak dapat menentukan jabatan tujuan. Anda mungkin sudah mencapai jabatan tertinggi.');
         }
 
+        $today = Carbon::now();
+        $currentYear = date('Y');
+        $targetYear = $currentYear + 20;
+
         $pengajuan = new Pengajuan();
         $pengajuan->idDosen = $dosen->id;
+        $pengajuan->start = $today->format('Y-m-d');
+        $pengajuan->end   = $today->copy()->addYears(20)->format('Y-m-d');
+        $pengajuan->TahunAjaranAjuanAwal = $currentYear . '/' . ($currentYear + 1);
+        $targetYear = $currentYear + 20;
+        $pengajuan->TahunAjaranAjuanAkhir = $targetYear . '/' . ($targetYear + 1);
+        $pengajuan->semesterAjuan = collect(['Ganjil', 'Genap'])->random();
         $pengajuan->status = 'Pending';
         $pengajuan->jfaAsal = $riwayat_jfa_aktif->ref_jfa_id;
         $pengajuan->jfaTujuan = $nextJfaId;
+        // dd($pengajuan);
         $pengajuan->save();
 
         return redirect()->route('dupak.dashboard')
@@ -317,7 +329,7 @@ class PengajuanController extends Controller
             return redirect()->back()->with('error', 'Pengajuan tidak dapat dihapus. Status saat ini: ' . $pengajuan->status);
         }
 
-                // Hapus hasil evaluasi terkait (must be BEFORE detail_pengajuan deletion)
+        // Hapus hasil evaluasi terkait (must be BEFORE detail_pengajuan deletion)
         \App\Models\Dupak\HasilEvaluasi::whereIn('detail_pengajuan_id', function ($query) use ($pengajuan) {
             $query->select('id')->from('detail_pengajuan')->where('pengajuan_id', $pengajuan->id);
         })->delete();
@@ -335,10 +347,10 @@ class PengajuanController extends Controller
     }
 
     public function show(string $id)
-    {   
+    {
         // get riwayat jfa dosen
         $pengajuan = Pengajuan::with(['dosen', 'details.komponen', 'details.evaluations'])->findOrFail($id);
-    
+
         // Mapping UUID ke Label Nama Jabatan
         $jfaAsalLabel = $this->aturanPengajuanJFA[$pengajuan->jfaAsal] ?? 'Tidak Diketahui';
         $jfaTujuanLabel = $this->aturanPengajuanJFA[$pengajuan->jfaTujuan] ?? 'Tidak Diketahui';
@@ -364,7 +376,7 @@ class PengajuanController extends Controller
         // --- ALTERNATE FLOW: Cek apakah sudah ada detail kegiatan ---
         if ($pengajuan->details && $pengajuan->details->count() > 0) {
             $totalKum = $pengajuan->details->sum('angka_kredit_total');
-            
+
             // Ambil semua nama pemeriksa untuk menghindari undefined variable dan query berulang
             $evaluatorNames = [];
             $tpakEvaluatorIds = $pengajuan->details->flatMap->evaluations->where('peran_pemeriksa', 'TPAK')->pluck('idUserPemeriksa')->unique();

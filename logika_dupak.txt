@@ -54,6 +54,7 @@ I. PENDIDIKAN (idKegiatanUtama = 1)
 II. PELAKSANAAN PENDIDIKAN (idKegiatanUtama = 2)
 --------------------------------
 
+Progress : Done
 [Sub-Komponen A] Melaksanakan Perkuliahan (idKomponen = 3)
   Satuan Hasil: SKS
   Grouping: Per Semester (Gasal / Genap) per Tahun Ajaran
@@ -102,6 +103,7 @@ II. PELAKSANAAN PENDIDIKAN (idKegiatanUtama = 2)
     - Akumulasi SKS semester
     - Keterangan: "SKS<=10" atau "SKS>10"
 
+Status : Done
 [Sub-Komponen B] Membimbing Seminar (idKomponen = 4)
   Satuan Hasil: Kegiatan
   Grouping: Per Semester (Gasal/Genap)
@@ -112,46 +114,53 @@ II. PELAKSANAAN PENDIDIKAN (idKegiatanUtama = 2)
     - Semester
     - Link bukti (SK)
   NOTE: Pada mock data, nilainya 0 (belum diisi)
+  Nilai Per Submisi 1
+  Max unlimited 999
 
+Finished
 [Sub-Komponen C] Membimbing KKN/PKN/PKL (idKomponen = 5)
   Satuan Hasil: Kegiatan
   Grouping: Per Semester (Gasal/Genap)
   Logic: Perlu nilai dari ref_nilai_kum_baku
-  Kolom Input User PER BARIS:
-    - Nama Kegiatan / Deskripsi
-    - Tahun Ajaran
-    - Semester
-    - Link bukti (SK)
   NOTE: Pada mock data, nilainya 0 (belum diisi)
+  Nilai Per Submisi 1 AK
+  Max unlimited 999
 
 [Sub-Komponen D] Membimbing Disertasi/Tesis/Skripsi/Laporan Akhir (idKomponen = 6)
+  Status Implementasi : 80%, perhitungan masih salah
   Satuan Hasil: Lulusan
   Grouping: Per Semester (Gasal/Genap) per Tahun Ajaran
-  ----------------------------------------------------------------
-  RUMUS PERHITUNGAN:
-  ----------------------------------------------------------------
-  Per mahasiswa yang dibimbing:
-    - Pembimbing UTAMA     : 1.0 AK
-    - Pembimbing PENDAMPING: 0.5 AK
-  
-  MAKSIMUM TOTAL: 32 AK untuk seluruh periode
-  
-  Contoh perhitungan dari mock data:
-    - 30109419 - Marsheilla Mustika | Pembimbing Utama | Laporan akhir studi
-      Volume = 1, Rate = 1, AK = 1 × 1 = 1
-      
-    - 30110089 - Irwan Harianto     | Pembimbing Pendamping | Laporan akhir studi
-      Volume = 1, Rate = 0.5, AK = 1 × 0.5 = 0.5
-  
-  Kolom Input User PER BARIS:
-    - Nama Mahasiswa (NIM)
-    - Jenis Bimbingan (Disertasi/Tesis/Skripsi/Laporan Akhir Studi)
-    - Peran (Pembimbing Utama / Pembimbing Pendamping)
-    - Tahun Ajaran
-    - Semester (Gasal/Genap)
-    - Link bukti (SK/Surat Tugas)
-    - Keterangan otomatis: "Pembimbing Utama [Jenis]" / "Pembimbing Pendamping [Jenis]"
+  RUMUS PERHITUNGAN & ATURAN CAPPING:
+  Logika Skor per Mahasiswa (Rate):
 
+  Kolom Input User Tambahan : 
+    1. Peran (Pembimbing Utama/Pembimbing Pendamping)
+    2. Jenis Bimbingan (Laporan Akhir Studi/Disertasi/Skripsi/Tesis)
+
+    Disertasi: Utama (8.0), Pendamping (6.0)
+    Tesis: Utama (3.0), Pendamping (2.0)
+    Skripsi: Utama (1.0), Pendamping (0.5)
+    Laporan Akhir: Utama (1.0), Pendamping (0.5)
+    Batas Kuota Mahasiswa (Plafon per Kategori):
+    Disertasi: Max 4 Mahasiswa
+    Tesis: Max 6 Mahasiswa
+    Skripsi: Max 8 Mahasiswa
+    Laporan Akhir: Max 10 Mahasiswa
+
+    Algoritma Kalkulasi:
+    - Langkah A: Hitung total mahasiswa per kategori (Jenis + Peran).
+    - Langkah B: Jika jumlah mahasiswa > Kuota, gunakan (Kuota * Rate).
+    - Langkah C: Jika jumlah mahasiswa <= Kuota, gunakan (Jumlah * Rate).
+    - Langkah D: TOTAL AK = Sum(Hasil Langkah B/C).
+    - Langkah E: FINAL AK = Jika TOTAL AK > 32, maka 32. Jika tidak, TOTAL AK.
+    
+    MAKSIMUM TOTAL: 32 AK untuk seluruh periode pengajuan.
+
+    Contoh perhitungan (Kasus Over-Quota):
+    - Input: 12 Mahasiswa Skripsi (Pembimbing Utama)
+    - Kalkulasi: 8 (Kuota Max) * 1.0 (Rate) = 8.0 AK (Bukan 12 AK).
+
+Status: Done
 [Sub-Komponen E] Bertugas sebagai Penguji Ujian Akhir (idKomponen = 7)
   Satuan Hasil: Lulusan
   Grouping: Per Semester (Gasal/Genap) per Tahun Ajaran
@@ -170,114 +179,138 @@ II. PELAKSANAAN PENDIDIKAN (idKegiatanUtama = 2)
     - Predy Gito (30109054) | Ketua Penguji | AK = 1 × 1 = 1
     - Sabar F. Sianturi     | Anggota Penguji | AK = 1 × 0.5 = 0.5
   
-  Kolom Input User PER BARIS:
-    - Nama Mahasiswa (NIM)
-    - Peran (Ketua Penguji / Anggota Penguji)
-    - Tahun Ajaran
-    - Semester (Gasal/Genap)
-    - Link bukti (SK)
+  Kolom Input Tambahan User PER BARIS:
+    - Periode Semester
+    - Peran (Ketua Penguji / Anggota Penguji) 
 
+
+Status : Ongoing - Limitnya belum diatur
 [Sub-Komponen F] Membina Kegiatan Mahasiswa (idKomponen = 8)
   Satuan Hasil: Semester
   Grouping: Per Semester (Gasal/Genap)
-  MAKSIMUM: 4 AK
-  Kolom Input User PER BARIS:
-    - Deskripsi kegiatan
-    - Tahun Ajaran
-    - Semester
-    - Link bukti (SK)
+  Limit: 4 Detil Pengajuan Per semester
   NOTE: Pada mock data, nilainya 0 (belum diisi)
 
+Status : Ongoing - Limitnya belum diatur
 [Sub-Komponen G] Mengembangkan Program Kuliah (idKomponen = 9)
   Satuan Hasil: Semester
   Grouping: Per Semester (Gasal/Genap)
-  MAKSIMUM: 2 AK
-  Kolom Input User PER BARIS:
-    - Nama Mata Kuliah
-    - Tahun Ajaran
-    - Semester
-    - Link bukti (SK)
+  Nilai Per Pengajuan : 2 AK
+  Limit: 2x per periode pengajuan
+  Kolom Input User Tambahan: Tidak Ada N/A
+
   NOTE: Pada mock data, nilainya 0 (belum diisi)
 
+Status : Done
 [Sub-Komponen H] Mengembangkan Bahan Pengajaran (idKomponen = 10)
   Satuan Hasil: Eksampelar
-  Grouping: Semester Gasal + Semester Genap (terpisah)
-  Kolom Input User PER BARIS:
-    - Jenis (buku ajar / diktat / modul)
-    - Tahun Ajaran
-    - Semester
-    - Link bukti (SK)
-  NOTE: Pada mock data, nilainya 0 (belum diisi)
+  Nilai Per Pengajuan : Diktat/Modul Persemester = 5, Buku Pertahun = 20
+  Limit Per Pengajuan = N/A
+  Kolom Input User Tambahan:
+   1. Jenis Bahan Pengajaran (Diktat/Modul Persemester / Buku Pertahun)
 
+Status : Done
 [Sub-Komponen I] Menyampaikan Orasi Ilmiah (idKomponen = 11)
   Satuan Hasil: Orasi
-  Grouping: Semester Gasal + Semester Genap
   MAKSIMUM: 10 AK
-  Kolom Input User PER BARIS:
-    - Judul makalah / buku
-    - Tahun Ajaran
-    - Semester
-    - Link bukti (SK)
-  NOTE: Pada mock data, nilainya 0 (belum diisi)
+  Kolom Input User Tambahan : N/A
 
+Status : Done
 [Sub-Komponen J] Menduduki Jabatan Pimpinan Perguruan Tinggi (idKomponen = 12)
   Satuan Hasil: Semester
-  Grouping: Semester Gasal + Semester Genap
   ----------------------------------------------------------------
   RUMUS PERHITUNGAN:
   ----------------------------------------------------------------
+  Status : Ongoing
   Nilai AK per semester TETAP berdasarkan jabatan:
-    a. Rektor                                              : ? AK
-    b. Pembantu rektor / dekan / direktur pasca sarjana    : ? AK
-    c. Ketua sekolah tinggi / pembantu dekan / asisten direktur : ? AK
-    d. Pembantu ketua sekolah tinggi / pembantu direktur politeknik : ? AK
-    e. Direktur akademi                                    : ? AK
-    f. Pembantu direktur akademi / ketua jurusan / bagian  : 3 AK per semester
-    g. Ketua jurusan politeknik / akademi / sekretaris jurusan : ? AK
-    h. Sekretaris jurusan / kepala laboratorium            : ? AK
-  
-  Dari mock data, yang terisi hanya jabatan (f) = 3 AK/semester.
-  
+    a. Rektor: 6 AK
+    b. Pembantu Rektor / Dekan / Direktur Pascasarjana: 5 AK
+    c. Ketua Sekolah Tinggi / Pembantu Dekan / Asisten Direktur Pasca / Direktur Politeknik: 4 AK
+    d. Pembantu Ketua Sekolah Tinggi / Pembantu Direktur Politeknik: 4 AK
+    e. Direktur Akademi: 4 AK
+    f. Pembantu Direktur Akademi / Ketua Jurusan / Ketua Bagian (Univ/Inst/ST): 3 AK
+    g. Ketua Jurusan (Poltek/Akademi) / Sekretaris Jurusan (Univ/Inst/ST): 3 AK
+    h. Sekretaris Jurusan (Poltek/Akademi) / Kepala Laboratorium: 3 AK
+
+  Limit Input Detil = 999/Tidak Ada batasan
   Kolom Input User PER BARIS:
     - Nama Jabatan (dropdown sesuai level a-h)
-    - Unit/Direktorat
-    - Tahun Ajaran
-    - Semester (Gasal/Genap)
-    - Link bukti (SK)
-  
-  Total dari mock data: 39 AK (Gasal) + 21 AK (Genap, termasuk 2024/2025)
 
+
+Status : Done
 [Sub-Komponen K] Membimbing Dosen yang Lebih Rendah (idKomponen = 13)
   Satuan Hasil: Kegiatan
-  Syarat: Hanya untuk dosen Lektor Kepala ke atas
-  Grouping: Semester Gasal + Semester Genap
-  Kolom Input User PER BARIS:
-    - Deskripsi kegiatan
-    - Tahun Ajaran
-    - Semester
-    - Link bukti (SK)
-  NOTE: Pada mock data, nilainya 0 (belum diisi)
+  Batasan Jabatan : Lektor Kepala ke atas
+  Batasan Pengajuan : Tidak ada / 999
 
+  Nilai AK per semester TETAP berdasarkan jabatan (Sesuai Formula Excel):
+  a. Rektor: 6 AK
+  b. Pembantu rektor/dekan/direktur program pasca sarjana: 5 AK
+  c. Ketua sekolah tinggi/pembantu dekan/asisten direktur program pasca sarjana/direktur politeknik: 4 AK
+  d. Pembantu ketua sekolah tinggi/pembantu direktur politeknik: 4 AK
+  e. Direktur akademi: 4 AK
+  f. Pembantu direktur akademi/ketua jurusan/bagian pada universitas/institut/sekolah tinggi: 3 AK
+  g. Ketua jurusan pada politeknik/akademi/sekretaris jurusan/bagian pada universitas/institu/sekolah tinggi: 3 AK
+  h. Sekretaris jurusan pada politeknik/akademi dan kepala laboratorium universitas/institut/sekolah tinggi/politeknik/akademi: 3 AK
+
+  Kolom Input Tambahan User PER BARIS:
+  - Jenis Bimbingan (Dropdown): Sesuai pilihan a-h di atas
+
+  Formula Excel Pelacakan:
+  =IF(I1128<>"",IF(I1128="a.Rektor",6,IF(I1128="b.Pembantu rektor/dekan/direktur program pasca sarjana",5,IF(I1128="c.Ketua sekolah tinggi/pembantu dekan/asisten direktur program pasca sarjana/direktur politeknik",4,IF(I1128="d.Pembantu ketua sekolah tinggi/pembantu direktur politeknik",4,IF(I1128="e.Direktur akademi",4,IF(I1128="f.Pembantu direktur akademi/ketua jurusan/bagian pada universitas/institut/sekolah tinggi",3,IF(I1128="g.Ketua jurusan pada politeknik/akademi/sekretaris jurusan/bagian pada universitas/institu/sekolah tinggi",3,IF(I1128="h.Sekretaris jurusan pada politeknik/akademi dan kepala laboratorium universitas/institut/sekolah tinggi/politeknik/akademi",3,"")))))))),"")
+
+Status : Done
 [Sub-Komponen L] Datasering & Pencangkokan (idKomponen = 14)
   Satuan Hasil: Kegiatan
-  Syarat: Hanya untuk dosen Lektor Kepala ke atas
-  Grouping: Semester Gasal + Semester Genap
-  Kolom Input User PER BARIS:
-    - Deskripsi kegiatan
-    - Tahun Ajaran
-    - Semester
-    - Link bukti (SK)
-  NOTE: Pada mock data, nilainya 0 (belum diisi)
-
+  Batasan Jabatan : Lektor Kepala ke atas
+  Batasan Pengajuan : N/A / 999
+  Isian Dari Kolom Tambahan dan nilai per kegiatan: 
+    1. Detasering persemester : 4 AK
+    2. Pencangkokan persemester : 3 AK
+  Kolom Input Tambahan User PER BARIS:
+    - Jenis Bimbingan Dropdown sesuai 1-2
+ 
+  Status : Done 
 [Sub-Komponen M] Pengembangan Diri (idKomponen = 15)
   Satuan Hasil: Sertifikat
-  Grouping: Semester Gasal + Semester Genap
-  Kolom Input User PER BARIS:
-    - Deskripsi kegiatan
-    - Tahun Ajaran
-    - Semester
-    - Link bukti (SK/Sertifikat)
-  NOTE: Pada mock data, nilainya 0 (belum diisi)
+  Isian Dari Kolom Tambahan dan AK yang didapat : 
+    1 Lamanya > 960 jam = 15 AK
+    2 Lamanya 641-960 jam = 9 AK
+    3 Lamanya 481-640 jam = 6 AK
+    4 Lamanya 161-480 jam = 3 AK
+    5 Lamanya 81-160 jam = 2 AK
+    6 Lamanya 31-80 jam = 1 AK
+    7 Lamanya 10-30 jam = 0.5 AK
+  Kolom Input Tambahan User PER BARIS:
+  Jenis Bimbingan Dropdown sesuai 1-7
+
+Status : CEK LAGI 
+[Sub-Komponen N] Menghasilkan Karya Ilmiah (idKomponen = 16)
+  Satuan Hasil: Sertifikat
+  Isian Dari Kolom Tambahan dan AK yang didapat : 
+    ...
+  Kolom Input Tambahan User PER BARIS:
+  Jenis Bimbingan Dropdown sesuai 1-7
+
+Status : CEK LAGI 
+[Sub-Komponen O] Menghasilkan Karya Ilmiah (idKomponen = 17)
+  Satuan Hasil: Sertifikat
+  Isian Dari Kolom Tambahan dan AK yang didapat : 
+    ...
+  Kolom Input Tambahan User PER BARIS:
+
+Status : Ongoing
+[Sub-Komponen] Mengedit/Menyunting Karya Ilmiah (idKomponen = 18)
+  Satuan Hasil: Buku
+  Batasan Pengajuan: 1 Buku per semester
+  Nilai AK Dasar: 10 AK (TETAP)
+  Logika Perhitungan AK per Penulis (10 AK × %):
+  1 Penulis: 100% dari 10 = 10.000
+  2 Penulis: 50% dari 10 = 5.000
+  3 Penulis: 33.3% dari 10 = 3.330
+  4 Penulis: 25% dari 10 = 2.500
+
+  
 
 ================================================================================
 3. REKAPITULASI TOTAL DARI MOCK DATA

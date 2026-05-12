@@ -1,166 +1,237 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen bg-[#f8fafc] pb-12 pt-16">
-    <div class="max-w-[1400px] mx-auto px-6">
-        <a href="{{ route('dupak.dashboard') }}" class="text-sm text-gray-500 hover:text-gray-700 mb-4 inline-block">&larr; Kembali ke Dashboard DUPAK</a>
+<div class="py-6">
+    <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <a href="{{ route('dupak.dashboard') }}" class="inline-flex items-center text-gray-500 hover:text-gray-700 mb-6">
+            <i class="fas fa-arrow-left mr-2"></i> Kembali ke Dashboard DUPAK
+        </a>
 
-        {{-- Header & Stats --}}
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-            <div>
-                <h1 class="text-3xl font-black text-gray-900 tracking-tight">Dashboard TPAK</h1>
-                <p class="text-sm text-gray-500 font-medium mt-1">Kelola validasi angka kredit dosen yang ditugaskan kepada Anda.</p>
-            </div>
-
-            <div class="flex gap-3">
-                <div class="bg-white px-6 py-3 rounded-2xl shadow-sm border border-gray-100 text-center">
-                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tugas Aktif</p>
-                    <p class="text-xl font-black text-blue-600">{{ $detailPengajuanTPAK->total() }}</p>
-                </div>
-                <div class="bg-white px-6 py-3 rounded-2xl shadow-sm border border-gray-100 text-center">
-                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Review Selesai</p>
-                    <p class="text-xl font-black text-emerald-500">{{ $selesaiCount }}</p>
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="p-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Dashboard TPAK</h1>
+                        <p class="text-sm text-gray-500 mt-1">Kelola validasi angka kredit dosen yang ditugaskan</p>
+                    </div>
+                    
+                    <div class="flex gap-4">
+                        <div class="px-5 py-3 bg-blue-50 rounded-xl border border-blue-100 text-center min-w-[100px]">
+                            <p class="text-xs font-semibold text-blue-600 uppercase">Tugas</p>
+                            <p class="text-2xl font-bold text-blue-900">{{ $pengajuanList->total() }}</p>
+                        </div>
+                        <div class="px-5 py-3 bg-emerald-50 rounded-xl border border-emerald-100 text-center min-w-[100px]">
+                            <p class="text-xs font-semibold text-emerald-600 uppercase">Selesai</p>
+                            <p class="text-2xl font-bold text-emerald-900">{{ $selesaiCount }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        {{-- Alerts --}}
+        {{-- Alert --}}
         @if (session('success'))
-        <div class="mb-6 p-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 rounded-r-xl shadow-sm flex items-center animate-fade-in">
-            <i class="fas fa-check-circle mr-3"></i>
-            <span class="text-sm font-bold">{{ session('success') }}</span>
+        <div class="mb-6 p-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 rounded-r">
+            <span class="font-medium">{{ session('success') }}</span>
         </div>
         @endif
 
-        {{-- Filter & Search --}}
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6">
-            <form method="GET" action="{{ route('dupak.validasi.index') }}" class="flex flex-wrap items-center gap-4">
-                <div class="flex-1 min-w-[300px] relative">
-                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                    <input type="text" name="search" value="{{ request('search') }}"
-                        placeholder="Cari nama dosen atau nomor pengajuan..."
-                        class="w-full pl-9 pr-4 py-1.5 bg-gray-50 border border-gray-100 rounded-lg text-[12px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400">
-                </div>
-
-                <div class="relative">
-                    <select name="status" class="bg-gray-50 border border-gray-100 rounded-lg text-[12px] font-bold py-1.5 pl-3 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none cursor-pointer text-gray-600 tracking-tight leading-tight">
-                        <option value="">Status: Semua</option>
-                        @foreach(['Pending', 'Diajukan', 'Revisi', 'Diterima', 'Ditolak'] as $st)
-                        <option value="{{ $st }}" {{ request('status') == $st ? 'selected' : '' }}>{{ $st }}</option>
-                        @endforeach
+        <div class="bg-white shadow rounded-lg">
+            <div class="p-6 border-b border-gray-100">
+                <form method="GET" action="{{ route('dupak.validasi.index') }}" class="flex flex-wrap gap-3 items-center">
+                    <div class="flex-1 min-w-[250px] relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama dosen..."
+                            class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <select name="status" class="px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="">Semua Status</option>
+                        <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="Diajukan" {{ request('status') == 'Diajukan' ? 'selected' : '' }}>Diajukan</option>
+                        <option value="Revisi" {{ request('status') == 'Revisi' ? 'selected' : '' }}>Revisi</option>
+                        <option value="Diterima" {{ request('status') == 'Diterima' ? 'selected' : '' }}>Diterima</option>
+                        <option value="Ditolak" {{ request('status') == 'Ditolak' ? 'selected' : '' }}>Ditolak</option>
                     </select>
-                    <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 pointer-events-none"></i>
-                </div>
+                    <button type="submit" class="px-5 py-2.5 bg-blue-900 text-white rounded-lg font-medium hover:bg-blue-800">
+                        Filter
+                    </button>
+                    @if(request('search') || request('status'))
+                    <a href="{{ route('dupak.validasi.index') }}" class="px-4 py-2.5 text-gray-600 hover:text-gray-800 border border-gray-200 rounded-lg hover:bg-gray-50">
+                        Reset
+                    </a>
+                    @endif
+                </form>
+            </div>
 
-                <button type="submit" class="px-4 py-1.5 bg-gray-900 text-white rounded-lg text-[12px] font-bold hover:bg-blue-600 transition-all shadow-sm active:scale-95">
-                    Filter
-                </button>
-
-                @if(request('search') || request('status'))
-                <a href="{{ route('dupak.validasi.index') }}" class="text-sm font-bold text-gray-400 hover:text-rose-500 transition-colors">
-                    Reset
-                </a>
-                @endif
-            </form>
-        </div>
-
-        {{-- Table Card --}}
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-            <table class="w-full text-left">
-                <thead>
-                    <tr class="border-b border-gray-50">
-                        <th class="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">Info Pengajuan</th>
-                        <th class="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">Dosen Pengaju</th>
-                        <th class="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">Komponen Utama</th>
-                        <th class="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest text-center">AK</th>
-                        <th class="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest text-center">Progress</th>
-                        <th class="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest text-right">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    @forelse($detailPengajuanTPAK as $item)
-                    @php
-                    $prog = $progressMap[$item->id] ?? ['evaluated' => false, 'percent' => 0];
-                    @endphp
-                    <tr class="hover:bg-blue-50/30 transition-colors group">
-                        <td class="px-6 py-5">
-                            <div class="text-xs font-black text-blue-600 mb-1">#{{ $item->pengajuan_id }}</div>
-                            <div class="text-[10px] font-bold text-gray-400 flex items-center">
-                                <i class="far fa-calendar-alt mr-1.5"></i>
-                                {{ $item->created_at->format('d M Y') }}
-                            </div>
-                        </td>
-                        <td class="px-6 py-5">
-                            <div class="text-sm font-black text-gray-900 group-hover:text-blue-700">{{ $item->pengajuan->nama_dosen ?? 'N/A' }}</div>
-                            <div class="text-[11px] text-gray-500 font-medium">NIDN: {{ $item->pengajuan->idDosen ?? '-' }}</div>
-                        </td>
-                        <td class="px-6 py-5">
-                            <div class="text-xs font-bold text-gray-700 truncate max-w-[250px]">
-                                {{ $item->komponen->nama ?? 'Komponen #' . $item->idKomponen }}
-                            </div>
-                            <div class="text-[10px] text-gray-400 italic truncate max-w-[200px]" title="{{ $item->deskripsi_kegiatan }}">
-                                {{ $item->deskripsi_kegiatan }}
-                            </div>
-                        </td>
-                        <td class="px-6 py-5 text-center">
-                            <span class="px-2.5 py-1 bg-gray-100 text-gray-700 text-[11px] font-black rounded-lg">
-                                {{ $item->angka_kredit_murni ?? 0 }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-5">
-                            <div class="flex flex-col items-center">
-                                <div class="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                    <div class="h-full {{ $prog['evaluated'] ? 'bg-emerald-500' : 'bg-amber-400' }} transition-all" style="width: {{ $prog['percent'] }}%"></div>
+            {{-- Table --}}
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase w-8"></th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Pengajuan</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Dosen</th>
+                            <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Total AK</th>
+                            <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Item</th>
+                            <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Progress</th>
+                            <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @forelse($pengajuanList as $pengajuan)
+                        @php
+                        $details = isset($allDetailsMap[$pengajuan->id]) ? collect($allDetailsMap[$pengajuan->id]) : collect([]);
+                        $totalAk = $details->sum('angka_kredit_total');
+                        $komponenCount = $details->count();
+                        $prog = $progressMap[$pengajuan->id] ?? ['evaluated' => false, 'percent' => 0, 'totalDetail' => 0, 'evaluatedCount' => 0];
+                        
+                        $statusBadge = [
+                            'Pending' => 'bg-gray-100 text-gray-600',
+                            'Diajukan' => 'bg-blue-100 text-blue-700',
+                            'Revisi' => 'bg-amber-100 text-amber-700',
+                            'Diterima' => 'bg-emerald-100 text-emerald-700',
+                            'Ditolak' => 'bg-rose-100 text-rose-700',
+                        ];
+                        @endphp
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4">
+                                <button type="button" onclick="toggleDetail({{ $pengajuan->id }})" class="w-7 h-7 flex items-center justify-center rounded hover:bg-blue-50 text-gray-400 hover:text-blue-600">
+                                    <i class="fas fa-chevron-right text-xs transition-transform" id="icon-{{ $pengajuan->id }}"></i>
+                                </button>
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="flex flex-col">
+                                    <span class="font-semibold text-gray-900">#{{ $pengajuan->id }}</span>
+                                    <span class="text-xs text-gray-500 mt-0.5">{{ $pengajuan->created_at->format('d M Y') }}</span>
+                                    <span class="inline-block mt-1 px-2 py-0.5 rounded text-xs font-medium {{ $statusBadge[$pengajuan->status] ?? 'bg-gray-100 text-gray-600' }}">
+                                        {{ $pengajuan->status }}
+                                    </span>
                                 </div>
-                                <span class="text-[9px] font-black uppercase tracking-tighter mt-1.5 {{ $prog['evaluated'] ? 'text-emerald-600' : 'text-amber-600' }}">
-                                    {{ $prog['evaluated'] ? 'Selesai' : 'Pending' }}
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="font-medium text-gray-900">{{ $pengajuan->nama_dosen }}</div>
+                                <div class="text-sm text-gray-500">NIDN {{ $pengajuan->idDosen }}</div>
+                            </td>
+                            <td class="px-4 py-4 text-center">
+                                <span class="inline-block px-3 py-1 rounded-full text-sm font-bold bg-blue-50 text-blue-700">
+                                    {{ number_format($totalAk, 2) }}
                                 </span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-5 text-right">
-                            <a href="{{ route('dupak.validasi.show', $item->pengajuan_id) }}"
-                                class="inline-flex items-center justify-center w-10 h-10 rounded-xl {{ $prog['evaluated'] ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white' : 'bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white' }} transition-all shadow-sm">
-                                <i class="fas {{ $prog['evaluated'] ? 'fa-check-double' : 'fa-chevron-right' }} text-xs"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="6" class="px-6 py-20 text-center">
-                            <div class="opacity-20 mb-4">
-                                <i class="fas fa-folder-open text-5xl"></i>
-                            </div>
-                            <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">Tidak ada tugas ditemukan</p>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                            </td>
+                            <td class="px-4 py-4 text-center">
+                                <span class="text-sm text-gray-600">{{ $komponenCount }} item</span>
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center justify-center gap-2">
+                                    <div class="flex-1 max-w-[80px] h-2 bg-gray-100 rounded-full overflow-hidden">
+                                        <div class="h-full {{ $prog['evaluated'] ? 'bg-emerald-500' : 'bg-amber-500' }} rounded-full" style="width: {{ $prog['percent'] }}%"></div>
+                                    </div>
+                                    <span class="text-xs font-medium {{ $prog['evaluated'] ? 'text-emerald-600' : 'text-amber-600' }} min-w-[45px]">
+                                        {{ $prog['evaluated'] ? '100%' : $prog['percent'] . '%' }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4 text-right">
+                                <a href="{{ route('dupak.validasi.show', $pengajuan->id) }}"
+                                   class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium {{ $prog['evaluated'] ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-blue-50 text-blue-700 border border-blue-200' }} hover:opacity-80">
+                                    {{ $prog['evaluated'] ? 'Selesai' : 'Review' }}
+                                </a>
+                            </td>
+                        </tr>
+                        {{-- Expandable Detail --}}
+                        <tr class="hidden" id="details-{{ $pengajuan->id }}">
+                            <td colspan="7" class="px-4 py-0 bg-gray-50">
+                                <div class="ml-10 my-2">
+                                    <div class="bg-white rounded-lg border border-gray-100 overflow-hidden">
+                                        <table class="min-w-full">
+                                            <thead class="bg-gray-100">
+                                                <tr>
+                                                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Komponen</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Deskripsi</th>
+                                                    <th class="px-4 py-2 text-center text-xs font-semibold text-gray-600">AK</th>
+                                                    <th class="px-4 py-2 text-center text-xs font-semibold text-gray-600">Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-50">
+                                                @forelse($details as $detail)
+                                                @php
+                                                $evalStatus = $detail->evaluation['status_evaluasi'] ?? null;
+                                                $displayStatus = $evalStatus ?? $detail->status;
+                                                
+                                                $statusColors = [
+                                                    'OK' => 'bg-emerald-50 text-emerald-600 border-emerald-200',
+                                                    'Doubt' => 'bg-amber-50 text-amber-600 border-amber-200',
+                                                    'Fake' => 'bg-rose-50 text-rose-600 border-rose-200',
+                                                    'pending' => 'bg-gray-50 text-gray-500 border-gray-200',
+                                                    'approved' => 'bg-emerald-50 text-emerald-600 border-emerald-200',
+                                                    'revision' => 'bg-amber-50 text-amber-600 border-amber-200',
+                                                    'rejected' => 'bg-rose-50 text-rose-600 border-rose-200',
+                                                ];
+                                                $label = $evalStatus ? 'TPAK: ' . $evalStatus : ucfirst($detail->status);
+                                                @endphp
+                                                <tr class="hover:bg-gray-50">
+                                                    <td class="px-4 py-3">
+                                                        <span class="text-sm font-medium text-gray-800">{{ Str::limit($detail->komponen->nama ?? 'Komponen #' . $detail->idKomponen, 35) }}</span>
+                                                    </td>
+                                                    <td class="px-4 py-3">
+                                                        <span class="text-sm text-gray-500">{{ Str::limit($detail->deskripsi_kegiatan, 60) }}</span>
+                                                    </td>
+                                                    <td class="px-4 py-3 text-center">
+                                                        <span class="text-sm font-semibold text-gray-700">{{ number_format($detail->angka_kredit_total, 2) }}</span>
+                                                    </td>
+                                                    <td class="px-4 py-3 text-center">
+                                                        <span class="inline-block px-2 py-1 rounded text-xs font-medium border {{ $statusColors[$displayStatus] ?? 'bg-gray-50 text-gray-500 border-gray-200' }}">
+                                                            {{ $label }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                @empty
+                                                <tr>
+                                                    <td colspan="4" class="px-4 py-6 text-center text-gray-400">
+                                                        Tidak ada detail
+                                                    </td>
+                                                </tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center">
+                                <div class="text-gray-400 mb-2">
+                                    <i class="fas fa-inbox text-4xl"></i>
+                                </div>
+                                <p class="text-gray-500 font-medium">Tidak ada tugas validasi</p>
+                                <p class="text-sm text-gray-400 mt-1">Tugas akan muncul saat ada penugasan TPAK baru.</p>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
 
-            @if($detailPengajuanTPAK->hasPages())
-            <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-50">
-                {{ $detailPengajuanTPAK->links() }}
+            @if($pengajuanList->hasPages())
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
+                {{ $pengajuanList->appends(request()->query())->links() }}
             </div>
             @endif
         </div>
     </div>
 </div>
 
-<style>
-    .animate-fade-in {
-        animation: fadeIn 0.5s ease-out;
+<script>
+function toggleDetail(id) {
+    var row = document.getElementById('details-' + id);
+    var icon = document.getElementById('icon-' + id);
+    if (row.classList.contains('hidden')) {
+        row.classList.remove('hidden');
+        icon.style.transform = 'rotate(90deg)';
+    } else {
+        row.classList.add('hidden');
+        icon.style.transform = 'rotate(0deg)';
     }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(5px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-</style>
+}
+</script>
 @endsection

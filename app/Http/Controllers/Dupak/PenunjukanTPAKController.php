@@ -33,7 +33,7 @@ class PenunjukanTPAKController extends Controller
             ->whereIn('status', ['Pending', 'Submitted'])
             ->where(function($q) {
                 $q->selectRaw('count(*)')
-                  ->from('dupak.penunjukan_tpak') // Specify connection for subquery
+                  ->from('penunjukan_tpak') // Use table name only; connection is inherited from parent query
                   ->whereColumn('penunjukan_tpak.pengajuan_id', 'pengajuan.id');
             }, '<', 5);
 

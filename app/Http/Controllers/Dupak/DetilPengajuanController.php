@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Dosen;
 use App\Models\Dupak\DetailPengajuan;
 use App\Models\Dupak\Pengajuan;
+use App\Models\Dupak\RefKomponen as RefKategori;
+use App\Helpers\DupakScoringHelper;
 use App\Models\Dupak\RefKegiatanKomponen;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -54,6 +56,13 @@ class DetilPengajuanController extends Controller
         $idUtama = $categoryMap[strtolower($category)] ?? null;
         $komponenId = $request->query('komponen_id');
 
+        // <!-- For II. Pelaksanaan pendidikan. Melaksanakan perkuliahan -->
+        // 						<!-- There is special input which pengaju need to fill -->
+        // 						 <!-- Periode Pengajuan Ex. "Semester Ganjil 2025/2026", SKS Ex. 4 Kelas Ex. 2  this will be calculcated for the scoring -->
+
+        $isPerkuliahan = ($komponenId == 3);
+        $isBimbinganTA = ($komponenId == 6);
+
         // dd($category, $pengajuan->id);
 
         // Ambil komponen berdasarkan ID dan pastikan sesuai dengan kategori utama
@@ -68,7 +77,16 @@ class DetilPengajuanController extends Controller
             ->get(); // This populates the "Detail Butir Kegiatan" dropdown
         // dd($jenisInputs);
 
-        return view('dupak.pengisian_detil_pengajuan.generic_form', compact('pengajuan', 'komponen', 'jenisInputs', 'category'));
+
+
+        return view('dupak.pengisian_detil_pengajuan.generic_form', compact(
+            'pengajuan',
+            'komponen',
+            'jenisInputs',
+            'category',
+            'isPerkuliahan',
+            'isBimbinganTA'
+        ));
     }
 
     /**
@@ -87,6 +105,7 @@ class DetilPengajuanController extends Controller
             'id_jenis_input' => 'required',
             'deskripsi_kegiatan' => 'required|string',
             'link_bukti_pendukung' => 'required|url',
+            
             'volume' => 'nullable|numeric',
         ]);
 
@@ -107,6 +126,7 @@ class DetilPengajuanController extends Controller
         $detail->deskripsi_kegiatan = $request->deskripsi_kegiatan;
         $detail->angka_kredit_murni = $nilaiBaku;
         $detail->angka_kredit_total = $nilaiBaku * $volume;
+        $detail->periode_pengajuan = $request->periode_pengajuan;
         $detail->status = 'pending';
         $detail->link_bukti_pendukung = $request->link_bukti_pendukung;
         $detail->volume = $volume;
