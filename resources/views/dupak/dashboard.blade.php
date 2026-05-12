@@ -30,7 +30,7 @@
 
         <div class="bg-white shadow rounded-t-lg p-6 pb-0">
             <h1 class="text-2xl font-semibold mb-6">
-                Dasbor DUPAK ===
+                Dasbor DUPAK
                 @if ($user->is_admin)
                 <span class="text-sm text-gray-500 font-normal">(Admin)</span>
                 @endif
