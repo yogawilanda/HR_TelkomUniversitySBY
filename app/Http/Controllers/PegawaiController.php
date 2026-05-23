@@ -993,7 +993,7 @@ class PegawaiController extends Controller
             $user->save();
             // $this->MakeLog('User Mereset Password Data '.$this->aksi, ['pemilik data' => $user->nama_lengkap]);
             Db::commit();
-            return redirect(route('login'))->with('success', 'Password berhasil diperbarui, silahkan Login!');
+            return redirect(route('login'))->with('message', 'Password berhasil diperbarui, silahkan Login!');
         } catch (\Exception $e) {
             // $this->MakeLog('User Gagal Mereset Password Data '.$this->aksi, ['alasam' => $e->getMessage()]);
             DB::rollBack();

@@ -30,18 +30,19 @@ class AllAboutAuthController extends Controller
         try {
             $user = User::where('email_institusi', $email_institusi)->first();
             if ($user != null) {
-                $otp = (string) random_int(100000, 999999);
-                $user->verified_code = $otp;
-                Mail::to($user->email_pribadi)->send(new SendEmail($otp));
-                $user->save();
+                if($user->verified_code==null){
+                    $otp = (string) random_int(100000, 999999);
+                    $user->verified_code = $otp;
+                    Mail::to($user->email_pribadi)->send(new SendEmail($otp));
+                    $user->save();
+                }
                 $email_pribadi = $this->mask_email($user->email_pribadi);
-
                 return response()->json(['success' => true, 'data' => ['Berhasil membuat kode verifikasi', $email_pribadi]], 200);
             } else {
                 throw new \Exception('Tidak ada akun dengan email institusi tersebut');
             }
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+            return redirect()->back()->with('error_alert', $e->getMessage());
         }
     }
 
@@ -67,7 +68,7 @@ class AllAboutAuthController extends Controller
                 throw new \Exception('Tidak ada akun dengan email institusi tersebut');
             }
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+            return redirect()->back()->with('error_alert', $e->getMessage());
         }
     }
 
@@ -78,8 +79,6 @@ class AllAboutAuthController extends Controller
             $send_code = $this->send_verify($request->email_institusi);
             if ($send_code->getStatusCode() == 200) {
                 $data_return = $send_code->getData(true);
-                // $user = User::where('')
-                // dd($data_return['data'][1]);
                 return view('auth.verify-email-code', ['email_pribadi' => $data_return['data'][1]])->with('message', 'Kode Verifikasi sudah berhasil dikirim ke email pribadi');
             } else {
                 $eror = $send_code->getData(true);
@@ -88,13 +87,16 @@ class AllAboutAuthController extends Controller
             }
         } catch (\Exception $e) {
             // dd( 'cek masuk catch');
-            // return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
-            return $this->handleRedirectBack()->with('error', $e->getMessage());
+            // return response()->json(['success' => false, 'error_alert' => $e->getMessage()], 500);
+            return $this->handleRedirectBack()->with('error_alert', $e->getMessage());
         }
     }
 
     public function forget_password(Request $request)
     {
+        if(Auth::check()){
+            return $this->handleRedirectBack()->with('error_alert','Silahkan Lakukan Logout terlebih dahulu untuk mengakses fitur ini, atau langsung ubah password di dalam area profil!');
+        }
         try {
             $send_code = $this->send_verify_password($request->email_institusi);
             if ($send_code->getStatusCode() == 200) {
@@ -102,14 +104,15 @@ class AllAboutAuthController extends Controller
                 // $user = User::where('')
                 // dd($data_return['data'][1]);
                 return view('auth.forget-password-done-send', ['email_pribadi' => $data_return['data'][1]])->with('message', 'Link berhasil dikirim!.');
-            } else {
+            }
+             else {
                 // dd($send_code->getData(true), 'cek masuk else');
                 throw new \Exception('Email Institusi yang anda masukkan sepertinya salah atau tidak terdaftar di sistem kami!');
             }
         } catch (\Exception $e) {
             // dd( 'cek masuk catch');
-            // return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
-            return $this->handleRedirectBack()->with('error', $e->getMessage());
+            // return response()->json(['success' => false, 'error_alert' => $e->getMessage()], 500);
+            return $this->handleRedirectBack()->with('error_alert', $e->getMessage());
         }
     }
 
@@ -126,15 +129,7 @@ class AllAboutAuthController extends Controller
             $user = User::where('email_institusi', $request->email_institusi)->first();
 
             if (!$user) {
-                // Pakai redirect dengan error dan old input
-                // return back()->withErrors(['email_institusi' => 'Email tidak ditemukan.'])
-                //     ->withInput();
-                // throw new \Exception('');
                 throw new \Exception('Kode Validasi Tidak Sesuai! ');
-
-                // throw ValidationException::withMessages([
-                //     'Kode Validasi Tidak Sesuai! '
-                // ]);
             }
 
             if ($user->verified_code === $request->otp) {

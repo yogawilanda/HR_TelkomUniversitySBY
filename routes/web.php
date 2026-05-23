@@ -271,6 +271,7 @@ Route::middleware(['auth',  \App\Http\Middleware\CekFlashUser::class])->group(fu
             Route::get('/update/{id_jfa}', [RiwayatJabatanFungsionalAkademikController::class, 'update'])->name('update')->middleware(['admin:{"is_admin":true|"bagian":"sumber daya manusia"}']);
             Route::post('/update-data/{id_jfa}', [RiwayatJabatanFungsionalAkademikController::class, 'update_data'])->name('update-data')->middleware(['admin:{"is_admin":true|"bagian":"sumber daya manusia"}']);
             Route::post('/store/', [RiwayatJabatanFungsionalAkademikController::class, 'store_data'])->name('store')->middleware(['admin:{"is_admin":true|"bagian":"sumber daya manusia"}']);
+            Route::get('/riwayat/{id_user}', [RiwayatJabatanFungsionalAkademikController::class, 'history'])->name('history')->middleware(['admin:{"is_admin":true|"bagian":"sumber daya manusia"}']);
 
             Route::group(['prefix' => 'ref', 'as' => 'ref.'], function () {
                 Route::get('/new/', [RefJabatanFungsionalAkademikController::class, 'new'])->name('new')->middleware(['admin:{"is_admin":true}']);

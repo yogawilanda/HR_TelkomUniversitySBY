@@ -78,15 +78,16 @@
 
                     <div class="p-8">
                         <!-- Flash Message Error -->
-                        @if (session()->has('error'))
+                        {{-- {{ dd(session()->has('error')) }} --}}
+                        {{-- @if (session()->has('error'))
                             <div class="mb-6 p-4 text-sm text-red-800 bg-red-50 border-l-4 border-red-600 dark:bg-red-900/30 dark:text-red-300 rounded-r-md">
                                 <ul class="list-disc pl-5">
                                     <li>{{ session('error') }}</li>
                                 </ul>
                             </div>
-                        @endif
-
+                        @endif --}}
                         @if (session()->has('error_alert'))
+                        {{-- {{ dump(session()->has('error_alert')) }} --}}
                             <div class="mb-6 p-4 text-sm text-red-800 bg-red-50 border-l-4 border-red-600 dark:bg-red-900/30 dark:text-red-300 rounded-r-md">
                                 <ul class="list-disc pl-5">
                                     <li>{{ session('error_alert') }}</li>
