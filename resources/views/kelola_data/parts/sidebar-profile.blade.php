@@ -28,6 +28,13 @@
                     'fa-solid fa-sitemap', // Lebih cocok untuk struktur organisasi/pemetaan
                 ],
                 [
+                    'History Pangkat Golongan',
+                    (session('account')['is_admin'] || isset(session('account')['role']['sumber daya manusia'])) && $user['id'] != session('account')['id']
+                        ? route('manage.pangkat-golongan.history', ['id_user' => $user['id']])
+                        : route('profile.history.pangkat-golongan', ['id_user' => $user['id']]),
+                    'fa-solid fa-sitemap', // Lebih cocok untuk struktur organisasi/pemetaan
+                ],
+                [
                     'History Jabatan Fungsional Akademik (JFA)',
                     (session('account')['is_admin'] || isset(session('account')['role']['sumber daya manusia'])) && $user['id'] != session('account')['id']
                         ? route('manage.jfa.history', ['id_user' => $user['id']])

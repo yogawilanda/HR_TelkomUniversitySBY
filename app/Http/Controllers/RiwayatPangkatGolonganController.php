@@ -216,4 +216,35 @@ class RiwayatPangkatGolonganController extends Controller
         ]
         ];
     }
+
+    public function history($id_user){
+        if ($this->onlyOwnerAdminAndSdm($id_user) == true) {
+            $dosen = Dosen::where('users_id', $id_user)->first();
+            if (! $dosen) {
+                return $this->handleRedirectBack()->with('error_alert', 'Data Dosen Tidak Ditemukan!.');
+            }
+            $user = (new ProfileController)->based_user_data($id_user);
+            $history = RiwayatPangkatGolongan::with([
+                'skLlDikti',
+                'dosen',
+                'refPangkatGolongan'
+                ])
+                ->where('dosen_id', $dosen->id)
+                ->get()
+                ->map(function ($item) {
+                    $item->is_active = is_null($item->tmt_selesai)
+                        || $item->tmt_selesai >= today();
+
+                    return $item;
+                })
+                ->sortByDesc('created_at');
+            // dd($history);
+            $this->MakeLog('User Berhasil Mengakses halaman Riwayat Pangkat Golongan dari Dosen Terkait', ['dosen terkait' => $user->nama_lengkap]);
+
+            $route = view('kelola_data.pegawai.view.history.pangkat-golongan', compact('user', 'history'));
+            return $route;
+        }
+
+        return redirect(route('profile.personal-info', ['idUser' => session('account')['id']]))->with('error_alert', 'Anda hanya boleh mengelola data anda sendiri!.');
+    }
 }
