@@ -61,7 +61,7 @@
                             </p>
                             <p>
                                 TMT Berakhir: <span
-                                    class="text-[#e3342f] font-semibold bg-[#fdf2f2] px-2 py-0.5 rounded border border-[#fde8e8]">{{ $data->tmt_selesai }}</span>
+                                    class="text-[#e3342f] font-semibold bg-[#fdf2f2] px-2 py-0.5 rounded border border-[#fde8e8]">{{ $data->tmt_selesai==null?'Belum Di isi': $data->tmt_selesai}}</span>
                             </p>
                         </div>
 
