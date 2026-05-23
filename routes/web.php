@@ -148,6 +148,8 @@ Route::middleware(['auth',  \App\Http\Middleware\CekFlashUser::class])->group(fu
             Route::get('/{id_pegawai}/history-nip', [RiwayatNipController::class, 'history_nip'])->name('nip'); //done onController (only admin, owner)
             Route::get('/riwayat/{id_user}', [DosenHasKKController::class, 'riwayat'])->name('kelompok-keahlian'); //done onController (only admin, owner) //cek
             Route::get('/coe/{id_user}', [DosenHasCOEController::class, 'History'])->name('coe'); //done onController (only admin, owner)
+            Route::get('/jfa/{id_user}', [RiwayatJabatanFungsionalAkademikController::class, 'history'])->name('jfa');; //done onController (only admin, owner)
+
 
             Route::group(['prefix' => 'pendidikan', 'as' => 'pendidikan.'], function () {
                 Route::get('/{idUser}/index', [RiwayatJenjangPendidikanController::class, 'profileRiwayatPendidikan'])->name('index'); //done onController (only admin, owner)
