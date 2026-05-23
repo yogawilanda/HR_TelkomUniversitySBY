@@ -276,4 +276,35 @@ class RiwayatJabatanFungsionalKeahlianController extends Controller
             ],
         ];
     }
+
+    public function history($id_user){
+        if ($this->onlyOwnerAdminAndSdm($id_user) == true) {
+            $tpa = Tpa::where('users_id', $id_user)->first();
+            if (! $tpa) {
+                return $this->handleRedirectBack()->with('error_alert', 'Data TPA Tidak Ditemukan!.');
+            }
+            $user = (new ProfileController)->based_user_data($id_user);
+            $history = RiwayatJabatanFungsionalKeahlian::with([
+                'sk_ypt',
+                'data_jfk',
+                'data_tpa'
+                ])
+                ->where('tpa_id', $tpa->id)
+                ->get()
+                ->map(function ($item) {
+                    $item->is_active = is_null($item->tmt_selesai)
+                        || $item->tmt_selesai >= today();
+
+                    return $item;
+                })
+                ->sortByDesc('created_at');
+            // dd($history);
+            $this->MakeLog('User Berhasil Mengakses halaman Riwayat JFK dari TPA Terkait', ['tpa terkait' => $user->nama_lengkap]);
+
+            $route = view('kelola_data.pegawai.view.history.jfk', compact('user', 'history'));
+            return $route;
+        }
+
+        return redirect(route('profile.personal-info', ['idUser' => session('account')['id']]))->with('error_alert', 'Anda hanya boleh mengelola data anda sendiri!.');
+    }
 }

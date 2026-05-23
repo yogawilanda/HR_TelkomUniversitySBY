@@ -129,6 +129,14 @@
                                                 Ubah Data
                                             </a>
                                         </li>
+                                        <li>
+                                            {{-- {{ dd($jfk->id) }} --}}
+                                            <a href="{{ route('manage.jfk.riwayat',['id_user' => $jfk->data_tpa->users_id]) }}"
+                                                class="dropdown-item hover:bg-blue-500 route_pop_up  hover:text-white"
+                                                href="#">
+                                                Riwayat JFK
+                                            </a>
+                                        </li>
                                     </ul>
                                 </div>
                             </div>

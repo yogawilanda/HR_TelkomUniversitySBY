@@ -400,7 +400,7 @@ class RiwayatJabatanFungsionalAkademikController extends Controller
 
                     return $item;
                 })
-    ->sortByDesc('created_at');
+                ->sortByDesc('created_at');
             // dd($history);
             $this->MakeLog('User Berhasil Mengakses halaman Riwayat JFA dari Dosen Terkait', ['dosen terkait' => $user->nama_lengkap]);
 

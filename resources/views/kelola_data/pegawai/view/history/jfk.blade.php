@@ -17,10 +17,10 @@
         <!-- HEADER -->
         <div class="mb-12 pb-6 border-b border-[#e8e8ed]">
             <h2 class="text-3xl font-bold tracking-tight text-[#1d1d1f]">
-                Riwayat Jabatan Fungsional
+                Riwayat Jabatan Fungsional Keahlian
             </h2>
             <p class="text-base text-[#86868b] mt-2">
-                Perjalanan garis waktu dan dokumentasi resmi karier akademik Anda.
+                Perjalanan garis waktu dan dokumentasi resmi karier keahlian Anda.
             </p>
         </div>
 
@@ -43,7 +43,7 @@
                     <div class="space-y-4">
                         <!-- Baris Judul & Status -->
                         <div class="flex items-center gap-3 flex-wrap">
-                            <h3 class="text-2xl font-bold tracking-tight text-[#1d1d1f]">{{ $data->jfa->nama_jabatan }}</h3>
+                            <h3 class="text-2xl font-bold tracking-tight text-[#1d1d1f]">{{ $data->data_tpa->nama_jfk }}</h3>
                             <span
                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#e8f5e9] text-[#2e7d32] border border-[#c8e6c9]">
                                 Sedang Berlangsung
@@ -63,21 +63,8 @@
                         </div>
 
                         <!-- Lampiran Dokumen SK (Gaya Apple Button: Bulat, tipis, bersih) -->
+                        @if(isset($data->sk_ypt->no_sk))
                         <div class="flex flex-wrap gap-3 pt-1">
-                            @if(isset($data->sk_dikti->no_sk))
-                            <a href="{{ route('manage.sk.view', ['id_sk_or_sk_number' => $data->sk_dikti->id]) }}" target="_blank"
-                                rel="noopener noreferrer"
-                                class="inline-flex items-center px-4 py-2 text-sm font-medium text-[#0066cc] bg-white border border-[#d2d2d7] rounded-full hover:bg-[#f5f5f7] hover:border-[#86868b] transition-all shadow-xs group">
-                                <span>SK DIKTI: {{$data->sk_dikti->no_sk}}</span>
-                                <svg class="w-3.5 h-3.5 ml-1.5 text-[#86868b] group-hover:text-[#0066cc] transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
-                                    fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                </svg>
-                            </a>
-                            @endif
-
-                            @if(isset($data->sk_ypt->id))
                             <a href="{{ route('manage.sk.view', ['id_sk_or_sk_number' => $data->sk_ypt->id]) }}" target="_blank"
                                 rel="noopener noreferrer"
                                 class="inline-flex items-center px-4 py-2 text-sm font-medium text-[#0066cc] bg-white border border-[#d2d2d7] rounded-full hover:bg-[#f5f5f7] hover:border-[#86868b] transition-all shadow-xs group">
@@ -88,9 +75,8 @@
                                         d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                                 </svg>
                             </a>
-                            @endif
-                            
                         </div>
+                        @endif
                     </div>
             </div>
             @empty

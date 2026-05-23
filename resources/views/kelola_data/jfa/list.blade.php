@@ -155,6 +155,13 @@
                                                 <i class="bi bi-pencil-square mr-2"></i> Ubah Data
                                             </a>
                                         </li>
+                                        <li>
+                                            <a href="{{ route('manage.jfa.history',['id_user' => $jfa->dosen->pegawai->id]) }}"
+                                                class="dropdown-item hover:bg-blue-500 route_pop_up  hover:text-white"
+                                                href="#">
+                                                Riwayat JFA
+                                            </a>
+                                        </li>
                                     </ul>
                                 </div>
                             </div>

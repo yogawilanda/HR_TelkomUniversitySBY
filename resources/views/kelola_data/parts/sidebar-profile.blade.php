@@ -35,6 +35,13 @@
                     'fa-solid fa-sitemap', // Lebih cocok untuk struktur organisasi/pemetaan
                 ],
                 [
+                    'History Jabatan Fungsional Keahlian (JFK)',
+                    (session('account')['is_admin'] || isset(session('account')['role']['sumber daya manusia'])) && $user['id'] != session('account')['id']
+                        ? route('manage.jfk.riwayat', ['id_user' => $user['id']])
+                        : route('profile.history.jfk', ['id_user' => $user['id']]),
+                    'fa-solid fa-sitemap', // Lebih cocok untuk struktur organisasi/pemetaan
+                ],
+                [
                     'History Pendidikan',
                     (session('account')['is_admin'] || isset(session('account')['role']['sumber daya manusia'])) && $user['id'] != session('account')['id']
                         ? route('manage.jenjang-pendidikan.index', ['idUser' => $user['id']])

@@ -149,6 +149,7 @@ Route::middleware(['auth',  \App\Http\Middleware\CekFlashUser::class])->group(fu
             Route::get('/riwayat/{id_user}', [DosenHasKKController::class, 'riwayat'])->name('kelompok-keahlian'); //done onController (only admin, owner) //cek
             Route::get('/coe/{id_user}', [DosenHasCOEController::class, 'History'])->name('coe'); //done onController (only admin, owner)
             Route::get('/jfa/{id_user}', [RiwayatJabatanFungsionalAkademikController::class, 'history'])->name('jfa');; //done onController (only admin, owner)
+            Route::get('/jfk/{id_user}', [RiwayatJabatanFungsionalKeahlianController::class, 'history'])->name('jfa');; //done onController (only admin, owner)
 
 
             Route::group(['prefix' => 'pendidikan', 'as' => 'pendidikan.'], function () {
@@ -291,6 +292,8 @@ Route::middleware(['auth',  \App\Http\Middleware\CekFlashUser::class])->group(fu
             Route::get('/update/{id_jfk}/', [RiwayatJabatanFungsionalKeahlianController::class, 'update'])->name('update')->middleware(['admin:{"is_admin":true|"bagian":"sumber daya manusia"}']);
             Route::post('/update-data/{id_jfk}/', [RiwayatJabatanFungsionalKeahlianController::class, 'update_data'])->name('update-data')->middleware(['admin:{"is_admin":true|"bagian":"sumber daya manusia"}']);
             Route::post('/fill-sk-ypt/{id_jfk}/', [RiwayatJabatanFungsionalKeahlianController::class, 'isi_sk_ypt'])->name('fill-sk-ypt')->middleware(['admin:{"is_admin":true|"bagian":"sumber daya manusia"}']);
+            Route::get('/riwayat/{id_user}', [RiwayatJabatanFungsionalKeahlianController::class, 'history'])->name('riwayat')->middleware(['admin:{"is_admin":true|"bagian":"sumber daya manusia"}']);
+
 
             Route::group(['prefix' => 'ref', 'as' => 'ref.'], function () {
                 Route::get('/list/', [RefJabatanFungsionalKeahlianController::class, 'list'])->name('list')->middleware(['admin:{"is_admin":true}']);
