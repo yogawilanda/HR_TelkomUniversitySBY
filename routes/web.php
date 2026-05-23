@@ -310,7 +310,7 @@ Route::middleware(['auth',  \App\Http\Middleware\CekFlashUser::class])->group(fu
             Route::get('/update/{id_pg}/', [RiwayatPangkatGolonganController::class, 'update'])->name('update')->middleware(['admin:{"is_admin":true|"bagian":"sumber daya manusia"}']);
             Route::post('/update-data/{id_pg}/', [RiwayatPangkatGolonganController::class, 'update_data'])->name('update-data')->middleware(['admin:{"is_admin":true|"bagian":"sumber daya manusia"}']);
             Route::post('/fill-sk-dikti/{id_pg}/', [RiwayatPangkatGolonganController::class, 'isi_sk_dikti'])->name('fill-sk-dikti')->middleware(['admin:{"is_admin":true|"bagian":"sumber daya manusia"}']);
-            Route::post('/history/{id_user}/', [RiwayatPangkatGolonganController::class, 'history'])->name('history')->middleware(['admin:{"is_admin":true|"bagian":"sumber daya manusia"}']);
+            Route::get('/history/{id_user}/', [RiwayatPangkatGolonganController::class, 'history'])->name('history')->middleware(['admin:{"is_admin":true|"bagian":"sumber daya manusia"}']);
 
             Route::group(['prefix' => 'ref', 'as' => 'ref.'], function () {
                 Route::get('/', function () {
