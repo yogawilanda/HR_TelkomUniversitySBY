@@ -119,8 +119,10 @@
                                                 </a>
                                             </li>
                                             <li>
-                                                <a class="dropdown-item hover:bg-blue-500 hover:text-white" href="#">
-                                                    Upgrade Pangkat
+                                                <a
+                                                href="{{ route('manage.pangkat-golongan.history',['id_user' => $jpg->dosen->pegawai->id]) }}"
+                                                class="dropdown-item hover:bg-blue-500 hover:text-white" href="#">
+                                                    Riwayat Pangkat Golongan Dosen Ini
                                                 </a>
                                             </li>
                                         </ul>
