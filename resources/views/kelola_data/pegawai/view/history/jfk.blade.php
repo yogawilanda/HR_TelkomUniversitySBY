@@ -54,11 +54,11 @@
                         <div class="text-[15px] text-[#515154]">
                             <p class="font-medium">
                                 Terhitung Mulai Tanggal (TMT): <span
-                                    class="text-[#1d1d1f] font-semibold bg-[#f5f5f7] px-2 py-1 rounded ml-1">{{ $data->tmt_mulai }}</span>
+                                    class="text-[#1d1d1f] font-semibold bg-[#f5f5f7] px-2 py-1 rounded ml-1">{{ $data->tmt_mulai==null? 'Belum Diisi':$data->tmt_mulai }}</span>
                             </p>
                             <p>
                                 TMT Berakhir: <span
-                                    class="text-[#e3342f] font-semibold bg-[#fdf2f2] px-2 py-0.5 rounded border border-[#fde8e8]">{{ $data->tmt_selesai }}</span>
+                                    class="text-[#e3342f] font-semibold bg-[#fdf2f2] px-2 py-0.5 rounded border border-[#fde8e8]">{{ $data->tmt_selesai==null? 'Belum Diisi':$data->tmt_selesai }}</span>
                             </p>
                         </div>
 
