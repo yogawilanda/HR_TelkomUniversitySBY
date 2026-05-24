@@ -28,6 +28,95 @@
 			<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Riwayat dan progres aktivitas pengajuan kenaikan jabatan.</p>
 		</div>
 
+		<!-- Statistik Angka Kredit (Visualisasi Serupa Dashboard) -->
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+			<!-- Card 1: Progress Utama -->
+			<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+				<div class="flex justify-between items-start mb-4">
+					<div>
+						<h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Progres Karir Pengaju</h3>
+						<p class="text-lg font-bold text-gray-900 dark:text-white">{{ $kumStats['jfa_asal'] }} <i class="fas fa-arrow-right mx-2 text-xs text-gray-400"></i> {{ $kumStats['jfa_tujuan'] }}</p>
+					</div>
+					<div class="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full text-xs font-bold">
+						{{ round($kumStats['percent']) }}%
+					</div>
+				</div>
+
+				<!-- Progress Bar -->
+				<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 mb-6 overflow-hidden">
+					<div class="bg-blue-600 h-4 rounded-full transition-all duration-1000" style="width: {{ $kumStats['percent'] }}%"></div>
+				</div>
+
+				<div class="grid grid-cols-2 gap-4">
+					<div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+						<p class="text-xs text-gray-500 dark:text-gray-400 mb-1">KUM Saat Ini</p>
+						<p class="text-xl font-black text-blue-600 dark:text-blue-400">{{ $kumStats['current_total'] }}</p>
+						<p class="text-[10px] text-gray-400 mt-1 italic">(Profil: {{ $kumStats['base_kum'] }} + ACC: {{ $kumStats['approved_this_submission'] }})</p>
+					</div>
+					<div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+						<p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Target KUM</p>
+						<p class="text-xl font-black text-gray-900 dark:text-white">{{ $kumStats['target'] }}</p>
+						<p class="text-[10px] text-gray-400 mt-1 italic">Sisa: {{ $kumStats['remaining'] }}</p>
+					</div>
+				</div>
+
+				<div class="mt-4 p-3 border border-dashed border-yellow-300 bg-yellow-50 dark:bg-yellow-900/10 rounded-xl flex items-center">
+					<div class="mr-3 text-yellow-600 dark:text-yellow-400">
+						<i class="fas fa-hourglass-half"></i>
+					</div>
+					<div>
+						<p class="text-xs font-semibold text-yellow-800 dark:text-yellow-200">KUM Pending (Sedang Diajukan)</p>
+						<p class="text-sm font-bold text-yellow-600 dark:text-yellow-400">+ {{ $kumStats['pending_this_submission'] }}</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Card 2: Breakdown per Kategori (Hanya dari pengajuan ini) -->
+			<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+				<h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">Rincian KUM Pengajuan Ini</h3>
+				<div class="space-y-3">
+					@php
+						$categories = [
+							'Pendidikan' => ['icon' => 'fa-graduation-cap', 'color' => 'text-purple-500'],
+							'Pelaksanaan Pendidikan' => ['icon' => 'fa-chalkboard-teacher', 'color' => 'text-blue-500'],
+							'Pelaksanaan Penelitian' => ['icon' => 'fa-microscope', 'color' => 'text-emerald-500'],
+							'Pelaksanaan Pengabdian' => ['icon' => 'fa-hands-helping', 'color' => 'text-orange-500'],
+							'Pelaksanaan Penunjang' => ['icon' => 'fa-briefcase', 'color' => 'text-pink-500'],
+						];
+					@endphp
+
+					@foreach($categories as $label => $meta)
+						@php
+							// Cari data di breakdown dengan pencocokan string parsial
+							$val = 0;
+							foreach($kumStats['breakdown'] as $catName => $total) {
+								if(str_contains(strtolower($catName), strtolower(str_replace('Pelaksanaan ', '', $label))) || str_contains(strtolower($catName), strtolower($label))) {
+									$val = $total;
+									break;
+								}
+							}
+						@endphp
+						<div class="flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-lg transition-colors">
+							<div class="flex items-center">
+								<div class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center mr-3 {{ $meta['color'] }}">
+									<i class="fas {{ $meta['icon'] }}"></i>
+								</div>
+								<span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $label }}</span>
+							</div>
+							<span class="text-sm font-bold text-gray-900 dark:text-white">{{ number_format($val, 2) }}</span>
+						</div>
+					@endforeach
+				</div>
+				
+				<div class="mt-5 pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
+					<span class="text-sm font-bold text-gray-900 dark:text-white">Total KUM Diajukan</span>
+					<span class="text-lg font-black text-indigo-600 dark:text-indigo-400">
+						{{ number_format(floatval($kumStats['approved_this_submission']) + floatval($kumStats['pending_this_submission']), 2) }}
+					</span>
+				</div>
+			</div>
+		</div>
+
 		<!-- Action Buttons -->
 		<div class="mb-8 flex justify-end gap-3">
 			<!-- Tombol Lihat Timeline (Pop up) -->

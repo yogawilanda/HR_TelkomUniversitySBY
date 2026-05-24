@@ -355,6 +355,59 @@ class PengajuanController extends Controller
         $jfaAsalLabel = $this->aturanPengajuanJFA[$pengajuan->jfaAsal] ?? 'Tidak Diketahui';
         $jfaTujuanLabel = $this->aturanPengajuanJFA[$pengajuan->jfaTujuan] ?? 'Tidak Diketahui';
 
+        // --- Hitung Data KUM untuk Visualisasi Grafis (berdasarkan Pengaju) ---
+        $dosenPengaju = $pengajuan->dosen;
+        $baseKum = (float) ($dosenPengaju->user->kum ?? 0);
+
+        // Ambil ID detail yang sudah dinilai TPAK untuk pengajuan ini
+        $evaluatedIds = \App\Models\Dupak\HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
+            ->where('detail_pengajuan.pengajuan_id', $pengajuan->id)
+            ->where('hasil_evaluasi.peran_pemeriksa', 'TPAK')
+            ->pluck('detail_pengajuan.id');
+
+        // KUM Pending: Butir kegiatan yang BELUM dinilai sama sekali oleh TPAK di pengajuan ini
+        $kumPengajuanVal = (float) $pengajuan->details()
+            ->whereNotIn('id', $evaluatedIds)
+            ->sum('angka_kredit_total');
+
+        // KUM Disetujui: Akumulasi nilai yang sudah diberikan TPAK di pengajuan ini
+        $kumDisetujuiVal = (float) \App\Models\Dupak\HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
+            ->where('detail_pengajuan.pengajuan_id', $pengajuan->id)
+            ->where('hasil_evaluasi.peran_pemeriksa', 'TPAK')
+            ->groupBy('hasil_evaluasi.detail_pengajuan_id')
+            ->selectRaw('AVG(hasil_evaluasi.nilai_angka_kredit) as avg_nilai')
+            ->get()
+            ->sum('avg_nilai');
+
+        $targetKumRecord = \App\Models\Dupak\RefTargetJabatanPengajuan::where('jfaAsal', $pengajuan->jfaAsal)
+            ->where('jfaTujuan', $pengajuan->jfaTujuan)
+            ->first();
+        $targetKumVal = $targetKumRecord->kumTarget ?? 0;
+
+        $currentTotalKum = $baseKum + $kumDisetujuiVal;
+        $percent = $targetKumVal > 0 ? min(100, ($currentTotalKum / $targetKumVal) * 100) : 0;
+
+        // Breakdown KUM per kategori dari isi pengajuan ini
+        $breakdown = \App\Models\Dupak\DetailPengajuan::join('ref_kegiatan_komponen', 'detail_pengajuan.idKomponen', '=', 'ref_kegiatan_komponen.id')
+            ->join('ref_kegiatan_utama', 'ref_kegiatan_komponen.idKegiatanUtama', '=', 'ref_kegiatan_utama.id')
+            ->where('detail_pengajuan.pengajuan_id', $pengajuan->id)
+            ->select('ref_kegiatan_utama.nama as kategori', \Illuminate\Support\Facades\DB::raw('COALESCE(SUM(detail_pengajuan.angka_kredit_total), 0) as total'))
+            ->groupBy('ref_kegiatan_utama.nama')
+            ->pluck('total', 'kategori');
+
+        $kumStats = [
+            'base_kum' => number_format($baseKum, 2),
+            'current_total' => number_format($currentTotalKum, 2),
+            'approved_this_submission' => number_format($kumDisetujuiVal, 2),
+            'pending_this_submission' => number_format($kumPengajuanVal, 2),
+            'target' => number_format($targetKumVal, 2),
+            'remaining' => number_format(max(0, $targetKumVal - $currentTotalKum), 2),
+            'percent' => $percent,
+            'jfa_asal' => $jfaAsalLabel,
+            'jfa_tujuan' => $jfaTujuanLabel,
+            'breakdown' => $breakdown
+        ];
+
         $riwayatJFA = RiwayatJabatanFungsionalAkademik::where('dosen_id', $pengajuan->idDosen)->latest()->get();
 
         // Mockup data timeline (Nantinya ambil dari tabel detail_pengajuan & evaluasi)
@@ -475,6 +528,6 @@ class PengajuanController extends Controller
             ];
         }
 
-        return view('dupak.pengajuan.show', compact('pengajuan', 'timelineData'));
+        return view('dupak.pengajuan.show', compact('pengajuan', 'timelineData', 'kumStats'));
     }
 }
