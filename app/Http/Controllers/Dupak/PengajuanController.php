@@ -349,7 +349,7 @@ class PengajuanController extends Controller
     public function show(string $id)
     {
         // get riwayat jfa dosen
-        $pengajuan = Pengajuan::with(['dosen', 'details.komponen', 'details.evaluations'])->findOrFail($id);
+        $pengajuan = Pengajuan::with(['dosen', 'details.komponen.kegiatanUtama', 'details.evaluations'])->findOrFail($id);
 
         // Mapping UUID ke Label Nama Jabatan
         $jfaAsalLabel = $this->aturanPengajuanJFA[$pengajuan->jfaAsal] ?? 'Tidak Diketahui';
@@ -387,13 +387,36 @@ class PengajuanController extends Controller
         $currentTotalKum = $baseKum + $kumDisetujuiVal;
         $percent = $targetKumVal > 0 ? min(100, ($currentTotalKum / $targetKumVal) * 100) : 0;
 
-        // Breakdown KUM per kategori dari isi pengajuan ini
-        $breakdown = \App\Models\Dupak\DetailPengajuan::join('ref_kegiatan_komponen', 'detail_pengajuan.idKomponen', '=', 'ref_kegiatan_komponen.id')
-            ->join('ref_kegiatan_utama', 'ref_kegiatan_komponen.idKegiatanUtama', '=', 'ref_kegiatan_utama.id')
+        // Breakdown KUM per kategori (Gunakan nilai ACC jika sudah dinilai, atau nilai Ajuan jika belum)
+        $allDetails = $pengajuan->details;
+        $evaluationsMap = \App\Models\Dupak\HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
             ->where('detail_pengajuan.pengajuan_id', $pengajuan->id)
-            ->select('ref_kegiatan_utama.nama as kategori', \Illuminate\Support\Facades\DB::raw('COALESCE(SUM(detail_pengajuan.angka_kredit_total), 0) as total'))
-            ->groupBy('ref_kegiatan_utama.nama')
-            ->pluck('total', 'kategori');
+            ->where('hasil_evaluasi.peran_pemeriksa', 'TPAK')
+            ->select('detail_pengajuan_id', 'nilai_angka_kredit')
+            ->get()
+            ->groupBy('detail_pengajuan_id');
+
+        $breakdown = [
+            'Pendidikan' => 0,
+            'Pelaksanaan Pendidikan' => 0,
+            'Pelaksanaan Penelitian' => 0,
+            'Pelaksanaan Pengabdian' => 0,
+            'Pelaksanaan Penunjang' => 0,
+        ];
+
+        foreach ($allDetails as $detail) {
+            $rawCat = strtolower($detail->komponen->kegiatanUtama->nama ?? '');
+            $targetKey = 'Pelaksanaan Penunjang'; // Default
+
+            if (str_contains($rawCat, 'pelaksanaan pendidikan')) $targetKey = 'Pelaksanaan Pendidikan';
+            elseif (str_contains($rawCat, 'pelaksanaan penelitian') || str_contains($rawCat, 'penelitian')) $targetKey = 'Pelaksanaan Penelitian';
+            elseif (str_contains($rawCat, 'pengabdian')) $targetKey = 'Pelaksanaan Pengabdian';
+            elseif (str_contains($rawCat, 'pendidikan')) $targetKey = 'Pendidikan';
+            elseif (str_contains($rawCat, 'penunjang')) $targetKey = 'Pelaksanaan Penunjang';
+
+            $val = $evaluationsMap->has($detail->id) ? (float)$evaluationsMap->get($detail->id)->avg('nilai_angka_kredit') : (float)$detail->angka_kredit_total;
+            $breakdown[$targetKey] += $val;
+        }
 
         $kumStats = [
             'base_kum' => number_format($baseKum, 2),
@@ -528,6 +551,8 @@ class PengajuanController extends Controller
             ];
         }
 
-        return view('dupak.pengajuan.show', compact('pengajuan', 'timelineData', 'kumStats'));
+        $kegiatanUtama = RefKegiatanUtama::with('komponens')->where('status', 1)->get();
+
+        return view('dupak.pengajuan.show', compact('pengajuan', 'timelineData', 'kumStats', 'kegiatanUtama'));
     }
 }
