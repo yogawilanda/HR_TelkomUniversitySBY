@@ -115,15 +115,6 @@
                     class="px-5 py-2.5 text-sm font-bold text-white bg-blue-900 rounded-lg hover:bg-blue-950 transition-all flex-1 text-center">
                     <i class="fas fa-eye mr-1"></i> Detail Kegiatan
                 </a>
-
-                @if(in_array($submissions['latest']->status, ['Draft', 'Pending', 'Revisi']))
-                    <form action="{{ route('dupak.pengajuan.submit', $submissions['latest']->id) }}" method="POST" class="flex-1" onsubmit="return confirm('Kirim pengajuan sekarang?');">
-                        @csrf
-                        <button type="submit" class="w-full px-5 py-2.5 text-sm font-bold text-white bg-green-600 rounded-lg hover:bg-green-700 transition-all shadow-sm">
-                            <i class="fas fa-paper-plane mr-1"></i> Kirim Pengajuan
-                        </button>
-                    </form>
-                @endif
             @else
                 <button disabled class="px-5 py-2.5 text-sm font-bold text-white bg-gray-400 rounded-lg cursor-not-allowed flex-1">
                     Detail Kegiatan
