@@ -38,7 +38,18 @@
                         <div class="flex items-baseline gap-1">
                             <span class="text-2xl font-bold text-blue-900">+{{ $kum['pending_kum'] }}</span>
                         </div>
-                        <p class="text-[10px] text-gray-400 leading-tight">Menunggu evaluasi TPAK</p>
+                        @php
+                            $subStatus = $submissions['latest'] ? $submissions['latest']->status : 'Draft';
+                            $statusTexts = [
+                                'Draft' => 'Belum dikirim (Draft)',
+                                'Pending' => 'Belum dikirim (Draft)',
+                                'Diajukan' => 'Menunggu evaluasi TPAK',
+                                'Menunggu' => 'Menunggu evaluasi TPAK',
+                                'Revisi' => 'Perlu perbaikan/revisi',
+                            ];
+                            $statusText = $statusTexts[$subStatus] ?? 'Dalam antrean';
+                        @endphp
+                        <p class="text-[10px] text-gray-400 leading-tight">{{ $statusText }}</p>
                     @else
                         <span class="text-2xl font-bold text-gray-300">0</span>
                         <p class="text-[10px] text-gray-400">Tidak ada antrean</p>
@@ -57,8 +68,12 @@
             {{-- 4. SISA --}}
             <div class="flex flex-col">
                 <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tersisa</span>
-                <div class="text-2xl font-bold mt-1">
-                    {{ $kum['remaining'] }}
+                <div class="text-2xl font-bold mt-1 {{ (float)$kum['remaining'] <= 0 ? 'text-green-600' : 'text-gray-800' }}">
+                    @if((float)$kum['remaining'] <= 0)
+                        <span class="flex items-center gap-1"><i class="fas fa-check-circle text-xs"></i> 0.00</span>
+                    @else
+                        {{ $kum['remaining'] }}
+                    @endif
                 </div>
             </div>
         </div>
@@ -102,7 +117,14 @@
                         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tight">{{ $item['label'] }}</span>
                         <i class="fas fa-info-circle text-[10px] text-gray-300 cursor-help" title="{{ $item['info'] }}"></i>
                     </div>
-                    <div class="text-xl font-black text-gray-800">{{ $kum[$item['key']] ?? '0' }}</div>
+                    <div class="text-xl font-black text-gray-800">
+                        {{ $kum[$item['key']]['approved'] ?? '0.00' }}
+                    </div>
+                    @if(isset($kum[$item['key']]['pending']) && (float)$kum[$item['key']]['pending'] > 0)
+                        <div class="text-[10px] font-bold text-yellow-600 mt-0.5" title="Sedang Diajukan">
+                            +{{ $kum[$item['key']]['pending'] }} pending
+                        </div>
+                    @endif
                 </div>
                 @endforeach
             </div>
@@ -121,9 +143,19 @@
                 </button>
             @endif
 
-            <a onclick="openModal()" class="px-5 py-2.5 text-sm font-bold text-blue-900 border border-blue-900 rounded-lg hover:bg-blue-50 cursor-pointer flex-1 text-center transition-colors">
-                <i class="fas fa-plus-circle mr-1"></i> Tambahkan Kegiatan
-            </a>
+            @if((float)$kum['current'] >= (float)$kum['target'])
+                <button disabled title="Target KUM sudah terpenuhi! Anda tidak perlu menambahkan kegiatan lagi." class="px-5 py-2.5 text-sm font-bold text-green-600 border border-green-300 bg-green-50 rounded-lg cursor-not-allowed flex-1 text-center">
+                    <i class="fas fa-check-circle mr-1"></i> Target Terpenuhi
+                </button>
+            @elseif($submissions['latest'] && in_array($submissions['latest']->status, ['Draft', 'Pending', 'Revisi']))
+                <a onclick="openModal()" class="px-5 py-2.5 text-sm font-bold text-blue-900 border border-blue-900 rounded-lg hover:bg-blue-50 cursor-pointer flex-1 text-center transition-colors">
+                    <i class="fas fa-plus-circle mr-1"></i> Tambahkan Kegiatan
+                </a>
+            @else
+                <button disabled title="Anda harus memiliki pengajuan berstatus Draft/Revisi untuk menambah kegiatan baru" class="px-5 py-2.5 text-sm font-bold text-gray-400 border border-gray-300 rounded-lg cursor-not-allowed flex-1 text-center opacity-60">
+                    <i class="fas fa-plus-circle mr-1"></i> Tambahkan Kegiatan
+                </button>
+            @endif
         </div>
     @endif
 </div>

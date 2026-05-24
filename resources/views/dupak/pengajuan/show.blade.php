@@ -46,8 +46,13 @@
 				][$pengajuan->status] ?? 'bg-gray-100 text-gray-800';
 				@endphp
 				<span class="px-3 py-1 text-xs font-semibold rounded-full {{ $badgeColor }}">
-					{{ $pengajuan->status }}
-				</span>
+    {{ $pengajuan->status }}
+</span>
+<div class="mt-2 text-sm text-gray-600">
+    <p><strong>Pengaju:</strong> {{ $pengajuan->dosen->user->nama_lengkap ?? 'Nama Tidak Diketahui' }}</p>
+    <p><strong>NIDN:</strong> {{ $pengajuan->dosen->nidn ?? 'NIDN Tidak Diketahui' }}</p>
+    <p><strong>Jabatan Fungsional:</strong> {{ $jfaAsalLabel }}</p>
+</div>
 			</div>
 		</div>
 

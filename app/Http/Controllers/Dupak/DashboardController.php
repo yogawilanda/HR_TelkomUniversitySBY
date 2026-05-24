@@ -44,7 +44,8 @@ class DashboardController extends Controller
 
     private function getJfaTujuan(?string $jfaId)
     {
-        if (!$jfaId) return null;
+        if (!$jfaId)
+            return null;
 
         $keys = array_keys($this->aturanPengajuanJFA);
         $i = array_search($jfaId, $keys);
@@ -54,7 +55,8 @@ class DashboardController extends Controller
 
     private function getTargetKum(?string $asal, ?string $tujuan, $minimal)
     {
-        if (!$asal || !$tujuan) return $minimal;
+        if (!$asal || !$tujuan)
+            return $minimal;
 
         $record = RefTargetJabatanPengajuan::where('jfaAsal', $asal)
             ->where('jfaTujuan', $tujuan)
@@ -80,7 +82,7 @@ class DashboardController extends Controller
     }
 
     private function submissions(User $user, ?string $dosenId)
-    {   
+    {
         // fixing sorting algorithm for 2 layered sorts.
         $q = Pengajuan::with(['dosen.pegawai'])
             ->orderByDesc('created_at')
@@ -95,7 +97,8 @@ class DashboardController extends Controller
 
     private function hasPendingSubmission(?string $dosenId): bool
     {
-        if (!$dosenId) return false;
+        if (!$dosenId)
+            return false;
 
         $pendingStatuses = ['Draft', 'Pending', 'Diajukan', 'Revisi', 'Menunggu'];
 
@@ -110,7 +113,8 @@ class DashboardController extends Controller
      */
     private function isMaxJfa(?Dosen $dosen): bool
     {
-        if (!$dosen) return false;
+        if (!$dosen)
+            return false;
 
         $riwayat = $this->getCurrentJFA($dosen);
         $jfaId = $riwayat?->ref_jfa_id;
@@ -196,7 +200,7 @@ class DashboardController extends Controller
             }
         }
 
-        $baseKum = (float)($user->kum ?? 0);
+        $baseKum = (float) ($user->kum ?? 0);
         // Progress sekarang menghitung Base KUM profil + KUM yang sudah divalidasi TPAK di pengajuan aktif
         $jfaData = $this->getJfaAndKumData($dosen, $baseKum + $kumDisetujui);
         $progress = $jfaData['progress'];
@@ -214,9 +218,11 @@ class DashboardController extends Controller
         }
 
         $kegiatanUtama = RefKegiatanUtama::select('id', 'nama')
-            ->with(['komponens' => function ($query) {
-                $query->select('id', 'nama', 'idKegiatanUtama');
-            }])
+            ->with([
+                'komponens' => function ($query) {
+                    $query->select('id', 'nama', 'idKegiatanUtama');
+                }
+            ])
             ->where('status', 1)
             ->get();
 
@@ -226,35 +232,64 @@ class DashboardController extends Controller
         ];
 
         $kumBreakdown = [
-            'pendidikan' => '0.00',
-            'pelaksanaan_pendidikan' => '0.00',
-            'penelitian' => '0.00',
-            'pengabdian' => '0.00',
-            'penunjang' => '0.00',
+            'pendidikan' => ['approved' => 0.0, 'pending' => 0.0],
+            'pelaksanaan_pendidikan' => ['approved' => 0.0, 'pending' => 0.0],
+            'penelitian' => ['approved' => 0.0, 'pending' => 0.0],
+            'pengabdian' => ['approved' => 0.0, 'pending' => 0.0],
+            'penunjang' => ['approved' => 0.0, 'pending' => 0.0],
         ];
 
         if ($dosen && $personalSubmission) {
-            $breakdown = \App\Models\Dupak\DetailPengajuan::join('ref_kegiatan_komponen', 'detail_pengajuan.idKomponen', '=', 'ref_kegiatan_komponen.id')
+            $details = \App\Models\Dupak\DetailPengajuan::join('ref_kegiatan_komponen', 'detail_pengajuan.idKomponen', '=', 'ref_kegiatan_komponen.id')
                 ->join('ref_kegiatan_utama', 'ref_kegiatan_komponen.idKegiatanUtama', '=', 'ref_kegiatan_utama.id')
                 ->where('detail_pengajuan.pengajuan_id', $personalSubmission->id)
-                ->select('ref_kegiatan_utama.nama as kategori', DB::raw('COALESCE(SUM(detail_pengajuan.angka_kredit_total), 0) as total'))
-                ->groupBy('ref_kegiatan_utama.nama')
-                ->pluck('total', 'kategori');
+                ->select(
+                    'detail_pengajuan.id as detail_id',
+                    'ref_kegiatan_utama.nama as kategori',
+                    'detail_pengajuan.status',
+                    'detail_pengajuan.angka_kredit_total'
+                )
+                ->get();
 
-            foreach ($breakdown as $kategori => $total) {
-                $lower = strtolower($kategori);
-                if (str_contains($lower, 'pelaksanaan pendidikan')) {
-                    $kumBreakdown['pelaksanaan_pendidikan'] = number_format($total, 2);
-                } elseif (str_contains($lower, 'pendidikan')) {
-                    $kumBreakdown['pendidikan'] = number_format($total, 2);
-                } elseif (str_contains($lower, 'penelitian')) {
-                    $kumBreakdown['penelitian'] = number_format($total, 2);
-                } elseif (str_contains($lower, 'pengabdian')) {
-                    $kumBreakdown['pengabdian'] = number_format($total, 2);
-                } elseif (str_contains($lower, 'penunjang')) {
-                    $kumBreakdown['penunjang'] = number_format($total, 2);
+            $evaluationsMap = \App\Models\Dupak\HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
+                ->where('detail_pengajuan.pengajuan_id', $personalSubmission->id)
+                ->where('hasil_evaluasi.peran_pemeriksa', 'TPAK')
+                ->select('detail_pengajuan_id', 'nilai_angka_kredit')
+                ->get()
+                ->groupBy('detail_pengajuan_id');
+
+            foreach ($details as $det) {
+                $lowerCat = strtolower($det->kategori);
+                $status = strtolower($det->status);
+
+                $key = 'penunjang';
+                if (str_contains($lowerCat, 'pelaksanaan pendidikan')) {
+                    $key = 'pelaksanaan_pendidikan';
+                } elseif (str_contains($lowerCat, 'pendidikan')) {
+                    $key = 'pendidikan';
+                } elseif (str_contains($lowerCat, 'penelitian')) {
+                    $key = 'penelitian';
+                } elseif (str_contains($lowerCat, 'pengabdian')) {
+                    $key = 'pengabdian';
+                } elseif (str_contains($lowerCat, 'penunjang')) {
+                    $key = 'penunjang';
+                }
+
+                if ($status === 'approved') {
+                    $val = $evaluationsMap->has($det->detail_id)
+                        ? (float) $evaluationsMap->get($det->detail_id)->avg('nilai_angka_kredit')
+                        : (float) $det->angka_kredit_total;
+                    $kumBreakdown[$key]['approved'] += $val;
+                } else {
+                    $val = (float) $det->angka_kredit_total;
+                    $kumBreakdown[$key]['pending'] += $val;
                 }
             }
+        }
+
+        foreach ($kumBreakdown as $key => $values) {
+            $kumBreakdown[$key]['approved'] = number_format($values['approved'], 2);
+            $kumBreakdown[$key]['pending'] = number_format($values['pending'], 2);
         }
 
         $isMaxJfa = $this->isMaxJfa($dosen);

@@ -145,9 +145,21 @@
                     </div>
 
                     @if(!$user->is_admin && $submissions['has_pending'])
-                    <div class="mb-4 p-3 bg-yellow-50 border border-yellow-300 text-yellow-700 rounded">
-                        Lengkapi detail kegiatan hingga memenuhi syarat pengajuan baru.
-                    </div>
+                        @php
+                            $latestSub = $submissions['latest'];
+                            $isEditable = $latestSub && in_array($latestSub->status, ['Draft', 'Pending', 'Revisi']);
+                        @endphp
+                        @if($isEditable)
+                        <div class="mb-4 p-3 bg-yellow-50 border border-yellow-300 text-yellow-700 rounded flex items-center gap-2">
+                            <i class="fas fa-edit text-yellow-600"></i>
+                            <span>Lengkapi detail kegiatan pada pengajuan aktif Anda (Draft), lalu kirimkan untuk dinilai TPAK.</span>
+                        </div>
+                        @else
+                        <div class="mb-4 p-3 bg-blue-50 border border-blue-200 text-blue-700 rounded flex items-center gap-2">
+                            <i class="fas fa-info-circle text-blue-600"></i>
+                            <span>Pengajuan DUPAK Anda saat ini sedang dinilai oleh TPAK. Pembuatan pengajuan baru akan terbuka setelah penilaian selesai.</span>
+                        </div>
+                        @endif
                     @endif
 
                     @if(!$user->is_admin && $isMaxJfa)
