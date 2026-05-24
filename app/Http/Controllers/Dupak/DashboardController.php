@@ -80,8 +80,11 @@ class DashboardController extends Controller
     }
 
     private function submissions(User $user, ?string $dosenId)
-    {
-        $q = Pengajuan::with(['dosen.pegawai'])->latest();
+    {   
+        // fixing sorting algorithm for 2 layered sorts.
+        $q = Pengajuan::with(['dosen.pegawai'])
+            ->orderByDesc('created_at')
+            ->orderByDesc('id');
 
         if (!$user->is_admin) {
             $q->where('idDosen', $dosenId ?? '___INVALID___');
