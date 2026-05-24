@@ -312,8 +312,9 @@ $stats = [
                             <option value="">-- Pilih Penilai --</option>
                             @foreach($dosens as $d)
                             @php $workload = $dosenWorkload[$d->id] ?? 0; @endphp
-                            <option value="{{ $d->id }}" data-workload="{{ $workload }}">
-                                {{ $d->nama_lengkap }} (Beban: {{ $workload }} penugasan)
+                            @php $jfaNama = $tpakJfaNama[$d->id] ?? null; @endphp
+                            <option value="{{ $d->id }}" data-workload="{{ $workload }}" data-jfa="{{ $jfaNama }}">
+                                {{ $d->nama_lengkap }} (Beban: {{ $workload }} penugasan) - {{ $jfaNama ? $jfaNama : 'JFA tidak aktif' }}
                             </option>
                             @endforeach
                         </select>

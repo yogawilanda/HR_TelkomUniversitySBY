@@ -49,7 +49,7 @@
             </header>
         @endisset
 
-        <main class="flex-shrink-0 pattern-batik-kawung">
+        <main class="flex-shrink-0 pattern-batik-kawung min-h-screen">
             @yield('content')
         </main>
     </div>

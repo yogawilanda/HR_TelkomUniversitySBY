@@ -25,6 +25,27 @@ class PenunjukanTPAKController extends Controller
             ->orderBy('users.nama_lengkap', 'asc')
             ->get();
 
+        // 1b. Ambil Jabatan Fungsional Akademik aktif (rank) untuk ditampilkan di UI
+        // Same source as backend validation in store(): riwayat_jabatan_fungsional_akademiks + ref_jabatan_fungsional_akademiks
+        $tpakJfaNama = [];
+        if ($dosens->isNotEmpty()) {
+            $tpakJfaRows = DB::connection('mysql')
+                ->table('riwayat_jabatan_fungsional_akademiks')
+                ->join('ref_jabatan_fungsional_akademiks', 'riwayat_jabatan_fungsional_akademiks.ref_jfa_id', '=', 'ref_jabatan_fungsional_akademiks.id')
+                ->whereIn('riwayat_jabatan_fungsional_akademiks.dosen_id', $dosens->pluck('id')->all())
+                ->whereNull('riwayat_jabatan_fungsional_akademiks.tmt_selesai')
+                ->orderBy('riwayat_jabatan_fungsional_akademiks.tmt_mulai', 'desc')
+                ->select('riwayat_jabatan_fungsional_akademiks.dosen_id', 'ref_jabatan_fungsional_akademiks.nama_jabatan')
+                ->get();
+
+            // Ambil jfa terbaru per dosen
+            foreach ($tpakJfaRows as $row) {
+                if (!isset($tpakJfaNama[$row->dosen_id])) {
+                    $tpakJfaNama[$row->dosen_id] = $row->nama_jabatan;
+                }
+            }
+        }
+
         // 2. Ambil data Pengajuan DUPAK yang belum mencapai batas limit TPAK (5 orang)
         // Kita gunakan subquery untuk menghitung jumlah TPAK yang sudah ditunjuk per pengajuan
         $antreanSearch = $request->input('antrean_search');
@@ -133,7 +154,7 @@ class PenunjukanTPAKController extends Controller
             return $item;
         });
 
-        return view('dupak.penunjukan_tpak.index', compact('dosens', 'pengajuan', 'penunjukanTpak', 'tpakCounts', 'dosenWorkload', 'pengajuMap', 'assignedMap'));
+        return view('dupak.penunjukan_tpak.index', compact('dosens', 'pengajuan', 'penunjukanTpak', 'tpakCounts', 'dosenWorkload', 'pengajuMap', 'assignedMap', 'tpakJfaNama'));
     }
 
     /**
