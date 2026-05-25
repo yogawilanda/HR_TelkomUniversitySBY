@@ -24,35 +24,50 @@
 		</div>
 		@endif
 
-		<!-- Header Card (Matching dupak/dashboard layout) -->
-		<div class="bg-white shadow rounded-t-lg p-6 pb-6 mb-6">
-			<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-				<div>
-					<h1 class="text-2xl font-semibold text-gray-900">Detail Pengajuan DUPAK</h1>
-					<p class="text-xs text-gray-500 italic mt-1">
-						Periode: {{ \Carbon\Carbon::parse($pengajuan->start)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($pengajuan->end)->format('d/m/Y') }}
-						({{ $pengajuan->semesterAjuan }} - TA {{ $pengajuan->TahunAjaranAjuanAwal }})
+		<!-- Header Card -->
+		<div class="bg-white shadow rounded-xl p-6 mb-6">
+			<div class="flex flex-col md:flex-row justify-between items-start gap-5">
+
+				<!-- Left: Title + Period -->
+				<div class="flex-1 min-w-0">
+					<div class="flex items-center gap-3 flex-wrap">
+						<h1 class="text-2xl font-bold text-gray-900">Detail Pengajuan DUPAK</h1>
+						@php
+						$badgeColor = [
+							'Draft'    => 'bg-gray-100 text-gray-700 border border-gray-200',
+							'Diajukan' => 'bg-yellow-100 text-yellow-800 border border-yellow-200',
+							'Menunggu' => 'bg-indigo-100 text-indigo-800 border border-indigo-200',
+							'Ditolak'  => 'bg-red-100 text-red-800 border border-red-200',
+							'Diterima' => 'bg-green-100 text-green-800 border border-green-200',
+							'Revisi'   => 'bg-orange-100 text-orange-800 border border-orange-200',
+							'Pending'  => 'bg-blue-100 text-blue-800 border border-blue-200',
+						][$pengajuan->status] ?? 'bg-gray-100 text-gray-800';
+						@endphp
+						<span class="px-3 py-1 text-xs font-bold rounded-full {{ $badgeColor }}">{{ $pengajuan->status }}</span>
+					</div>
+					<p class="text-xs text-gray-400 mt-1.5">
+						<i class="fas fa-calendar-alt mr-1"></i>
+						Periode: {{ \Carbon\Carbon::parse($pengajuan->start)->format('d/m/Y') }} &ndash; {{ \Carbon\Carbon::parse($pengajuan->end)->format('d/m/Y') }}
+						<span class="mx-2 text-gray-300">|</span>
+						{{ $pengajuan->semesterAjuan }} &mdash; TA {{ $pengajuan->TahunAjaranAjuanAwal }}
 					</p>
 				</div>
-				
-				@php
-				$badgeColor = [
-					'Draft' => 'bg-gray-100 text-gray-800',
-					'Diajukan' => 'bg-yellow-100 text-yellow-800',
-					'Menunggu' => 'bg-indigo-100 text-indigo-800',
-					'Ditolak' => 'bg-red-100 text-red-800',
-					'Diterima' => 'bg-green-100 text-green-800',
-					'Revisi' => 'bg-yellow-100 text-yellow-800',
-				][$pengajuan->status] ?? 'bg-gray-100 text-gray-800';
-				@endphp
-				<span class="px-3 py-1 text-xs font-semibold rounded-full {{ $badgeColor }}">
-    {{ $pengajuan->status }}
-</span>
-<div class="mt-2 text-sm text-gray-600">
-    <p><strong>Pengaju:</strong> {{ $pengajuan->dosen->user->nama_lengkap ?? 'Nama Tidak Diketahui' }}</p>
-    <p><strong>NIDN:</strong> {{ $pengajuan->dosen->nidn ?? 'NIDN Tidak Diketahui' }}</p>
-    <p><strong>Jabatan Fungsional:</strong> {{ $jfaAsalLabel }}</p>
-</div>
+
+				<!-- Right: Applicant Identity Card -->
+				<div class="flex-shrink-0 bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 min-w-[220px]">
+					<p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Identitas Pengaju</p>
+					<div class="flex items-center gap-3">
+						<div class="w-10 h-10 bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0">
+							<i class="fas fa-user-tie text-white text-sm"></i>
+						</div>
+						<div class="min-w-0">
+							<p class="text-sm font-bold text-gray-900 leading-tight truncate">{{ $pengajuan->dosen->user->nama_lengkap ?? ($pengajuan->dosen->user->nama ?? 'Nama Tidak Diketahui') }}</p>
+							<p class="text-xs text-gray-500 mt-0.5">NIDN: {{ $pengajuan->dosen->nidn ?? '-' }}</p>
+							<p class="text-xs text-blue-800 font-semibold mt-0.5">{{ $jfaAsalLabel }}</p>
+						</div>
+					</div>
+				</div>
+
 			</div>
 		</div>
 
@@ -152,13 +167,15 @@
 
 					<!-- Tab Content: Timeline -->
 					<div x-show="tab === 'timeline'" x-cloak>
-						<h4 class="text-sm font-black text-gray-400 uppercase tracking-[0.2em] mb-6">Timeline Progres Pengajuan</h4>
-						
-						<div class="relative border-l-2 border-gray-200 ml-4 space-y-6">
+						<h4 class="text-sm font-black text-gray-400 uppercase tracking-[0.2em] mb-5">Timeline Progres Pengajuan</h4>
+						<div class="relative border-l-2 border-gray-100 ml-2 space-y-4 pl-1">
 							@forelse ($timelineData as $item)
 								<x-dupak.timeline-komponen-kegiatan :item="$item" />
 							@empty
-								<p class="text-center text-sm text-gray-400 py-6 italic">Belum ada aktivitas tercatat.</p>
+								<div class="flex flex-col items-center py-12 text-gray-400">
+									<i class="fas fa-timeline text-3xl mb-2"></i>
+									<p class="text-sm italic">Belum ada aktivitas tercatat.</p>
+								</div>
 							@endforelse
 						</div>
 					</div>

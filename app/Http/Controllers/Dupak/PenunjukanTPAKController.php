@@ -18,6 +18,11 @@ class PenunjukanTPAKController extends Controller
     {
         $search = $request->input('search');
 
+        // 0. Ambil Master Nama JFA dari database (mysql connection) untuk mapping global
+        $jfaGlobalNames = DB::connection('mysql')
+            ->table('ref_jabatan_fungsional_akademiks')
+            ->pluck('nama_jabatan', 'id');
+
         // 1. Ambil data Dosen (Calon TPAK) dari database sdm_tus
         // Join dengan users untuk mendapatkan nama lengkap
         $dosens = Dosen::join('users', 'dosens.users_id', '=', 'users.id')
@@ -49,20 +54,20 @@ class PenunjukanTPAKController extends Controller
         // 2. Ambil data Pengajuan DUPAK yang belum mencapai batas limit TPAK (5 orang)
         // Kita gunakan subquery untuk menghitung jumlah TPAK yang sudah ditunjuk per pengajuan
         $antreanSearch = $request->input('antrean_search');
-        
-        $pengajuanQuery = Pengajuan::with('dosen.user') // Eager load untuk pencarian nama dosen
+
+        $pengajuanQuery = Pengajuan::with(['dosen.user']) // Hapus eager load jabatan karena diambil manual via map
             ->whereIn('status', ['Pending', 'Submitted'])
-            ->where(function($q) {
+            ->where(function ($q) {
                 $q->selectRaw('count(*)')
-                  ->from('penunjukan_tpak') // Use table name only; connection is inherited from parent query
-                  ->whereColumn('penunjukan_tpak.pengajuan_id', 'pengajuan.id');
+                    ->from('penunjukan_tpak') // Use table name only; connection is inherited from parent query
+                    ->whereColumn('penunjukan_tpak.pengajuan_id', 'pengajuan.id');
             }, '<', 5);
 
         if ($antreanSearch) {
             $pengajuanQuery->whereHas('dosen', function ($query) use ($antreanSearch) {
                 $query->whereHas('user', function ($userQuery) use ($antreanSearch) {
                     $userQuery->where('nama_lengkap', 'like', "%{$antreanSearch}%")
-                              ->orWhere('nama', 'like', "%{$antreanSearch}%"); // Fallback jika nama_lengkap null
+                        ->orWhere('nama', 'like', "%{$antreanSearch}%"); // Fallback jika nama_lengkap null
                 });
             });
         }
@@ -104,9 +109,9 @@ class PenunjukanTPAKController extends Controller
             // Cari ID Pengajuan yang nama pengajunya cocok
             $matchedPengajuanIds = Pengajuan::where('nama_dosen', 'like', "%{$search}%")->pluck('id');
 
-            $penunjukanQuery->where(function($q) use ($matchedDosenIds, $matchedPengajuanIds) {
+            $penunjukanQuery->where(function ($q) use ($matchedDosenIds, $matchedPengajuanIds) {
                 $q->whereIn('idDosenTpak', $matchedDosenIds)
-                  ->orWhereIn('pengajuan_id', $matchedPengajuanIds);
+                    ->orWhereIn('pengajuan_id', $matchedPengajuanIds);
             });
         }
 
@@ -118,7 +123,7 @@ class PenunjukanTPAKController extends Controller
         $pengajuanIds = $penunjukanTpak->pluck('pengajuan_id')->unique();
         $tpakDosenIds = $penunjukanTpak->pluck('idDosenTpak')->unique();
 
-        $pengajuansData = Pengajuan::with('dosen.user')->whereIn('id', $pengajuanIds)->get(); // Eager load dosen.user
+        $pengajuansData = Pengajuan::with(['dosen.user'])->whereIn('id', $pengajuanIds)->get();
         $tpakDosensData = Dosen::join('users', 'dosens.users_id', '=', 'users.id')
             ->whereIn('dosens.id', $tpakDosenIds)
             ->select('dosens.id', 'users.nama_lengkap')
@@ -136,12 +141,14 @@ class PenunjukanTPAKController extends Controller
             ->join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
             ->whereIn('detail_pengajuan.pengajuan_id', $pengajuanIds)
             ->groupBy('detail_pengajuan.pengajuan_id')
-            ->pluck('total', 'detail_pengajuan.pengajuan_id')
+            ->pluck('total', 'pengajuan_id')
             ->toArray();
 
-        $penunjukanTpak->getCollection()->transform(function ($item) use ($pengajuansData, $tpakDosensData, $detailCounts, $evaluatedCounts) { // Menggunakan $pengajuansData yang sudah eager loaded
+        $penunjukanTpak->getCollection()->transform(function ($item) use ($pengajuansData, $tpakDosensData, $detailCounts, $evaluatedCounts, $jfaGlobalNames) {
             $p = $pengajuansData->firstWhere('id', $item->pengajuan_id);
             $item->pengaju_nama = $p->dosen->user->nama_lengkap ?? 'N/A'; // Akses nama melalui relasi
+            $item->pengaju_jabatan_asal = $jfaGlobalNames[$p->jfaAsal] ?? 'N/A';
+            $item->pengaju_jabatan_tujuan = $jfaGlobalNames[$p->jfaTujuan] ?? 'Tidak Diketahui';
             $item->tpak_nama_lengkap = $tpakDosensData[$item->idDosenTpak] ?? 'N/A';
             $item->created_at = Carbon::parse($item->created_at);
 
@@ -154,7 +161,7 @@ class PenunjukanTPAKController extends Controller
             return $item;
         });
 
-        return view('dupak.penunjukan_tpak.index', compact('dosens', 'pengajuan', 'penunjukanTpak', 'tpakCounts', 'dosenWorkload', 'pengajuMap', 'assignedMap', 'tpakJfaNama'));
+        return view('dupak.penunjukan_tpak.index', compact('dosens', 'pengajuan', 'penunjukanTpak', 'tpakCounts', 'dosenWorkload', 'pengajuMap', 'assignedMap', 'tpakJfaNama', 'jfaGlobalNames'));
     }
 
     /**
@@ -229,23 +236,23 @@ class PenunjukanTPAKController extends Controller
             }
 
             // Ambil JFA Tujuan pengaju
-            $jfaTujuanPengaju = null;
+            $jfaTujuanPengajuNama = null;
             if ($pengajuan->jfaTujuan) {
-                $jfaTujuanPengaju = DB::connection('mysql')
+                $jfaTujuanPengajuNama = DB::connection('mysql')
                     ->table('ref_jabatan_fungsional_akademiks')
                     ->where('id', $pengajuan->jfaTujuan)
                     ->value('nama_jabatan');
             }
 
             // Bandingkan level JFA (hanya jika keduanya terdeteksi)
-            if ($jfaTujuanPengaju) {
+            if ($jfaTujuanPengajuNama) {
                 $levelTpak = $this->getJfaLevel($tpakJfa->nama_jabatan);
-                $levelPengaju = $this->getJfaLevel($jfaTujuanPengaju);
+                $levelPengaju = $this->getJfaLevel($jfaTujuanPengajuNama);
 
                 if ($levelTpak > 0 && $levelPengaju > 0 && $levelTpak < $levelPengaju) {
                     return redirect()->back()->with(
                         'error',
-                        "JFA TPAK ({$tpakJfa->nama_jabatan}) lebih rendah dari JFA Tujuan Pengaju ({$jfaTujuanPengaju}). Penunjukan dibatalkan demi keadilan penilaian."
+                        "JFA TPAK ({$tpakJfa->nama_jabatan}) lebih rendah dari JFA Tujuan Pengaju ({$jfaTujuanPengajuNama}). Penunjukan dibatalkan demi keadilan penilaian."
                     );
                 }
             }

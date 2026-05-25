@@ -477,48 +477,43 @@ class PengajuanController extends Controller
                 $evaluatorNames = $evaluatorNames + $namesFromUsers;
             }
 
-            $activityDetails = ['Daftar Kegiatan:'];
+            // Build structured activity items for timeline display
+            $activityItems = [];
             $allEvaluations = [];
 
-            // Mengelompokkan evaluasi berdasarkan detail_pengajuan_id
-            $evaluationsByDetail = $pengajuan->details->flatMap(function ($detail) {
-                return $detail->evaluations->map(function ($eval) use ($detail) {
-                    $eval->detail_pengajuan_id = $detail->id; // Tambahkan ID detail untuk pengelompokan
-                    $eval->deskripsi_kegiatan = $detail->deskripsi_kegiatan; // Tambahkan deskripsi kegiatan
-                    return $eval;
-                });
-            })->groupBy('detail_pengajuan_id');
-
-            foreach ($evaluationsByDetail as $detailId => $evals) {
-                $firstEval = $evals->first();
-                $activityDetails[] = "<strong>{$firstEval->deskripsi_kegiatan}</strong>";
-            }
-
             foreach ($pengajuan->details as $detail) {
-                // Display setiap detail kegiatan dengan format yang lebih menarik
-                $activityDetails[] = [
-                    "<strong>{$detail->deskripsi_kegiatan}</strong> (" . number_format($detail->angka_kredit_total, 2) . " KUM)"
-                ];
-                // Ambil evaluasi untuk detail ini
-                foreach ($detail->evaluations as $eval) { // Ini akan tetap digunakan untuk menampilkan detail evaluasi di timeline
+                $detailEvals = [];
+                foreach ($detail->evaluations as $eval) {
                     $pemeriksa = $evaluatorNames[$eval->idUserPemeriksa] ?? 'Pemeriksa Terdaftar';
+                    $detailEvals[] = [
+                        'role'    => "{$eval->peran_pemeriksa} ({$pemeriksa})",
+                        'status'  => $eval->status_evaluasi,
+                        'comment' => $eval->catatan,
+                    ];
                     $allEvaluations[] = [
-                        'role' => "{$eval->peran_pemeriksa} ({$pemeriksa})",
-                        'status' => $eval->status_evaluasi,
+                        'role'    => "{$eval->peran_pemeriksa} ({$pemeriksa})",
+                        'status'  => $eval->status_evaluasi,
                         'comment' => $eval->catatan,
                     ];
                 }
+                $activityItems[] = [
+                    'deskripsi'   => $detail->deskripsi_kegiatan,
+                    'komponen'    => $detail->komponen->nama ?? 'N/A',
+                    'kum'         => number_format($detail->angka_kredit_total, 2),
+                    'status'      => $detail->status,
+                    'evaluations' => $detailEvals,
+                ];
             }
 
             $timelineData[] = [
-                'id' => 2,
-                'title' => 'Proses Penilaian Kegiatan',
-                'date' => $pengajuan->updated_at->format('d F Y'),
-                'content' => "Terdapat <strong>{$pengajuan->details->count()} kegiatan</strong> yang sedang diproses dengan total <strong>" . number_format($totalKum, 2) . " KUM</strong>.",
+                'id'           => 2,
+                'title'        => 'Proses Penilaian Kegiatan',
+                'date'         => $pengajuan->updated_at->format('d F Y'),
+                'content'      => "Terdapat <strong>{$pengajuan->details->count()} kegiatan</strong> yang sedang diproses dengan total <strong>" . number_format($totalKum, 2) . " KUM</strong>.",
                 'border_color' => 'border-emerald-500',
-                'is_expanded' => true,
-                'details' => $activityDetails, // Ini akan menampilkan daftar kegiatan
-                'evaluation' => $allEvaluations
+                'is_expanded'  => true,
+                'activity_items' => $activityItems,
+                'evaluation'   => $allEvaluations,
             ];
         } else {
             // Tampilkan informasi jika data masih kosong (Alternate Flow)
@@ -553,6 +548,6 @@ class PengajuanController extends Controller
 
         $kegiatanUtama = RefKegiatanUtama::with('komponens')->where('status', 1)->get();
 
-        return view('dupak.pengajuan.show', compact('pengajuan', 'timelineData', 'kumStats', 'kegiatanUtama'));
+        return view('dupak.pengajuan.show', compact('pengajuan', 'timelineData', 'kumStats', 'kegiatanUtama', 'jfaAsalLabel', 'jfaTujuanLabel'));
     }
 }
