@@ -79,11 +79,11 @@
                     class="bg-white border border-emerald-200 text-emerald-600 hover:bg-emerald-50 text-sm font-medium py-2 px-4 rounded-md transition duration-150 inline-flex items-center gap-2">
                     <i class="fa-solid fa-file-excel"></i> Export Excel
                 </a>
+                @endif
                 <a href="{{ route('manage.target-kinerja.harian.input') }}" 
                     class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-md transition duration-150 inline-flex items-center gap-2 shadow-sm">
                     <i class="fa-solid fa-plus"></i> Tambah Target
                 </a>
-                @endif
             </div>
         </div>
 

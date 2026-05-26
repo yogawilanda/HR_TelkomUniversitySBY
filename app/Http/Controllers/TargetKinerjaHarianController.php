@@ -55,10 +55,6 @@ class TargetKinerjaHarianController extends Controller
         $isAdmin = $user->is_admin;
         $role = $user->role ?? 'pegawai';
 
-        if (!$isAdmin && $role === 'pegawai') {
-            abort(403, 'Pegawai tidak memiliki hak untuk membuat target kinerja.');
-        }
-
         $query = TargetKinerja::where('is_active', 1)->orderBy('nama_kpi');
 
         if (!$isAdmin) {
@@ -84,10 +80,6 @@ class TargetKinerjaHarianController extends Controller
         $user = \Illuminate\Support\Facades\Auth::user();
         $isAdmin = $user->is_admin;
         $role = $user->role ?? 'pegawai';
-
-        if (!$isAdmin && $role === 'pegawai') {
-            abort(403, 'Pegawai tidak memiliki hak untuk mengubah target kinerja.');
-        }
 
         $query = TargetKinerja::where('is_active', 1)->orderBy('nama_kpi');
 
@@ -264,11 +256,16 @@ class TargetKinerjaHarianController extends Controller
     public function destroy($id)
     {
         $user = \Illuminate\Support\Facades\Auth::user();
+        $item = TargetKinerjaHarian::findOrFail($id);
+
         if (!$user->is_admin && ($user->role ?? 'pegawai') === 'pegawai') {
-            abort(403, 'Pegawai tidak memiliki hak untuk menghapus target kinerja.');
+            // Only allow deleting if they are assigned to it
+            $isAssigned = $item->pegawai()->where('users.id', $user->id)->exists();
+            if (!$isAssigned) {
+                abort(403, 'Pegawai hanya dapat menghapus target kinerja yang ditugaskan/dibuat sendiri.');
+            }
         }
 
-        $item = TargetKinerjaHarian::findOrFail($id);
         $item->delete();
 
         return Redirect::route('manage.target-kinerja.harian.list')->with('success', 'Target harian dihapus');
