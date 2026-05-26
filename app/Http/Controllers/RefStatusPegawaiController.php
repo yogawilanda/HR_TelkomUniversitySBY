@@ -49,7 +49,7 @@ class RefStatusPegawaiController extends Controller
             }
             // dd($save, $cek_wp, $val);
             DB::commit();
-            $route = redirect(route('manage.status-pegawai.list'))->with('success', 'Data bagian berhasil diperbaharui!');
+            $route = redirect(route('manage.status-pegawai.list'))->with('success', 'Data Status Pegawai berhasil diperbaharui!');
         return $this->CekReview($route, '1W2', 'MENGUBAH DATA REFERENSI STATUS KEPEGAWAIAN');
 
             } catch (\Exception $e) {
@@ -75,7 +75,7 @@ class RefStatusPegawaiController extends Controller
                 throw new \Exception('Terjadi masalah ketika melakukan proses simpan status pegawai!.');
             }
             DB::commit();
-            $route = redirect(route('manage.status-pegawai.list'))->with('success', 'Data bagian berhasil ditambahkan!');
+            $route = redirect(route('manage.status-pegawai.list'))->with('success', 'Data Status Pegawai berhasil ditambahkan!');
         return $this->CekReview($route, '1W1', 'MENAMBAH DATA REFERENSI STATUS KEPEGAWAIAN');
 
             } catch (\Exception $e) {
