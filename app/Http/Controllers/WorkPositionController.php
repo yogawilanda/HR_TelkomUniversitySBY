@@ -105,7 +105,7 @@ class WorkPositionController extends Controller
                         'unique:work_positions,position_name'.$id,
                         'regex:/^[A-Za-z\s]+$/'
                     ],
-                'type_work_position'   => 'required|exists:ref_work_positions,position_name',
+                'type_work_position'   => 'required|exists:Ref_work_positions,position_name',
                 'type_pekerja'  => 'required|in:Dosen,Tpa,Both',
                 'kode'     => 'required|string|max:20|unique:work_positions,kode'.$id,
             ],

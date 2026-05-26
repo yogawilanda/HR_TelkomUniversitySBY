@@ -33,7 +33,7 @@
                 <div
                     class="flex justify-center items-center gap-[5.874740123748779px] bg-[#0070ff] px-[11.749480247497559px] py-[7.343425273895264px] rounded-[5.874740123748779px] border border-[#0070ff] hover:bg-[#005fe0] transition">
                     <i class="bi bi-plus text-sm text-white"></i>
-                    <span class="font-medium text-[10.28px] leading-[14.68px] text-white">Tambah Dosen</span>
+                    <span class="font-medium text-[10.28px] leading-[14.68px] text-white">Tambah Pemetaan CoE</span>
                 </div>
             </a>
             @endif
