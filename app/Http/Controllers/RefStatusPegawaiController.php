@@ -92,7 +92,7 @@ class RefStatusPegawaiController extends Controller
                 'id'   => 'nullable|string|max:100|exists:ref_status_pegawais,id',
                 'status_pegawai' => [
                         'required',
-                        'regex:/^[A-Za-z\s]+$/',
+                        'regex:/^(?=.*[A-Za-z])[A-Za-z0-9\s&]+$/',
                         'unique:ref_status_pegawais,status_pegawai'.$id,
                     ]
             ],
