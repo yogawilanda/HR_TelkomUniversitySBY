@@ -61,13 +61,10 @@
                 <x-tb-td type="select" type="select" nama="bagian" sorting=true>Bidang Pendidikan</x-tb-td>
                 <x-tb-td nama="tipe_bagian" sorting=true>Tahun Lulus</x-tb-td>
                 <x-tb-td nama="kuota" sorting=true>Action</x-tb-td>
-                {{-- <x-tb-td nama="email_pribadi"></x-tb-td> --}}
             </x-slot:table_header>
 
             <x-slot:table_column>
                 @forelse ($results as $result)
-                {{ dd($result) }}
-                    {{-- {{ dd($formation) }} --}}
                     <x-tb-cl id="">
                         <x-tb-cl-fill>
 
@@ -98,10 +95,10 @@
                                     <ul class="dropdown-menu">
                                         @if ($result->id_pendidikan_tertinggi != null)
                                             <li>
-                                                <a href="{{ route('manage.jenjang-pendidikan.update', ['id_jp' => $result->id_pendidikan_tertinggi]) }}"
-                                                    {{-- <a href="{{ route('manage.jenjang-pendidikan.history', ['idUser' => $result->id_pendidikan_tertinggi]) }}"> --}}
+                                                <a
+                                                    href="{{ route('manage.jenjang-pendidikan.history', ['idUser' => $result->id]) }}"
                                                     class="dropdown-item hover:bg-blue-500 hover:text-white" href="#">
-                                                    Ubah Data
+                                                        Ubah Data
                                                 </a>
                                             </li>
                                         @endif
