@@ -65,7 +65,6 @@
 
             <x-slot:table_column>
                 @forelse ($results as $result)
-                {{ dd($result) }}
                     <x-tb-cl id="">
                         <x-tb-cl-fill>
 
@@ -97,6 +96,7 @@
                                         @if ($result->id_pendidikan_tertinggi != null)
                                             <li>
                                                 <a
+                                                    href="{{ route('manage.jenjang-pendidikan.update',['jp_id' => $result->pendidikan_data->id]) }}"
                                                     class="dropdown-item hover:bg-blue-500 hover:text-white" href="#">
                                                         Ubah Data
                                                 </a>
