@@ -65,7 +65,7 @@
 
             <x-slot:table_column>
                 @forelse ($results as $result)
-                {{ dd($result['pendidikan_data']) }}
+                {{ dd($result['pendidikan_data']['id']) }}
                     <x-tb-cl id="">
                         <x-tb-cl-fill>
 
