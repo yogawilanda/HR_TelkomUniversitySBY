@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\StudiLanjut;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 
 class StudiLanjutController extends Controller
@@ -48,16 +49,19 @@ class StudiLanjutController extends Controller
         $validation = $this->validation();
             $validated = $request->validate($validation[0],$validation[1],$validation[2]);
 
-        if($this->isAdminOrSdm()==false){
-            if($request->users_id != session('account')['id']){
-                return $this->handleRedirectBack()->with('error_alert', 'Berdasarkan Hak Akses, Anda hanya boleh Mengelola Data Studi Lanjut milik anda sendiri!.');
+        try{
+            if($this->isAdminOrSdm()==false){
+                if($request->users_id != session('account')['id']){
+                    return $this->handleRedirectBack()->with('error_alert', 'Berdasarkan Hak Akses, Anda hanya boleh Mengelola Data Studi Lanjut milik anda sendiri!.');
+                }
             }
+            StudiLanjut::create($validated);
+
+            $route = redirect()->route('manage.studi-lanjut.list')->with('success', 'Data studi lanjut berhasil ditambahkan');
+                return $this->CekReview($route, '1U1', 'MENAMBAH DATA STUDI LANJUT');
+        }catch(\Exception $e){
+            return redirect()->back()->withInput($validated)->with('error_alert', $e->getMessage());
         }
-        StudiLanjut::create($validated);
-
-        $route = redirect()->route('manage.studi-lanjut.list')->with('success', 'Data studi lanjut berhasil ditambahkan');
-            return $this->CekReview($route, '1U1', 'MENAMBAH DATA STUDI LANJUT');
-
     }
 
     public function show($id)

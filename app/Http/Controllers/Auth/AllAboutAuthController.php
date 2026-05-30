@@ -129,7 +129,7 @@ class AllAboutAuthController extends Controller
             $user = User::where('email_institusi', $request->email_institusi)->first();
 
             if (!$user) {
-                throw new \Exception('Kode Validasi Tidak Sesuai! ');
+                throw new \Exception('Email atau Kode Validasi Tidak Sesuai! ');
             }
 
             if ($user->verified_code === $request->otp) {
@@ -138,7 +138,7 @@ class AllAboutAuthController extends Controller
                 $user->save();
                 return redirect('login')->with('message', 'Email berhasil divalidasi, silahkan login kembali');
             } else {
-                throw new \Exception('Kode Validasi Tidak Sesuai! ');
+                throw new \Exception('Email atau Kode Validasi Tidak Sesuai! ');
             }
         } catch (\Exception $e) {
             return $this->handleRedirectBack()->with('error_alert', $e->getMessage())->withInput();

@@ -10,21 +10,6 @@ use Illuminate\Support\Facades\DB;
 
 class RiwayatJenjangPendidikanController extends Controller
 {
-    // $users = User::all();
-    // foreach($users as $user){
-    //     $pendidikan = RiwayatJenjangPendidikan::with('refJenjangPendidikan')
-    //         ->where('users_id', $user->id)
-    //         ->join('ref_jenjang_pendidikans', 'ref_jenjang_pendidikans.id', '=', 'riwayat_jenjang_pendidikans.jenjang_pendidikan_id')
-    //         ->orderBy('ref_jenjang_pendidikans.urutan', 'asc')
-    //         ->select('riwayat_jenjang_pendidikans.*') // penting agar data utama tidak tertimpa
-    //         ->get();
-
-    //         // $user['pendidikan_tertinggi']
-
-    //     for($i=0;$i<count($user['pendidikan_tertinggi'])-1;$i++){
-    //         $user['pendidikan_tertinggi'][$i]['data_tingkat'] = refJenjangPendidikan::where('id', $user['pendidikan_tertinggi'][$i]['jenjang_pendidikan_id'] )->first();
-    //     }
-    // }
     public function index()
     {
         $results = User::select('*')
@@ -286,7 +271,7 @@ class RiwayatJenjangPendidikanController extends Controller
     {
         try {
             $jp = User::findOrFail($idUser);
-            
+
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return $this->handleRedirectBack()->with('error_alert', 'Riwayat Jenjang Pendidikan ini tidak terdaftar!.');
         }
