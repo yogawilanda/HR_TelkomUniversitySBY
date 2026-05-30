@@ -88,6 +88,9 @@
                                     class="px-3 py-1.5 border open-modal border-[#0070ff] text-[#0070ff] rounded-md text-xs font-medium hover:bg-[#0070ff] hover:text-white transition">
                                     View Data
                             </a>
+                            @if(!isset($result->pendidikan_data->id))
+                            Gada cek
+                            @endif
                                 <div class="dropdown">
                                     <button class="btn btn-light btn-sm" data-bs-toggle="dropdown">
                                         ⋮
@@ -101,6 +104,7 @@
                                                         Ubah Data
                                                 </a>
                                             </li>
+
                                         @endif
                                         <li>
                                             <a href="{{ route('manage.jenjang-pendidikan.new', ['id_user' => $result->id]) }}"
