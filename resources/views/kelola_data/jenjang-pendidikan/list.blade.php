@@ -97,14 +97,14 @@
                                             <li>
                                                 <a
                                                     href="{{ route('manage.jenjang-pendidikan.update', ['id_jp' => $result->pendidikan_data->id]) }}"
-                                                    class="dropdown-item hover:bg-blue-500 hover:text-white" href="#">
+                                                    class="dropdown-item hover:bg-blue-500 hover:text-white">
                                                         Ubah Data
                                                 </a>
                                             </li>
                                         @endif
                                         <li>
                                             <a href="{{ route('manage.jenjang-pendidikan.new', ['id_user' => $result->id]) }}"
-                                                class="dropdown-item hover:bg-blue-500 hover:text-white" href="#">
+                                                class="dropdown-item hover:bg-blue-500 hover:text-white">
                                                 Input Pendidikan
                                             </a>
                                         </li>
