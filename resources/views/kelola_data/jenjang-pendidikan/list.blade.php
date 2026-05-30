@@ -65,6 +65,7 @@
 
             <x-slot:table_column>
                 @forelse ($results as $result)
+                {{ dd($result) }}
                     <x-tb-cl id="">
                         <x-tb-cl-fill>
 
@@ -83,7 +84,7 @@
                         <x-tb-cl-fill>
                             <div class="flex items-center justify-center gap-3">
                                 <a
-                                {{-- href="{{ route('manage.j') }}" --}}
+                                href="{{ route('manage.jenjang-pendidikan.history', ['idUser' => $result->id]) }}"
                                 data-bs-target="#formasi-update" data-bs-toggle="modal" onclick="open_modal(this)"
                                     class="px-3 py-1.5 border open-modal border-[#0070ff] text-[#0070ff] rounded-md text-xs font-medium hover:bg-[#0070ff] hover:text-white transition">
                                     View Data
@@ -96,7 +97,6 @@
                                         @if ($result->id_pendidikan_tertinggi != null)
                                             <li>
                                                 <a
-                                                    href="{{ route('manage.jenjang-pendidikan.history', ['idUser' => $result->id]) }}"
                                                     class="dropdown-item hover:bg-blue-500 hover:text-white" href="#">
                                                         Ubah Data
                                                 </a>
