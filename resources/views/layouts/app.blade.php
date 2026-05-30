@@ -93,11 +93,19 @@
     @include('components.js.route-pop-up-button')
     @if (session('message'))
     <script>
+        // Swal.fire({
+        //     icon: undefined,
+        //     title: 'Berhasil',
+        //     text: "{{session('message')}}",
+        //     confirmButtonText: 'OK'
+        // });
+
         Swal.fire({
-            icon: undefined,
-            title: 'Berhasil',
-            text: "{{session('message')}}",
-            confirmButtonText: 'OK'
+            html: `
+                <i class="bi bi-check-circle-fill text-success" style="font-size:48px"></i>
+                <div class="mt-2 fw-bold">Berhasil</div>
+                <div>"{{session('message')}}"</div>
+            `
         });
     </script>
     @endif

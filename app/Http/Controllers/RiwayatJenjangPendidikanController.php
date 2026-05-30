@@ -272,11 +272,11 @@ class RiwayatJenjangPendidikanController extends Controller
         try {
             $jp = User::findOrFail($idUser);
 
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return $this->handleRedirectBack()->with('error_alert', 'Riwayat Jenjang Pendidikan ini tidak terdaftar!.');
-        }
-
+            } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+                return $this->handleRedirectBack()->with('error_alert', 'Riwayat Jenjang Pendidikan ini tidak terdaftar!.');
+                }
         if ($this->onlyOwnerAdminAndSdm($idUser) == true) {
+
             $user = (new ProfileController)->based_user_data($idUser);
             // $user['pendidikan'] = RiwayatJenjangPendidikan::with(['refJenjangPendidikan'])->find($user['id']);
             $user['pendidikan'] = RiwayatJenjangPendidikan::with('refJenjangPendidikan')->where('users_id', $user['id'])->get()->sortBy(fn ($item) => optional($item->refJenjangPendidikan)->urutan);
