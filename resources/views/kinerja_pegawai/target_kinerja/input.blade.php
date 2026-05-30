@@ -14,7 +14,7 @@
 <div class="mb-4">
     <p class="text-sm text-gray-500 italic">Buat template KPI global baru untuk didistribusikan ke unit kerja.</p>
 </div>
-<div class="w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-sm border border-gray-100">
+<div x-data="satuanCrud()" x-init="fetchSatuans()" class="w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-sm border border-gray-100">
     <form action="{{ route('manage.target-kinerja.store') }}" method="POST" class="space-y-8">
         @csrf
 
@@ -42,13 +42,17 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-2">Satuan Ukur</label>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-sm font-medium text-gray-600">Satuan Ukur</label>
+                        <button type="button" @click="openModal()" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                            <i class="fa-solid fa-gear"></i> Kelola Satuan
+                        </button>
+                    </div>
                     <select name="satuan" required class="w-full text-sm text-gray-900 border-gray-300 rounded-md shadow-sm focus:ring-blue-500">
                         <option value="">-- Pilih Satuan --</option>
-                        <option value="%" {{ old('satuan') == '%' ? 'selected' : '' }}>Persentase (%)</option>
-                        <option value="Orang" {{ old('satuan') == 'Orang' ? 'selected' : '' }}>Orang</option>
-                        <option value="Jumlah" {{ old('satuan') == 'Jumlah' ? 'selected' : '' }}>Jumlah / Dokumen</option>
-                        <option value="Skor" {{ old('satuan') == 'Skor' ? 'selected' : '' }}>Skor / Indeks</option>
+                        <template x-for="s in satuans" :key="s.id">
+                            <option :value="s.nama" x-text="s.nama" :selected="s.nama == '{{ old('satuan') }}'"></option>
+                        </template>
                     </select>
                 </div>
 
@@ -124,5 +128,141 @@
             </button>
         </div>
     </form>
+
+    {{-- Modal Kelola Satuan --}}
+    <div x-show="showModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" style="display: none;">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div x-show="showModal" @click="closeModal()" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div x-show="showModal" class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                Kelola Satuan Ukur
+                            </h3>
+                            <div class="mt-4">
+                                <template x-if="message">
+                                    <div :class="messageType === 'success' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'" 
+                                         class="p-3 rounded-md border text-xs mb-4 flex justify-between items-center">
+                                        <span x-text="message"></span>
+                                        <button @click="message = ''" class="text-lg">&times;</button>
+                                    </div>
+                                </template>
+
+                                <div class="flex gap-2 mb-4">
+                                    <input type="text" x-model="newSatuan" placeholder="Nama satuan baru..." class="flex-1 text-sm border-gray-300 rounded-md focus:ring-blue-500">
+                                    <button type="button" @click="saveSatuan()" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700">Simpan</button>
+                                </div>
+                                <div class="max-h-60 overflow-y-auto border border-gray-200 rounded-md">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            <template x-for="s in satuans" :key="s.id">
+                                                <tr>
+                                                    <td class="px-4 py-3 text-sm text-gray-900" x-text="s.nama"></td>
+                                                    <td class="px-4 py-3 text-sm text-right">
+                                                        <button type="button" @click="deleteSatuan(s.id)" class="text-red-600 hover:text-red-900"><i class="fa-solid fa-trash"></i></button>
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                            <tr x-show="satuans.length === 0">
+                                                <td colspan="2" class="px-4 py-3 text-sm text-center text-gray-500">Belum ada satuan tersimpan.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" @click="closeModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+    function satuanCrud() {
+        return {
+            showModal: false,
+            satuans: [],
+            newSatuan: '',
+            message: '',
+            messageType: 'success',
+            editingId: null,
+            openModal() {
+                this.showModal = true;
+                this.newSatuan = '';
+                this.message = '';
+            },
+            closeModal() {
+                this.showModal = false;
+            },
+            fetchSatuans() {
+                fetch('{{ route("manage.target-kinerja.ref-satuan.index") }}')
+                    .then(res => res.json())
+                    .then(data => {
+                        this.satuans = data;
+                    });
+            },
+            saveSatuan() {
+                if (!this.newSatuan) {
+                    this.message = 'Nama satuan tidak boleh kosong.';
+                    this.messageType = 'error';
+                    return;
+                }
+                
+                let url = '{{ route("manage.target-kinerja.ref-satuan.store") }}';
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ nama: this.newSatuan })
+                })
+                .then(async res => {
+                    const data = await res.json();
+                    if (res.ok) {
+                        this.newSatuan = '';
+                        this.message = 'Satuan berhasil ditambahkan.';
+                        this.messageType = 'success';
+                        this.fetchSatuans();
+                    } else {
+                        this.message = data.message || 'Gagal menyimpan satuan.';
+                        this.messageType = 'error';
+                    }
+                })
+                .catch(err => {
+                    this.message = 'Terjadi kesalahan sistem.';
+                    this.messageType = 'error';
+                });
+            },
+            deleteSatuan(id) {
+                if (!confirm('Hapus satuan ini?')) return;
+                fetch('{{ route("manage.target-kinerja.ref-satuan.index") }}/' + id, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(async res => {
+                    const data = await res.json();
+                    if (res.ok) {
+                        this.message = 'Satuan berhasil dihapus.';
+                        this.messageType = 'success';
+                        this.fetchSatuans();
+                    } else {
+                        this.message = data.message || 'Gagal menghapus satuan.';
+                        this.messageType = 'error';
+                    }
+                });
+            }
+        }
+    }
+</script>
 @endsection

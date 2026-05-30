@@ -62,7 +62,7 @@
                     <thead class="bg-gray-50 sticky top-0 z-10">
                         <tr>
                             <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-left">Nama</th>
-                            <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Efektivitas</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Efektivitas (%)</th>
                             <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Status</th>
                         </tr>
                     </thead>
@@ -70,7 +70,7 @@
                         @forelse($dataBulanan as $item)
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-6 py-4 text-sm text-gray-700">{{ $item->pelapor->nama_lengkap ?? '-' }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-700 text-center font-bold">{{ number_format($item->efektivitas, 2) }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-700 text-center font-bold">{{ number_format($item->efektivitas * 100, 1) }}%</td>
                             <td class="px-6 py-4 text-center">
                                 <span class="px-3 py-1 rounded-full text-[10px] font-bold {{ $item->color_class }}">
                                     {{ $item->status_teks }}
@@ -98,7 +98,7 @@
                     <thead class="bg-gray-50 sticky top-0 z-10">
                         <tr>
                             <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-left">Nama</th>
-                            <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Efektivitas</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Efektivitas (%)</th>
                             <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Status</th>
                         </tr>
                     </thead>
@@ -106,7 +106,7 @@
                         @forelse($dataTahunan as $item)
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-6 py-4 text-sm text-gray-700">{{ $item->pelapor->nama_lengkap ?? '-' }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-700 text-center font-bold">{{ number_format($item->efektivitas, 2) }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-700 text-center font-bold">{{ number_format($item->efektivitas * 100, 1) }}%</td>
                             <td class="px-6 py-4 text-center">
                                 <span class="px-3 py-1 rounded-full text-[10px] font-bold {{ $item->color_class }}">
                                     {{ $item->status_teks }}
@@ -137,7 +137,7 @@
                             <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-left">Tanggal</th>
                             <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Input (Min)</th>
                             <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Validasi (Min)</th>
-                            <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Efektivitas</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Efektivitas (%)</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -149,7 +149,7 @@
                             <td class="px-6 py-4 text-sm text-gray-700 text-center">{{ $item->waktu_validasi_atasan }}</td>
                             <td class="px-6 py-4 text-center">
                                 <span class="text-sm font-bold {{ $item->efektivitas > 1 ? 'text-red-600' : ($item->efektivitas >= 0.75 ? 'text-green-600' : 'text-yellow-600') }}">
-                                    {{ number_format($item->efektivitas, 2) }}
+                                    {{ number_format($item->efektivitas * 100, 1) }}%
                                 </span>
                             </td>
                         </tr>

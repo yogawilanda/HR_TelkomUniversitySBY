@@ -19,14 +19,6 @@ class PelaporanPekerjaanController extends Controller
 
             $target = TargetKinerjaHarian::findOrFail($targetHarianId);
 
-            // Check if pegawai is assigned to this target
-            if (!$isAdmin && $role === 'pegawai') {
-                $isAssigned = $target->pegawai()->where('users.id', $user->id)->exists();
-                if (!$isAssigned) {
-                    abort(403, 'Anda tidak ditugaskan untuk pekerjaan ini.');
-                }
-            }
-
             return view('kinerja_pegawai.pelaporan_pekerjaan.create', compact('target'));
         } catch (\Exception $e) {
             return $this->handleRedirectBack()->with('error_alert', $e->getMessage());
@@ -41,14 +33,6 @@ class PelaporanPekerjaanController extends Controller
             $role = $user->role ?? 'pegawai';
 
             $target = TargetKinerjaHarian::findOrFail($targetHarianId);
-
-            // Check if pegawai is assigned to this target
-            if (!$isAdmin && $role === 'pegawai') {
-                $isAssigned = $target->pegawai()->where('users.id', $user->id)->exists();
-                if (!$isAssigned) {
-                    abort(403, 'Anda tidak memiliki hak untuk melaporkan pekerjaan ini.');
-                }
-            }
 
             $data = $request->validate([
                 'realisasi' => 'nullable|string',
@@ -127,11 +111,32 @@ class PelaporanPekerjaanController extends Controller
             \Barryvdh\Debugbar\Facades\Debugbar::disable();
         }
 
+        $user = Auth::user();
+        $isAdmin = $user->is_admin;
+        $role = $user->role ?? 'pegawai';
+
         // Fitur 2g1: Statistik SLA & Progress Bulan Berjalan
         $currentMonth = now()->month;
         $currentYear = now()->year;
 
-        $processedReports = PelaporanPekerjaan::whereIn('status', ['approved', 'rejected'])
+        $baseQuery = PelaporanPekerjaan::query();
+
+        // Filter based on role
+        if (!$isAdmin) {
+            if ($role === 'atasan') {
+                $baseQuery->whereHas('pelapor', function ($q) use ($user) {
+                    $q->where('unit_id', $user->unit_id);
+                });
+            } else {
+                // By default, if they somehow get here, only see their own?
+                // Or maybe only higher roles can approve.
+                // Request said: "approval dilakukan atasan dan admin atau mungkin role sejajar diatas pegawai"
+                $baseQuery->where('user_id', $user->id); // fallback
+            }
+        }
+
+        $processedReports = clone $baseQuery;
+        $processedReports->whereIn('status', ['approved', 'rejected'])
             ->whereMonth('created_at', $currentMonth)
             ->whereYear('created_at', $currentYear);
 
@@ -140,18 +145,25 @@ class PelaporanPekerjaanController extends Controller
             'total_processed' => $processedReports->count(),
             'approved_count' => $processedReports->clone()->where('status', 'approved')->count(),
             'rejected_count' => $processedReports->clone()->where('status', 'rejected')->count(),
-            'pending_count' => PelaporanPekerjaan::where('status', 'pending')->count(),
+            'pending_count' => (clone $baseQuery)->where('status', 'pending')->count(),
         ];
 
         $slaStats['avg_hours'] = round($slaStats['avg_minutes'] / 60, 1);
 
-        $items = PelaporanPekerjaan::with('targetHarian')->orderBy('id', 'desc')->paginate(15);
+        $items = $baseQuery->with('targetHarian')->orderBy('id', 'desc')->paginate(15);
         return view('kinerja_pegawai.pelaporan_pekerjaan.list', compact('items', 'slaStats'));
     }
 
     public function showApproval($id)
     {
         try {
+            $user = Auth::user();
+            $isAdmin = $user->is_admin;
+            $role = $user->role ?? 'pegawai';
+
+            if (!$isAdmin && $role === 'pegawai') {
+                abort(403, 'Pegawai tidak memiliki hak untuk melakukan validasi/approval laporan.');
+            }
 
             $item = null;
             try {
@@ -159,6 +171,15 @@ class PelaporanPekerjaanController extends Controller
             } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
                 throw new \Exception('Pelaporan Pekerjaan ini tidak terdaftar!.');
             }
+            
+            // Check if atasan is allowed to view this specific report
+            if (!$isAdmin && $role === 'atasan') {
+                $pelapor = $item->pelapor;
+                if ($pelapor && $pelapor->unit_id != $user->unit_id) {
+                    abort(403, 'Anda hanya dapat memvalidasi laporan dari bawahan di unit anda.');
+                }
+            }
+
             return view('kinerja_pegawai.pelaporan_pekerjaan.approval', compact('item'));
         } catch (\Exception $e) {
             return $this->handleRedirectBack()->with('error_alert', $e->getMessage());
@@ -168,12 +189,27 @@ class PelaporanPekerjaanController extends Controller
     public function approve(Request $request, $id)
     {
         try {
+            $user = Auth::user();
+            $isAdmin = $user->is_admin;
+            $role = $user->role ?? 'pegawai';
+
+            if (!$isAdmin && $role === 'pegawai') {
+                abort(403, 'Pegawai tidak memiliki hak untuk melakukan validasi/approval laporan.');
+            }
 
             $item = null;
             try {
                 $item = PelaporanPekerjaan::findOrFail($id);
             } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
                 throw new \Exception('Pelaporan Pekerjaan ini tidak terdaftar!.');
+            }
+
+            // Check if atasan is allowed to approve this specific report
+            if (!$isAdmin && $role === 'atasan') {
+                $pelapor = $item->pelapor;
+                if ($pelapor && $pelapor->unit_id != $user->unit_id) {
+                    abort(403, 'Anda hanya dapat memvalidasi laporan dari bawahan di unit anda.');
+                }
             }
 
             $data = $request->validate([

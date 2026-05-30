@@ -543,6 +543,12 @@ Route::middleware(['auth',  \App\Http\Middleware\CekFlashUser::class])->group(fu
 
         // Target Kinerja Sub-Routes
         Route::group(['as' => 'target-kinerja.'], function () {
+            // CRUD Satuan Ukur
+            Route::get('/ref-satuan', [\App\Http\Controllers\RefSatuanController::class, 'index'])->name('ref-satuan.index');
+            Route::post('/ref-satuan', [\App\Http\Controllers\RefSatuanController::class, 'store'])->name('ref-satuan.store');
+            Route::put('/ref-satuan/{id}', [\App\Http\Controllers\RefSatuanController::class, 'update'])->name('ref-satuan.update');
+            Route::delete('/ref-satuan/{id}', [\App\Http\Controllers\RefSatuanController::class, 'destroy'])->name('ref-satuan.destroy');
+
             Route::get('/list', [\App\Http\Controllers\TargetKinerjaController::class, 'index'])->name('list');
             Route::get('/detail/{id}', [\App\Http\Controllers\KinerjaDashboardController::class, 'targetDetail'])->name('detail');
             Route::get('/input', [\App\Http\Controllers\TargetKinerjaController::class, 'create'])->name('input');

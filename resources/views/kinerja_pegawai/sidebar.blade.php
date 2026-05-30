@@ -71,6 +71,7 @@
                     ['Menu Pribadi', 'MenuPribadi', 'fa-solid fa-user'],
                     [
                         ['Dashboard Utama', route('manage.target-kinerja.index'), 'fa-solid fa-house'],
+                        ['Tambah Target', route('manage.target-kinerja.harian.input'), 'fa-solid fa-plus-circle'],
                         ['Laporan Kinerja Harian', route('manage.target-kinerja.harian.list'), 'fa-solid fa-file-signature'],
                         ['Riwayat Efektivitas', route('manage.laporan.efektivitas'), 'fa-solid fa-chart-line'],
                         ['Reporting Kinerja', route('manage.laporan.reporting'), 'fa-solid fa-file-invoice'],

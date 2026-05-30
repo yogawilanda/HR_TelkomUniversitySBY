@@ -33,7 +33,7 @@
         <div>
             <h3 class="text-lg font-semibold text-gray-700 mb-4 border-l-4 border-emerald-500 pl-3">Efektivitas Kerja</h3>
             <div class="p-6 bg-gray-50 rounded-xl border border-gray-200">
-                <p class="text-4xl font-black text-emerald-600">0.92</p>
+                <p class="text-4xl font-black text-emerald-600">92%</p>
                 <p class="text-xs text-gray-400 font-medium uppercase tracking-widest mt-1">Status: Optimal</p>
             </div>
         </div>
