@@ -93,18 +93,18 @@
                                         ⋮
                                     </button>
                                     <ul class="dropdown-menu">
-                                        @if ($result->id_pendidikan_tertinggi != null)
+                                        @if ($result->id_pendidikan_tertinggi != null && isset($result->pendidikan_data->id))
                                             <li>
                                                 <a
                                                     href="{{ route('manage.jenjang-pendidikan.update', ['id_jp' => $result->pendidikan_data->id]) }}"
-                                                    class="dropdown-item hover:bg-blue-500 hover:text-white">
+                                                    class="dropdown-item hover:bg-blue-500 hover:text-white" href="#">
                                                         Ubah Data
                                                 </a>
                                             </li>
                                         @endif
                                         <li>
                                             <a href="{{ route('manage.jenjang-pendidikan.new', ['id_user' => $result->id]) }}"
-                                                class="dropdown-item hover:bg-blue-500 hover:text-white">
+                                                class="dropdown-item hover:bg-blue-500 hover:text-white" href="#">
                                                 Input Pendidikan
                                             </a>
                                         </li>
