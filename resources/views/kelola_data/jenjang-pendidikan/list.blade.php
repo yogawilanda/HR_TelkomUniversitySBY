@@ -84,10 +84,9 @@
                             <div class="flex items-center justify-center gap-3">
                                 <a
                                 href="{{ route('manage.jenjang-pendidikan.history', ['idUser' => $result->id]) }}"
-                                data-bs-target="#formasi-update" data-bs-toggle="modal"
                                     class="px-3 py-1.5 border open-modal border-[#0070ff] text-[#0070ff] rounded-md text-xs font-medium hover:bg-[#0070ff] hover:text-white transition">
                                     View Data
-                            </a>
+                                </a>
                                 <div class="dropdown">
                                     <button class="btn btn-light btn-sm" data-bs-toggle="dropdown">
                                         ⋮
