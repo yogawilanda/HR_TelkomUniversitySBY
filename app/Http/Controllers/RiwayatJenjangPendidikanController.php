@@ -87,6 +87,10 @@ class RiwayatJenjangPendidikanController extends Controller
     public function update($id_jp)
     {
         $data_user = RiwayatJenjangPendidikan::where('id', $id_jp)->first();
+        if(!$data_user){
+            return $this->handleRedirectBack()->with('error_alert', 'Riwayat Jenjang Pendidikan Tidak Ditemukan!.');
+        }
+
         if ($this->onlyOwnerAdminAndSdm($data_user->users_id) == true) {
             $jenjang_pendidikans = RefJenjangPendidikan::all()->sortBy('jenjang_pendidikan');
             $users = User::all()->sortBy('nama_lengkap');
