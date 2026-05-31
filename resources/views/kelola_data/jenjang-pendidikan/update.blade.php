@@ -92,7 +92,7 @@
                             max="20" val="{{ old('singkatan_gelar', $data_user->singkatan_gelar) }}"></x-itxt>
                     </div>
 
-                    <label class="text-sm font-medium text-gray-700">Ijazah / Sertifikat Kelulusan (PDF/JPG)</label>
+                    <label class="text-sm font-medium text-gray-700">Ijazah / Sertifikat Kelulusan beserta transkrip (PDF/JPG)</label>
                     <input type="file" name="ijazah_file" accept=".pdf,.jpg,.jpeg,.png"
                         class="block w-full rounded-md border px-3 py-2 text-sm" />
                 </div>
