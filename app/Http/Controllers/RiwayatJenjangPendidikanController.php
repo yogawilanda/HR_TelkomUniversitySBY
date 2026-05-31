@@ -57,61 +57,9 @@ class RiwayatJenjangPendidikanController extends Controller
 
     public function store(Request $request)
     {
-        // dd('cek',request()->input('secret'));
+        $validation = $this->validation();
+        $validated = $request->validate($validation[0],$validation[1],$validation[2]);
 
-        $validated = $request->validate([
-
-            // Staff & Jenjang Pendidikan
-            'users_id' => ['required'],
-            'jenjang_pendidikan_id' => ['required'],
-
-            // Detail Pendidikan
-            'bidang_pendidikan' => ['nullable', 'string', 'max:150'],
-            'jurusan' => ['nullable', 'string', 'max:150'],
-            'nama_kampus' => ['nullable', 'string', 'max:150'],
-            'alamat_kampus' => ['nullable', 'string', 'max:300'],
-
-            'tahun_lulus' => ['required', 'integer', 'min:1900', 'max:'.now()->year],
-
-            'nilai' => ['required', 'numeric', 'min:0', 'max:4'], // IPK
-
-            'gelar' => ['nullable', 'string', 'max:50'],
-            'singkatan_gelar' => ['nullable', 'string', 'max:20'],
-
-            // File Ijazah / Sertifikat
-            'ijazah_file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png'],
-
-        ], [
-
-            // Pesan Default
-            'required' => ':attribute wajib diisi.',
-            'numeric' => ':attribute harus berupa angka.',
-            'integer' => ':attribute harus berupa angka bulat.',
-            'min' => ':attribute minimal :min.',
-            'max' => ':attribute maksimal :max.',
-            'date' => ':attribute harus berupa tanggal yang valid.',
-            'mimes' => ':attribute harus berformat: :values.',
-
-        ], [
-
-            // Alias Attribute
-            'users_id' => 'Staff',
-            'jenjang_pendidikan_id' => 'Jenjang pendidikan',
-
-            'bidang_pendidikan' => 'Bidang pendidikan / fakultas',
-            'jurusan' => 'Jurusan / Program Studi',
-            'nama_kampus' => 'Nama kampus',
-            'alamat_kampus' => 'Alamat kampus',
-
-            'tahun_lulus' => 'Tahun lulus',
-            'nilai' => 'Nilai IPK',
-
-            'gelar' => 'Gelar yang didapat',
-            'singkatan_gelar' => 'Singkatan gelar',
-
-            'ijazah_file' => 'Ijazah / Sertifikat kelulusan',
-
-        ]);
 
         DB::beginTransaction();
         try {
@@ -170,7 +118,8 @@ class RiwayatJenjangPendidikanController extends Controller
 
     public function update_data(Request $request, $id_jp)
     {
-        $validated = $request->validate();
+        $validation = $this->validation($id_jp);
+        $validated = $request->validate($validation[0],$validation[1],$validation[2]);
 
         if ($this->onlyOwnerAdminAndSdm($request->users_id) == true) {
             try {
