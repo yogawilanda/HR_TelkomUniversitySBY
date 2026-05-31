@@ -134,7 +134,7 @@ class RiwayatJenjangPendidikanController extends Controller
             try {
                 // RiwayatJenjangPendidikan::create($validated);
 
-                $jp = null;
+                // $jp = null;
 
                 $jp->update($validated);
 
