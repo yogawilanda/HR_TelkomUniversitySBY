@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\RefJenjangPendidikan;
 use App\Models\RiwayatJenjangPendidikan;
 use App\Models\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -36,10 +37,10 @@ class RiwayatJenjangPendidikanController extends Controller
     {
 
         if ($this->onlyOwnerAdminAndSdm(request()->id_User) == true) {
-            $data_user = user::where('id', request()->id_User)->first();
+            $data_user = User::where('id', request()->id_User)->first();
             // dd($data_user);
             $jenjang_pendidikans = RefJenjangPendidikan::all()->sortBy('jenjang_pendidikan');
-            $users = user::all()->sortBy('nama_lengkap');
+            $users = User::all()->sortBy('nama_lengkap');
             $secret = '';
             // dd('cek',request()->input('wht'));
             if (request()->input('wht') != null) {
@@ -58,8 +59,7 @@ class RiwayatJenjangPendidikanController extends Controller
     public function store(Request $request)
     {
         $validation = $this->validation();
-        $validated = $request->validate($validation[0],$validation[1],$validation[2]);
-
+        $validated = $request->validate($validation[0], $validation[1], $validation[2]);
 
         DB::beginTransaction();
         try {
@@ -79,11 +79,8 @@ class RiwayatJenjangPendidikanController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal membuat Jenjang Pendidikan',
-                'error' => $e->getMessage(),
-            ], 500);
+            return redirect()->back()->withInput($validated)->with('error_alert', $e->getMessage());
+
         }
     }
 
@@ -92,7 +89,7 @@ class RiwayatJenjangPendidikanController extends Controller
         $data_user = RiwayatJenjangPendidikan::where('id', $id_jp)->first();
         if ($this->onlyOwnerAdminAndSdm($data_user->users_id) == true) {
             $jenjang_pendidikans = RefJenjangPendidikan::all()->sortBy('jenjang_pendidikan');
-            $users = user::all()->sortBy('nama_lengkap');
+            $users = User::all()->sortBy('nama_lengkap');
 
             $secret = '';
             if (request()->input('wht') != null) {
@@ -119,12 +116,12 @@ class RiwayatJenjangPendidikanController extends Controller
     public function update_data(Request $request, $id_jp)
     {
         $validation = $this->validation($id_jp);
-        $validated = $request->validate($validation[0],$validation[1],$validation[2]);
+        $validated = $request->validate($validation[0], $validation[1], $validation[2]);
 
         if ($this->onlyOwnerAdminAndSdm($request->users_id) == true) {
             try {
                 $jp = RiwayatJenjangPendidikan::findOrFail($id_jp);
-            } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            } catch (ModelNotFoundException $e) {
                 $this->handleRedirectBack()->with('error_alert', 'Riwayat Jenjang Pendidikan ini tidak terdaftar!.');
             }
 
@@ -153,11 +150,7 @@ class RiwayatJenjangPendidikanController extends Controller
             } catch (\Exception $e) {
                 DB::rollBack();
 
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Gagal mengupdate Jenjang Pendidikan',
-                    'error' => $e->getMessage(),
-                ], 500);
+                return redirect()->back()->withInput($validated)->with('error_alert', $e->getMessage());
             }
         }
 
@@ -169,9 +162,9 @@ class RiwayatJenjangPendidikanController extends Controller
         try {
             $jp = User::findOrFail($idUser);
 
-            } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-                return $this->handleRedirectBack()->with('error_alert', 'Riwayat Jenjang Pendidikan ini tidak terdaftar!.');
-                }
+        } catch (ModelNotFoundException $e) {
+            return $this->handleRedirectBack()->with('error_alert', 'Riwayat Jenjang Pendidikan ini tidak terdaftar!.');
+        }
         if ($this->onlyOwnerAdminAndSdm($idUser) == true) {
 
             $user = (new ProfileController)->based_user_data($idUser);
@@ -188,64 +181,65 @@ class RiwayatJenjangPendidikanController extends Controller
 
     }
 
-    public function validation($id=null){
-        $id=$id==null?'':','.$id;
+    public function validation($id = null)
+    {
+        $id = $id == null ? '' : ','.$id;
 
         return [
             [
 
-            // Staff & Jenjang Pendidikan
-            'users_id' => ['required','exists:users,id'],
-            'jenjang_pendidikan_id' => ['required','exists:ref_jenjang_pendidikans,id'],
+                // Staff & Jenjang Pendidikan
+                'users_id' => ['required', 'exists:users,id'],
+                'jenjang_pendidikan_id' => ['required', 'exists:ref_jenjang_pendidikans,id'],
 
-            // Detail Pendidikan
-            'bidang_pendidikan' => ['nullable', 'string', 'max:150'],
-            'jurusan' => ['nullable', 'string', 'max:150'],
-            'nama_kampus' => ['nullable', 'string', 'max:150'],
-            'alamat_kampus' => ['nullable', 'string', 'max:300'],
+                // Detail Pendidikan
+                'bidang_pendidikan' => ['nullable', 'string', 'max:150'],
+                'jurusan' => ['nullable', 'string', 'max:150'],
+                'nama_kampus' => ['nullable', 'string', 'max:150'],
+                'alamat_kampus' => ['nullable', 'string', 'max:300'],
 
-            'tahun_lulus' => ['required', 'integer', 'min:1900', 'max:'.now()->year],
+                'tahun_lulus' => ['required', 'integer', 'min:1900', 'max:'.now()->year],
 
-            'nilai' => ['required', 'numeric', 'min:0', 'max:4'], // IPK
+                'nilai' => ['required', 'numeric', 'min:0', 'max:4'], // IPK
 
-            'gelar' => ['nullable', 'string', 'max:50'],
-            'singkatan_gelar' => ['nullable', 'string', 'max:20'],
+                'gelar' => ['nullable', 'string', 'max:50'],
+                'singkatan_gelar' => ['nullable', 'string', 'max:20'],
 
-            // File Ijazah / Sertifikat
-            'ijazah_file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png'],
+                // File Ijazah / Sertifikat
+                'ijazah_file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png'],
 
-        ], [
+            ], [
 
-            // Pesan Default
-            'required' => ':attribute wajib diisi.',
-            'numeric' => ':attribute harus berupa angka.',
-            'integer' => ':attribute harus berupa angka bulat.',
-            'min' => ':attribute minimal :min.',
-            'max' => ':attribute maksimal :max.',
-            'date' => ':attribute harus berupa tanggal yang valid.',
-            'mimes' => ':attribute harus berformat: :values.',
-            'exists' => ':attribute Tidak Terdaftar!.'
+                // Pesan Default
+                'required' => ':attribute wajib diisi.',
+                'numeric' => ':attribute harus berupa angka.',
+                'integer' => ':attribute harus berupa angka bulat.',
+                'min' => ':attribute minimal :min.',
+                'max' => ':attribute maksimal :max.',
+                'date' => ':attribute harus berupa tanggal yang valid.',
+                'mimes' => ':attribute harus berformat: :values.',
+                'exists' => ':attribute Tidak Terdaftar!.',
 
-        ], [
+            ], [
 
-            // Alias Attribute
-            'users_id' => 'Staff',
-            'jenjang_pendidikan_id' => 'Jenjang pendidikan',
+                // Alias Attribute
+                'users_id' => 'Staff',
+                'jenjang_pendidikan_id' => 'Jenjang pendidikan',
 
-            'bidang_pendidikan' => 'Bidang pendidikan / fakultas',
-            'jurusan' => 'Jurusan / Program Studi',
-            'nama_kampus' => 'Nama kampus',
-            'alamat_kampus' => 'Alamat kampus',
+                'bidang_pendidikan' => 'Bidang pendidikan / fakultas',
+                'jurusan' => 'Jurusan / Program Studi',
+                'nama_kampus' => 'Nama kampus',
+                'alamat_kampus' => 'Alamat kampus',
 
-            'tahun_lulus' => 'Tahun lulus',
-            'nilai' => 'Nilai IPK',
+                'tahun_lulus' => 'Tahun lulus',
+                'nilai' => 'Nilai IPK',
 
-            'gelar' => 'Gelar yang didapat',
-            'singkatan_gelar' => 'Singkatan gelar',
+                'gelar' => 'Gelar yang didapat',
+                'singkatan_gelar' => 'Singkatan gelar',
 
-            'ijazah_file' => 'Ijazah / Sertifikat kelulusan',
+                'ijazah_file' => 'Ijazah / Sertifikat kelulusan',
 
-        ]
+            ],
         ];
 
     }
