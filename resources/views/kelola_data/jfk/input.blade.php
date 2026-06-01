@@ -61,7 +61,7 @@
                         @endforelse
                     </x-islc>
                     <x-itxt lbl="Terakui Mulai Tanggal (TMT Mulai)" type="date" plc="dd/mm/yyyy" nm='tmt_mulai'></x-itxt>
-                    <x-itxt lbl="Selesai Pada Tanggal (TMT Selesai)" type="date" plc="dd/mm/yyyy"
+                    <x-itxt lbl="Selesai Pada Tanggal (TMT Selesai)" type="date" plc="dd/mm/yyyy" :req=false
                         nm='tmt_selesai'></x-itxt>
 
                     <div class="flex flex-col gap-4 justify-end">
