@@ -163,7 +163,7 @@ class CoeController extends Controller
         return [
             [
                 'kode_coe' => ['required', 'string', 'max:50', 'unique:coe,kode_coe'.$id,'regex:/^(?=.*[A-Za-z])[A-Za-z0-9\s]+$/'],
-                'nama_coe' => ['required', 'string', 'max:200','regex:/^(?=.*[A-Za-z])[A-Za-z0-9@#$%^&*()_\-+=.,?! ]+$/'],
+                'nama_coe' => ['required', 'string', 'max:200','regex:/^(?=.*[A-Za-z])[A-Za-z0-9@#$%^&*()_\-+=.,?!\s]+$/'],
                 'ref_research_id' => ['required', 'string', 'max:100', 'exists:ref_research_coes,id'],
             ],
             [
