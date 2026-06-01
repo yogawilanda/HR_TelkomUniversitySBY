@@ -70,7 +70,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <x-itxt lbl="TMT Mulai" type="date" nm='tmt_mulai'></x-itxt>
-                    <x-itxt lbl="TMT Selesai" type="date" nm='tmt_selesai'></x-itxt>
+                    <x-itxt lbl="TMT Selesai" type="date" nm='tmt_selesai' :req=false></x-itxt>
                 </div>
 
                 <hr class="my-2">

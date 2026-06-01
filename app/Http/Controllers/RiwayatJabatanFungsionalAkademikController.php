@@ -181,11 +181,6 @@ class RiwayatJabatanFungsionalAkademikController extends Controller
             } else {
                 $validated['sk_pengakuan_ypt_id'] = null;
             }
-
-            // if(!isset($validated['sk_pengakuan_ypt_id'])){
-
-            // }
-            // dd($validated['sk_pengakuan_ypt_id']);
             $old_jfa = riwayatJabatanFungsionalAkademik::where('dosen_id', $validated['dosen_id'])
                 ->where(function ($q) {
                     $q->whereNull('tmt_selesai')
