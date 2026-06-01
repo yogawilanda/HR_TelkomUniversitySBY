@@ -158,7 +158,7 @@ class RiwayatJenjangPendidikanController extends Controller
             }
         }
 
-        return redirect(route('profile.personal-info', ['idUser' => session('account')['id']]))->with('error_alert', 'Anda hanya boleh mengelola data anda sendiri!.');
+        return redirect(route('profile.personal-info    ', ['idUser' => session('account')['id']]))->with('error_alert', 'Anda hanya boleh mengelola data anda sendiri!.');
     }
 
     public function profileRiwayatPendidikan($idUser)
