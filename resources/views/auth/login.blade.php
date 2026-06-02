@@ -130,7 +130,7 @@
 
                             <!-- Password -->
                             <div>
-                                <x-itxt type="password" lbl="Kata Sandi" nm="password" max="15" fill="flex-grow"></x-itxt>
+                                <x-itxt type="password" lbl="Kata Sandi" nm="password" max="50" fill="flex-grow"></x-itxt>
                                 @error('password')
                                     <div class="text-sm text-red-600 dark:text-red-400 mt-1">
                                         {{ $message }}

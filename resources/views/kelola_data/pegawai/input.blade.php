@@ -68,8 +68,8 @@
                         max="150"></x-itxt>
 
                     <x-islc lbl="Jenis Kelamin" nm="jenis_kelamin">
-                        <option value="Laki-laki">Laki-laki</option>
-                        <option value="Perempuan">Perempuan</option>
+                        <option value="Laki-laki" {{ old('jenis_kelamin')=='Laki-laki'?'selected':null }}>Laki-laki</option>
+                        <option value="Perempuan" {{ old('jenis_kelamin')=='Perempuan'?'selected':null }}>Perempuan</option>
                     </x-islc>
 
                     <div class="flex flex-col xl:flex-row justify-between w-full gap-3">
@@ -151,8 +151,8 @@
                     <div class="grid md:grid-cols-2 gap-4">
                         <label>
                             <span>Nama Lengkap</span>
-                            <input type="text" name="emergency_contacts[${i}][nama_lengkap]" 
-                                value="${val('nama_lengkap')}" placeholder="Jane Doe" maxlength="100" 
+                            <input type="text" name="emergency_contacts[${i}][nama_lengkap]"
+                                value="${val('nama_lengkap')}" placeholder="Jane Doe" maxlength="100"
                                 class="border bg-gray-100 p-2 rounded w-full">
                         </label>
 
@@ -170,21 +170,21 @@
 
                         <label>
                             <span>Telepon</span>
-                            <input type="text" name="emergency_contacts[${i}][telepon]" 
-                                value="${val('telepon')}" placeholder="081234567890" maxlength="13" 
+                            <input type="text" name="emergency_contacts[${i}][telepon]"
+                                value="${val('telepon')}" placeholder="081234567890" maxlength="13"
                                 class="border bg-gray-100 p-2 rounded w-full">
                         </label>
 
                         <label>
                             <span>Email</span>
-                            <input type="email" name="emergency_contacts[${i}][email]" 
-                                value="${val('email')}" placeholder="jane.doe@gmail.com" maxlength="150" 
+                            <input type="email" name="emergency_contacts[${i}][email]"
+                                value="${val('email')}" placeholder="jane.doe@gmail.com" maxlength="150"
                                 class="border bg-gray-100 p-2 rounded w-full">
                         </label>
 
                         <label class="md:col-span-2">
                             <span>Alamat</span>
-                            <textarea name="emergency_contacts[${i}][alamat]" placeholder="Jl. Telekomunikasi No. 1, Bandung" 
+                            <textarea name="emergency_contacts[${i}][alamat]" placeholder="Jl. Telekomunikasi No. 1, Bandung"
                                 maxlength="300" class="border bg-gray-100 p-2 rounded w-full">${val('alamat')}</textarea>
                         </label>
                     </div>

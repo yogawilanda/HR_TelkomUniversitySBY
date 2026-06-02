@@ -97,12 +97,12 @@
                                 Baru</label>
                             <div class="mt-1 input-with-toggle">
                                 <input id="password" name="password" value="{{ old('password') }}" type="password" required
-                                    minlength="8" autocomplete="new-password"
+                                    minlength="8" autocomplete="new-password" maxlength="50"
                                     class="block w-full rounded-xl border
-                       @error('password') border-red-500 focus:ring-red-500 focus:border-red-500
-                       @else border-gray-300 focus:ring-blue-500 focus:border-blue-500 @enderror
-                       bg-white px-4 py-3 text-lg text-gray-900 placeholder-gray-400 shadow-sm
-                       dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                                    @error('password') border-red-500 focus:ring-red-500 focus:border-red-500
+                                    @else border-gray-300 focus:ring-blue-500 focus:border-blue-500 @enderror
+                                    bg-white px-4 py-3 text-lg text-gray-900 placeholder-gray-400 shadow-sm
+                                    dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
                                     placeholder="Minimal 8 karakter"
                                     title="Minimal 8 karakter, disarankan kombinasi huruf besar, kecil, angka, dan simbol.">
                                 <button type="button" class="pw-toggle-btn" data-target="password"
