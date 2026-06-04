@@ -1,5 +1,6 @@
 <script>
     function Pop_message(title = null, message = null, is_load = false, type = 'save') {
+        console.log('masuk pop_messgae');
         if (is_load) {
 
             // Swal.fire({
