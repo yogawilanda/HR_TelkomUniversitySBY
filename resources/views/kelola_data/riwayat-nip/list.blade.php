@@ -165,9 +165,14 @@
                                         <li>
                                             <hr class="dropdown-divider">
                                         </li>
-                                        {{ dd($item) }}
-                                        <li><a href="{{ route('manage.riwayat-nip.history',['id_pegawai'=> $item->pegawai->id]) }}" class="dropdown-item py-2" href="#">
-                                            <i class="bi bi-pencil-square me-2 text-blue-500"></i>Riwayat NIP Pegawai Ini</a></li>
+                                        @if(isset($item->pegawai->id))
+                                            <li>
+                                                <a href="{{ route('manage.riwayat-nip.history',['id_pegawai'=> $item->pegawai->id]) }}" class="dropdown-item py-2" href="#">
+                                                    <i class="bi bi-pencil-square me-2 text-blue-500">
+                                                    </i>Riwayat NIP Pegawai Ini
+                                                </a>
+                                            </li>
+                                        @endif
                                         {{-- <li><a class="dropdown-item py-2 text-danger" href="#"><i
                                                     class="bi bi-trash me-2"></i> Hapus</a></li> --}}
                                     </ul>
