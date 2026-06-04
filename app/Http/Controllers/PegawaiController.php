@@ -69,7 +69,7 @@ class PegawaiController extends Controller
         }
 
         $users = $query;
-
+        dd($users);
         $spess = true;
 
         $send = [$target];
