@@ -16,7 +16,7 @@
             Swal.fire({
                 title: title == null ? 'Memproses...' : title,
                 html: 'Mohon tunggu ' + message + '<span class="loading-dots"></span>',
-                allowOutsideClick: false,
+                allowOutsideClick: true,
                 showConfirmButton: false
             });
         } else {
