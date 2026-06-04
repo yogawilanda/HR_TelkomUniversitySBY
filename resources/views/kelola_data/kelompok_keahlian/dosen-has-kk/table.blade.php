@@ -147,6 +147,7 @@
 @endsection
 
 @push('script-under-base')
+    @include('components.js.route-pop-up-button')
     @include('kelola_data.pegawai.js.alert-success-from-controller')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
