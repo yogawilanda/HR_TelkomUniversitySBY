@@ -326,6 +326,8 @@
 
     @include('kelola_data.pegawai.js.active-and-nonactive-pegawai')
     @include('kelola_data.pegawai.js.alert-success-from-controller')
+    @include('components.js.route-pop-up-button')
+
 @endsection
 
 @section('script-base')
