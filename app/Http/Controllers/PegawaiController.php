@@ -68,7 +68,7 @@ class PegawaiController extends Controller
             $query->where('users.is_active', 0);
         }
 
-        $users = $query->paginate(50);
+        $users = $query;
 
         $spess = true;
 
