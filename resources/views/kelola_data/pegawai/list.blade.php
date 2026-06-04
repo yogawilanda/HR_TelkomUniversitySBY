@@ -45,10 +45,6 @@
 @endsection
 
 @section('content-base')
-    {{-- Navigasi Halaman (Pagination Atas) --}}
-    <div class="mt-4 px-2">
-        {{ $users->links() }}
-    </div>
 
     <div class="flex flex-col gap-2 max-w-max min-h-[30vh] h-fit max-h-[80vh] p-4 pb-6 mb-2">
 
@@ -333,12 +329,6 @@
                 @endforeach
             </x-slot:table_column>
         </x-tb>
-    </div>
-
-
-    {{-- Navigasi Halaman (Pagination Bawah) --}}
-    <div class="mt-4 px-2 pb-6">
-        {{ $users->links() }}
     </div>
 
     @include('kelola_data.pegawai.js.active-and-nonactive-pegawai')
