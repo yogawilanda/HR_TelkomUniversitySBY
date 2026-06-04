@@ -104,9 +104,7 @@
                                 @else
                                     <a href="{{ route('manage.pengawakan.new', ['users_id' => $user->id]) }}"
                                         class="text-slate-400 italic">
-                                        Belum dipetakan <br><span
-                                            class="text-xs text-blue-500 font-medium route_pop_up hover:text-blue-700 hover:underline transition-colors">klik
-                                            untuk set</span>
+                                        Belum dipetakan <br><span class="text-xs text-blue-500 font-medium route_pop_up hover:text-blue-700 hover:underline transition-colors">klik untuk set</span>
                                     </a>
                                 @endif
                             </td>
@@ -196,11 +194,7 @@
                                         {{ $user->bagian_kode }}
                                     </p>
                                 @else
-                                    <p class="text-slate-400 italic">Belum dipetakan</p>
-                                    <a href="{{ route('manage.pengawakan.new', ['users_id' => $user->id]) }}"
-                                        class="text-xs text-blue-500 font-medium route_pop_up hover:text-blue-700 hover:underline transition-colors">
-                                        klik untuk set
-                                    </a>
+                                    <p class="text-slate-400 italic">Belum dipetakan</p> <a href="{{ route('manage.pengawakan.new', ['users_id' => $user->id]) }}" class="text-xs text-blue-500 font-medium route_pop_up hover:text-blue-700 hover:underline transition-colors">klik untuk set </a>
                                 @endif
                             </td>
                             @if ($send[0] == 'Spess')
