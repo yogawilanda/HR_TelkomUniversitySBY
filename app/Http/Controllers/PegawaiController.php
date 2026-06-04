@@ -68,8 +68,7 @@ class PegawaiController extends Controller
             $query->where('users.is_active', 0);
         }
 
-        $users = $query->all();
-        dd($users);
+        $users = $query->get();
         $spess = true;
 
         $send = [$target];
