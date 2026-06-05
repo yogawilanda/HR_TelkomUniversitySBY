@@ -21,24 +21,57 @@
                     <i class="fa-solid fa-clock text-xl"></i>
                 </div>
                 <div>
-                    <h3 class="text-lg font-bold text-gray-700">Parameter Jam Masuk</h3>
-                    <p class="text-xs text-gray-400">Tentukan batas toleransi jam masuk kantor.</p>
+                    <h3 class="text-lg font-bold text-gray-700">Parameter Jam Kerja & Presensi</h3>
+                    <p class="text-xs text-gray-400">Tentukan standar jam kerja dan toleransi kehadiran.</p>
                 </div>
             </div>
 
-            <form action="{{ route('manage.presensi.settings.update') }}" method="POST" class="p-8 space-y-6">
+            <form action="{{ route('manage.presensi.settings.update') }}" method="POST" class="p-8 space-y-8">
                 @csrf
-                <div class="space-y-2">
-                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider block">Maksimal Jam Masuk (HH:mm)</label>
-                    <div class="relative max-w-[200px]">
-                        <input type="time" name="max_check_in_time" value="{{ old('max_check_in_time', $maxCheckIn) }}"
-                            class="w-full text-sm text-gray-900 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 py-3 px-4 font-bold">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Jam Masuk -->
+                    <div class="space-y-2">
+                        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider block">Jam Masuk Standar</label>
+                        <div class="relative">
+                            <input type="time" name="work_start_time" value="{{ old('work_start_time', $workStartTime) }}"
+                                class="w-full text-sm text-gray-900 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 py-3 px-4 font-bold">
+                        </div>
+                        @error('work_start_time')
+                            <p class="text-xs text-red-600 font-bold mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
-                    @error('max_check_in_time')
+
+                    <!-- Jam Pulang -->
+                    <div class="space-y-2">
+                        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider block">Jam Pulang Standar</label>
+                        <div class="relative">
+                            <input type="time" name="work_end_time" value="{{ old('work_end_time', $workEndTime) }}"
+                                class="w-full text-sm text-gray-900 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 py-3 px-4 font-bold">
+                        </div>
+                        @error('work_end_time')
+                            <p class="text-xs text-red-600 font-bold mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <!-- Toleransi -->
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider block">Toleransi Keterlambatan (Menit)</label>
+                    <div class="relative max-w-[150px]">
+                        <div class="flex items-center gap-2">
+                            <input type="number" name="late_tolerance" value="{{ old('late_tolerance', $lateTolerance) }}"
+                                class="w-full text-sm text-gray-900 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 py-3 px-4 font-bold">
+                            <span class="text-sm font-medium text-gray-500">Menit</span>
+                        </div>
+                    </div>
+                    @error('late_tolerance')
                         <p class="text-xs text-red-600 font-bold mt-1">{{ $message }}</p>
                     @enderror
                     <p class="text-xs text-gray-400 italic mt-3 leading-relaxed">
-                        * Pegawai yang melakukan presensi melewati jam ini akan otomatis tercatat sebagai "Terlambat" pada laporan.
+                        * Pegawai akan dianggap terlambat jika melakukan presensi melewati <strong>Jam Masuk Standar + Toleransi</strong>.
+                        <br>
+                        Contoh: Jam Masuk 08:00 + Toleransi 15 Menit = Batas Terlambat 08:15.
                     </p>
                 </div>
 

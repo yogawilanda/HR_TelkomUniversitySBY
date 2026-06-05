@@ -32,8 +32,9 @@
                     @endif
 
                     @if($badges['speedy'])
+                        @php $workEndTime = \App\Models\KinerjaSetting::get('work_end_time', '17:00'); @endphp
                         <div class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 border-2 border-blue-400 text-blue-600 shadow-sm transition-transform hover:scale-110" 
-                            title="Speedy Submitter: Rata-rata waktu input laporan dilakukan sebelum jam 17:00.">
+                            title="Speedy Submitter: Rata-rata waktu input laporan dilakukan sebelum jam {{ $workEndTime }}.">
                             <i class="fa-solid fa-bolt-lightning text-lg"></i>
                         </div>
                     @endif

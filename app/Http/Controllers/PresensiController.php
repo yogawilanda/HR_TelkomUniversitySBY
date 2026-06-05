@@ -95,8 +95,11 @@ class PresensiController extends Controller
             abort(403);
         }
 
-        $maxCheckIn = KinerjaSetting::get('max_check_in_time', '08:00');
-        return view('kinerja_pegawai.presensi.settings', compact('maxCheckIn'));
+        $workStartTime = KinerjaSetting::get('work_start_time', '08:00');
+        $workEndTime = KinerjaSetting::get('work_end_time', '17:00');
+        $lateTolerance = KinerjaSetting::get('late_tolerance', 15);
+
+        return view('kinerja_pegawai.presensi.settings', compact('workStartTime', 'workEndTime', 'lateTolerance'));
     }
 
     public function updateSettings(Request $request)
@@ -106,10 +109,20 @@ class PresensiController extends Controller
         }
 
         $request->validate([
-            'max_check_in_time' => 'required|date_format:H:i'
+            'work_start_time' => 'required|date_format:H:i',
+            'work_end_time' => 'required|date_format:H:i',
+            'late_tolerance' => 'required|integer|min:0'
         ]);
 
-        KinerjaSetting::set('max_check_in_time', $request->max_check_in_time, 'string', 'Batas jam masuk maksimal (format HH:mm)');
+        KinerjaSetting::set('work_start_time', $request->work_start_time, 'string', 'Jam masuk kerja standar');
+        KinerjaSetting::set('work_end_time', $request->work_end_time, 'string', 'Jam pulang kerja standar');
+        KinerjaSetting::set('late_tolerance', $request->late_tolerance, 'number', 'Toleransi keterlambatan (menit)');
+
+        // Update legacy max_check_in_time for backward compatibility if needed, 
+        // though we'll update tardinessReport to calculate it.
+        $carbonStart = \Carbon\Carbon::createFromFormat('H:i', $request->work_start_time);
+        $maxCheckIn = $carbonStart->addMinutes($request->late_tolerance)->format('H:i');
+        KinerjaSetting::set('max_check_in_time', $maxCheckIn, 'string', 'Batas jam masuk maksimal (format HH:mm) - Auto calculated');
 
         return redirect()->back()->with('success', 'Pengaturan presensi berhasil diperbarui');
     }
@@ -123,7 +136,12 @@ class PresensiController extends Controller
 
         $month = $request->get('month', now()->month);
         $year = $request->get('year', now()->year);
-        $maxTime = KinerjaSetting::get('max_check_in_time', '08:00');
+        
+        $startTime = KinerjaSetting::get('work_start_time', '08:00');
+        $tolerance = KinerjaSetting::get('late_tolerance', 15);
+        
+        $carbonStart = \Carbon\Carbon::createFromFormat('H:i', $startTime);
+        $maxTime = $carbonStart->addMinutes($tolerance)->format('H:i:s');
 
         $report = User::where('is_admin', false)
             ->with(['presensis' => function($q) use ($month, $year) {

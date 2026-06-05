@@ -193,11 +193,13 @@ class KinerjaDashboardController extends Controller
             $badges['reliable'] = $lastTenReports->every(fn($rep) => $rep->status === 'approved' || $rep->status === 'completed');
         }
 
-        // "Speedy Submitter": Avg input time < 17:00 in last 5 reports
+        // "Speedy Submitter": Avg input time < work_end_time in last 5 reports
         $lastFiveReports = $lastTenReports->take(5);
         if ($lastFiveReports->count() >= 5) {
+            $workEndTime = \App\Models\KinerjaSetting::get('work_end_time', '17:00');
+            $endHour = (int) explode(':', $workEndTime)[0];
             $avgHour = $lastFiveReports->avg(fn($rep) => $rep->created_at->hour);
-            $badges['speedy'] = $avgHour < 17;
+            $badges['speedy'] = $avgHour < $endHour;
         }
 
         return $badges;
