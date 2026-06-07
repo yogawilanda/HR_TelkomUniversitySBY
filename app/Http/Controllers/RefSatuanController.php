@@ -9,7 +9,50 @@ class RefSatuanController extends Controller
 {
     public function index()
     {
-        return response()->json(RefSatuan::orderBy('nama')->get());
+        $defaults = [
+            'Persentase (%)',
+            'Dokumen',
+            'Laporan',
+            'Kegiatan',
+            'SKS',
+            'Mahasiswa',
+            'Artikel',
+            'Buku',
+            'Paten',
+            'Prototype',
+            'Jam',
+            'Mata Kuliah'
+        ];
+
+        $dbSatuans = RefSatuan::orderBy('nama')->get();
+        $results = $dbSatuans->toArray();
+        $dbNames = $dbSatuans->pluck('nama')->toArray();
+
+        // Use a high range for hardcoded IDs to avoid collision
+        $idCounter = 1000000;
+        foreach ($defaults as $name) {
+            if (!in_array($name, $dbNames)) {
+                $results[] = [
+                    'id' => $idCounter++,
+                    'nama' => $name,
+                    'is_hardcoded' => true
+                ];
+            }
+        }
+
+        // Add is_hardcoded => false to db results
+        foreach ($results as &$item) {
+            if (!isset($item['is_hardcoded'])) {
+                $item['is_hardcoded'] = false;
+            }
+        }
+
+        // Sort alphabetically by name
+        usort($results, function ($a, $b) {
+            return strcasecmp($a['nama'], $b['nama']);
+        });
+
+        return response()->json($results);
     }
 
     public function store(Request $request)

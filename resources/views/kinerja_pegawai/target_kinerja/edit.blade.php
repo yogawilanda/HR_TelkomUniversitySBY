@@ -160,9 +160,16 @@
                                         <tbody class="bg-white divide-y divide-gray-200">
                                             <template x-for="s in satuans" :key="s.id">
                                                 <tr>
-                                                    <td class="px-4 py-3 text-sm text-gray-900" x-text="s.nama"></td>
+                                                    <td class="px-4 py-3 text-sm text-gray-900">
+                                                        <span x-text="s.nama"></span>
+                                                        <template x-if="s.is_hardcoded">
+                                                            <span class="ml-2 px-1.5 py-0.5 text-[10px] bg-gray-100 text-gray-500 rounded border border-gray-200">Bawaan</span>
+                                                        </template>
+                                                    </td>
                                                     <td class="px-4 py-3 text-sm text-right">
-                                                        <button type="button" @click="deleteSatuan(s.id)" class="text-red-600 hover:text-red-900"><i class="fa-solid fa-trash"></i></button>
+                                                        <template x-if="!s.is_hardcoded">
+                                                            <button type="button" @click="deleteSatuan(s.id)" class="text-red-600 hover:text-red-900"><i class="fa-solid fa-trash"></i></button>
+                                                        </template>
                                                     </td>
                                                 </tr>
                                             </template>
