@@ -47,7 +47,7 @@ return new class extends Migration
         DB::connection($this->connection)->table('ref_target_jabatan_pengajuan')->insert([
             [
                 'id' => 1, 
-                'jfaAsal' => '00000000-0000-0000-0000-000000000000', // NJAD
+                'jfaAsal' => '8a7c0b44-2c2e-4a16-a4df-111111111111', // NJAD
                 'jfaTujuan' => 'b467678d-8e9f-4453-bb76-f0cba91468dc', // Asisten Ahli
                 'kumTarget' => 150, 
                 'created_at' => now(), 

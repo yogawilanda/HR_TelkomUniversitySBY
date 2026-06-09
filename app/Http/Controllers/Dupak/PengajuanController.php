@@ -3,16 +3,18 @@
 namespace App\Http\Controllers\Dupak;
 
 use App\Http\Controllers\Controller;
-use App\Models\Dupak\Pengajuan;
 use App\Models\Dosen;
-use App\Models\refJabatanFungsionalAkademik;
+use App\Models\Dupak\HasilEvaluasi;
+use App\Models\Dupak\Pengajuan;
+use App\Models\Dupak\PenunjukanTPAKModel;
 use App\Models\Dupak\RefKegiatanUtama;
-use App\Models\RiwayatJabatanFungsional;
+use App\Models\Dupak\RefTargetJabatanPengajuan;
+use App\Models\refJabatanFungsionalAkademik;
 use App\Models\riwayatJabatanFungsionalAkademik;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class PengajuanController extends Controller
 {
@@ -29,7 +31,7 @@ class PengajuanController extends Controller
 
         $pengajuanQuery = Pengajuan::with('dosen')->orderBy('id', 'desc');
 
-        if (!$user->is_admin) {
+        if (! $user->is_admin) {
             // Hanya tampilkan pengajuan milik dosen yang sedang login
             $pengajuanQuery->where('idDosen', $dosenId);
         }
@@ -73,12 +75,14 @@ class PengajuanController extends Controller
      */
     private function isMaxJfa(Dosen $dosen): bool
     {
-        $riwayat_jfa = RiwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
+        $riwayat_jfa = riwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
             ->whereNull('tmt_selesai') // Pastikan hanya JFA aktif
             ->latest('tmt_mulai') // Ambil yang terbaru berdasarkan tanggal mulai
             ->first();
 
-        if (!$riwayat_jfa) return false;
+        if (! $riwayat_jfa) {
+            return false;
+        }
 
         $jfaKeys = array_keys($this->aturanPengajuanJFA);
         $lastJfaId = end($jfaKeys);
@@ -92,12 +96,12 @@ class PengajuanController extends Controller
      */
     private function getNextJfaId(Dosen $dosen): ?string
     {
-        $riwayat_jfa = RiwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
+        $riwayat_jfa = riwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
             ->whereNull('tmt_selesai') // Pastikan hanya JFA aktif
             ->latest('tmt_mulai') // Ambil yang terbaru berdasarkan tanggal mulai
             ->first();
 
-        if (!$riwayat_jfa) {
+        if (! $riwayat_jfa) {
             // Jika tidak ada JFA aktif, asumsikan NJAD dan target Asisten Ahli (indeks 1 di map)
             return array_keys($this->aturanPengajuanJFA)[1] ?? null;
         }
@@ -112,6 +116,7 @@ class PengajuanController extends Controller
                 return $jfaKeys[$nextKeyIndex];
             }
         }
+
         return null; // Sudah di jabatan tertinggi atau JFA tidak ditemukan di map
     }
 
@@ -122,7 +127,7 @@ class PengajuanController extends Controller
 
         // negatif case : jika user bukan dosen atau dosen tidak ditemukan sudah dihandle di dalam front, jadi halaman tidak akan bisa diakses.
         // namun untuk safety, pengecekan juga dilakukan pada controller ini.
-        if (!$dosen) {
+        if (! $dosen) {
             return redirect()->route('dupak.dashboard')->with('error', 'Akses ditolak. Anda bukan Dosen.');
         }
 
@@ -137,13 +142,13 @@ class PengajuanController extends Controller
         $jfa_tujuan = 'Belum Ada Riwayat Jabatan';
 
         // 2. Ambil riwayat JFA terakhir (pastikan tidak null)
-        $riwayat_jfa_aktif = RiwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
+        $riwayat_jfa_aktif = riwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
             ->whereNull('tmt_selesai')
             ->latest('tmt_mulai')
             ->first();
 
         if ($riwayat_jfa_aktif) {
-            $jabatan_fungsional = RefJabatanFungsionalAkademik::find($riwayat_jfa_aktif->ref_jfa_id)->nama_jabatan ?? 'Tidak Diketahui';
+            $jabatan_fungsional = refJabatanFungsionalAkademik::find($riwayat_jfa_aktif->ref_jfa_id)->nama_jabatan ?? 'Tidak Diketahui';
             $nextJfaId = $this->getNextJfaId($dosen);
             if ($nextJfaId) {
                 $jfa_tujuan = $this->aturanPengajuanJFA[$nextJfaId];
@@ -169,17 +174,17 @@ class PengajuanController extends Controller
         $user = Auth::user();
         $dosen = Dosen::where('users_id', $user->id)->first();
 
-        if (!$dosen) {
+        if (! $dosen) {
             return redirect()->route('dupak.dashboard')->with('error', 'Akses ditolak. Anda bukan Dosen.');
         }
 
         // Ambil JFA aktif saat ini
-        $riwayat_jfa_aktif = RiwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
+        $riwayat_jfa_aktif = riwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
             ->whereNull('tmt_selesai')
             ->latest('tmt_mulai')
             ->first();
 
-        if (!$riwayat_jfa_aktif) {
+        if (! $riwayat_jfa_aktif) {
             return redirect()->route('dupak.dashboard')
                 ->with('error', 'Anda belum memiliki riwayat Jabatan Fungsional Akademik aktif.');
         }
@@ -192,7 +197,7 @@ class PengajuanController extends Controller
         }
 
         $nextJfaId = $this->getNextJfaId($dosen);
-        if (!$nextJfaId) {
+        if (! $nextJfaId) {
             return redirect()->route('dupak.dashboard')
                 ->with('error', 'Tidak dapat menentukan jabatan tujuan. Anda mungkin sudah mencapai jabatan tertinggi.');
         }
@@ -201,13 +206,13 @@ class PengajuanController extends Controller
         $currentYear = date('Y');
         $targetYear = $currentYear + 20;
 
-        $pengajuan = new Pengajuan();
+        $pengajuan = new Pengajuan;
         $pengajuan->idDosen = $dosen->id;
         $pengajuan->start = $today->format('Y-m-d');
-        $pengajuan->end   = $today->copy()->addYears(20)->format('Y-m-d');
-        $pengajuan->TahunAjaranAjuanAwal = $currentYear . '/' . ($currentYear + 1);
+        $pengajuan->end = $today->copy()->addYears(20)->format('Y-m-d');
+        $pengajuan->TahunAjaranAjuanAwal = $currentYear.'/'.($currentYear + 1);
         $targetYear = $currentYear + 20;
-        $pengajuan->TahunAjaranAjuanAkhir = $targetYear . '/' . ($targetYear + 1);
+        $pengajuan->TahunAjaranAjuanAkhir = $targetYear.'/'.($targetYear + 1);
         $pengajuan->semesterAjuan = collect(['Ganjil', 'Genap'])->random();
         $pengajuan->status = 'Pending';
         $pengajuan->jfaAsal = $riwayat_jfa_aktif->ref_jfa_id;
@@ -227,7 +232,7 @@ class PengajuanController extends Controller
         $user = Auth::user();
         $dosen = Dosen::where('users_id', $user->id)->first();
 
-        if (!$dosen) {
+        if (! $dosen) {
             return redirect()->route('dupak.dashboard')->with('error', 'Akses ditolak. Anda bukan Dosen.');
         }
 
@@ -235,13 +240,13 @@ class PengajuanController extends Controller
             ->where('idDosen', $dosen->id)
             ->first();
 
-        if (!$pengajuan) {
+        if (! $pengajuan) {
             return redirect()->route('dupak.dashboard')->with('error', 'Pengajuan tidak ditemukan atau bukan milik Anda.');
         }
 
         $allowedStatuses = ['Draft', 'Pending', 'Revisi'];
-        if (!in_array($pengajuan->status, $allowedStatuses)) {
-            return redirect()->back()->with('error', 'Pengajuan tidak dapat dikirim. Status saat ini: ' . $pengajuan->status);
+        if (! in_array($pengajuan->status, $allowedStatuses)) {
+            return redirect()->back()->with('error', 'Pengajuan tidak dapat dikirim. Status saat ini: '.$pengajuan->status);
         }
 
         // Opsional: cek minimal ada detail kegiatan
@@ -266,13 +271,13 @@ class PengajuanController extends Controller
         $pengajuan = Pengajuan::findOrFail($id);
 
         // Hanya pemilik atau admin yang bisa edit
-        if (!$user->is_admin && $pengajuan->idDosen !== ($dosen?->id)) {
+        if (! $user->is_admin && $pengajuan->idDosen !== ($dosen?->id)) {
             return redirect()->route('dupak.dashboard')->with('error', 'Akses ditolak. Anda bukan pemilik pengajuan ini.');
         }
 
         // Hanya status Draft atau Revisi yang bisa diedit
-        if (!in_array($pengajuan->status, ['Draft', 'Pending', 'Revisi'])) {
-            return redirect()->back()->with('error', 'Pengajuan tidak dapat diedit. Status saat ini: ' . $pengajuan->status);
+        if (! in_array($pengajuan->status, ['Draft', 'Pending', 'Revisi'])) {
+            return redirect()->back()->with('error', 'Pengajuan tidak dapat diedit. Status saat ini: '.$pengajuan->status);
         }
 
         return view('dupak.pengajuan.edit', compact('pengajuan'));
@@ -288,12 +293,12 @@ class PengajuanController extends Controller
 
         $pengajuan = Pengajuan::findOrFail($id);
 
-        if (!$user->is_admin && $pengajuan->idDosen !== ($dosen?->id)) {
+        if (! $user->is_admin && $pengajuan->idDosen !== ($dosen?->id)) {
             return redirect()->route('dupak.dashboard')->with('error', 'Akses ditolak. Anda bukan pemilik pengajuan ini.');
         }
 
-        if (!in_array($pengajuan->status, ['Draft', 'Pending', 'Revisi'])) {
-            return redirect()->back()->with('error', 'Pengajuan tidak dapat diupdate. Status saat ini: ' . $pengajuan->status);
+        if (! in_array($pengajuan->status, ['Draft', 'Pending', 'Revisi'])) {
+            return redirect()->back()->with('error', 'Pengajuan tidak dapat diupdate. Status saat ini: '.$pengajuan->status);
         }
 
         $validated = $request->validate([
@@ -320,17 +325,17 @@ class PengajuanController extends Controller
 
         $pengajuan = Pengajuan::findOrFail($id);
 
-        if (!$user->is_admin && $pengajuan->idDosen !== ($dosen?->id)) {
+        if (! $user->is_admin && $pengajuan->idDosen !== ($dosen?->id)) {
             return redirect()->route('dupak.dashboard')->with('error', 'Akses ditolak. Anda bukan pemilik pengajuan ini.');
         }
 
         // Hanya pengajuan dengan status Draft/Pending/Revisi yang bisa dihapus
-        if (!in_array($pengajuan->status, ['Draft', 'Pending', 'Revisi'])) {
-            return redirect()->back()->with('error', 'Pengajuan tidak dapat dihapus. Status saat ini: ' . $pengajuan->status);
+        if (! in_array($pengajuan->status, ['Draft', 'Pending', 'Revisi'])) {
+            return redirect()->back()->with('error', 'Pengajuan tidak dapat dihapus. Status saat ini: '.$pengajuan->status);
         }
 
         // Hapus hasil evaluasi terkait (must be BEFORE detail_pengajuan deletion)
-        \App\Models\Dupak\HasilEvaluasi::whereIn('detail_pengajuan_id', function ($query) use ($pengajuan) {
+        HasilEvaluasi::whereIn('detail_pengajuan_id', function ($query) use ($pengajuan) {
             $query->select('id')->from('detail_pengajuan')->where('pengajuan_id', $pengajuan->id);
         })->delete();
 
@@ -338,7 +343,7 @@ class PengajuanController extends Controller
         $pengajuan->details()->delete();
 
         // Hapus penunjukan TPAK terkait
-        \App\Models\Dupak\PenunjukanTPAKModel::where('pengajuan_id', $pengajuan->id)->delete();
+        PenunjukanTPAKModel::where('pengajuan_id', $pengajuan->id)->delete();
 
         $pengajuan->delete();
 
@@ -360,7 +365,7 @@ class PengajuanController extends Controller
         $baseKum = (float) ($dosenPengaju->user->kum ?? 0);
 
         // Ambil ID detail yang sudah dinilai TPAK untuk pengajuan ini
-        $evaluatedIds = \App\Models\Dupak\HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
+        $evaluatedIds = HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
             ->where('detail_pengajuan.pengajuan_id', $pengajuan->id)
             ->where('hasil_evaluasi.peran_pemeriksa', 'TPAK')
             ->pluck('detail_pengajuan.id');
@@ -371,7 +376,7 @@ class PengajuanController extends Controller
             ->sum('angka_kredit_total');
 
         // KUM Disetujui: Akumulasi nilai yang sudah diberikan TPAK di pengajuan ini
-        $kumDisetujuiVal = (float) \App\Models\Dupak\HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
+        $kumDisetujuiVal = (float) HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
             ->where('detail_pengajuan.pengajuan_id', $pengajuan->id)
             ->where('hasil_evaluasi.peran_pemeriksa', 'TPAK')
             ->groupBy('hasil_evaluasi.detail_pengajuan_id')
@@ -379,17 +384,21 @@ class PengajuanController extends Controller
             ->get()
             ->sum('avg_nilai');
 
-        $targetKumRecord = \App\Models\Dupak\RefTargetJabatanPengajuan::where('jfaAsal', $pengajuan->jfaAsal)
+        // on NJAD to AA it doesnt show 150 but when another ranks, it's using the target tujuan
+        $targetKumRecord = RefTargetJabatanPengajuan::where('jfaAsal', $pengajuan->jfaAsal)
             ->where('jfaTujuan', $pengajuan->jfaTujuan)
             ->first();
+
         $targetKumVal = $targetKumRecord->kumTarget ?? 0;
+
+        
 
         $currentTotalKum = $baseKum + $kumDisetujuiVal;
         $percent = $targetKumVal > 0 ? min(100, ($currentTotalKum / $targetKumVal) * 100) : 0;
 
         // Breakdown KUM per kategori (Gunakan nilai ACC jika sudah dinilai, atau nilai Ajuan jika belum)
         $allDetails = $pengajuan->details;
-        $evaluationsMap = \App\Models\Dupak\HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
+        $evaluationsMap = HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
             ->where('detail_pengajuan.pengajuan_id', $pengajuan->id)
             ->where('hasil_evaluasi.peran_pemeriksa', 'TPAK')
             ->select('detail_pengajuan_id', 'nilai_angka_kredit')
@@ -408,13 +417,19 @@ class PengajuanController extends Controller
             $rawCat = strtolower($detail->komponen->kegiatanUtama->nama ?? '');
             $targetKey = 'Pelaksanaan Penunjang'; // Default
 
-            if (str_contains($rawCat, 'pelaksanaan pendidikan')) $targetKey = 'Pelaksanaan Pendidikan';
-            elseif (str_contains($rawCat, 'pelaksanaan penelitian') || str_contains($rawCat, 'penelitian')) $targetKey = 'Pelaksanaan Penelitian';
-            elseif (str_contains($rawCat, 'pengabdian')) $targetKey = 'Pelaksanaan Pengabdian';
-            elseif (str_contains($rawCat, 'pendidikan')) $targetKey = 'Pendidikan';
-            elseif (str_contains($rawCat, 'penunjang')) $targetKey = 'Pelaksanaan Penunjang';
+            if (str_contains($rawCat, 'pelaksanaan pendidikan')) {
+                $targetKey = 'Pelaksanaan Pendidikan';
+            } elseif (str_contains($rawCat, 'pelaksanaan penelitian') || str_contains($rawCat, 'penelitian')) {
+                $targetKey = 'Pelaksanaan Penelitian';
+            } elseif (str_contains($rawCat, 'pengabdian')) {
+                $targetKey = 'Pelaksanaan Pengabdian';
+            } elseif (str_contains($rawCat, 'pendidikan')) {
+                $targetKey = 'Pendidikan';
+            } elseif (str_contains($rawCat, 'penunjang')) {
+                $targetKey = 'Pelaksanaan Penunjang';
+            }
 
-            $val = $evaluationsMap->has($detail->id) ? (float)$evaluationsMap->get($detail->id)->avg('nilai_angka_kredit') : (float)$detail->angka_kredit_total;
+            $val = $evaluationsMap->has($detail->id) ? (float) $evaluationsMap->get($detail->id)->avg('nilai_angka_kredit') : (float) $detail->angka_kredit_total;
             $breakdown[$targetKey] += $val;
         }
 
@@ -428,10 +443,10 @@ class PengajuanController extends Controller
             'percent' => $percent,
             'jfa_asal' => $jfaAsalLabel,
             'jfa_tujuan' => $jfaTujuanLabel,
-            'breakdown' => $breakdown
+            'breakdown' => $breakdown,
         ];
 
-        $riwayatJFA = RiwayatJabatanFungsionalAkademik::where('dosen_id', $pengajuan->idDosen)->latest()->get();
+        $riwayatJFA = riwayatJabatanFungsionalAkademik::where('dosen_id', $pengajuan->idDosen)->latest()->get();
 
         // Mockup data timeline (Nantinya ambil dari tabel detail_pengajuan & evaluasi)
         $timelineData = [
@@ -462,17 +477,17 @@ class PengajuanController extends Controller
                 $namesFromDosens = Dosen::whereIn('id', $tpakEvaluatorIds)
                     ->with('user') // Asumsi Dosen memiliki relasi ke User
                     ->get()
-                    ->mapWithKeys(fn($dosen) => [
-                        $dosen->id => $dosen->user->nama_lengkap ?? $dosen->user->nama ?? 'Pemeriksa TPAK'
+                    ->mapWithKeys(fn ($dosen) => [
+                        $dosen->id => $dosen->user->nama_lengkap ?? $dosen->user->nama ?? 'Pemeriksa TPAK',
                     ])->toArray();
                 $evaluatorNames = $evaluatorNames + $namesFromDosens;
             }
 
             if ($adminEvaluatorIds->isNotEmpty()) {
-                $namesFromUsers = \App\Models\User::whereIn('id', $adminEvaluatorIds)
+                $namesFromUsers = User::whereIn('id', $adminEvaluatorIds)
                     ->get()
-                    ->mapWithKeys(fn($user) => [
-                        $user->id => $user->nama_lengkap ?? $user->nama ?? 'Pemeriksa Admin'
+                    ->mapWithKeys(fn ($user) => [
+                        $user->id => $user->nama_lengkap ?? $user->nama ?? 'Pemeriksa Admin',
                     ])->toArray();
                 $evaluatorNames = $evaluatorNames + $namesFromUsers;
             }
@@ -486,34 +501,34 @@ class PengajuanController extends Controller
                 foreach ($detail->evaluations as $eval) {
                     $pemeriksa = $evaluatorNames[$eval->idUserPemeriksa] ?? 'Pemeriksa Terdaftar';
                     $detailEvals[] = [
-                        'role'    => "{$eval->peran_pemeriksa} ({$pemeriksa})",
-                        'status'  => $eval->status_evaluasi,
+                        'role' => "{$eval->peran_pemeriksa} ({$pemeriksa})",
+                        'status' => $eval->status_evaluasi,
                         'comment' => $eval->catatan,
                     ];
                     $allEvaluations[] = [
-                        'role'    => "{$eval->peran_pemeriksa} ({$pemeriksa})",
-                        'status'  => $eval->status_evaluasi,
+                        'role' => "{$eval->peran_pemeriksa} ({$pemeriksa})",
+                        'status' => $eval->status_evaluasi,
                         'comment' => $eval->catatan,
                     ];
                 }
                 $activityItems[] = [
-                    'deskripsi'   => $detail->deskripsi_kegiatan,
-                    'komponen'    => $detail->komponen->nama ?? 'N/A',
-                    'kum'         => number_format($detail->angka_kredit_total, 2),
-                    'status'      => $detail->status,
+                    'deskripsi' => $detail->deskripsi_kegiatan,
+                    'komponen' => $detail->komponen->nama ?? 'N/A',
+                    'kum' => number_format($detail->angka_kredit_total, 2),
+                    'status' => $detail->status,
                     'evaluations' => $detailEvals,
                 ];
             }
 
             $timelineData[] = [
-                'id'           => 2,
-                'title'        => 'Proses Penilaian Kegiatan',
-                'date'         => $pengajuan->updated_at->format('d F Y'),
-                'content'      => "Terdapat <strong>{$pengajuan->details->count()} kegiatan</strong> yang sedang diproses dengan total <strong>" . number_format($totalKum, 2) . " KUM</strong>.",
+                'id' => 2,
+                'title' => 'Proses Penilaian Kegiatan',
+                'date' => $pengajuan->updated_at->format('d F Y'),
+                'content' => "Terdapat <strong>{$pengajuan->details->count()} kegiatan</strong> yang sedang diproses dengan total <strong>".number_format($totalKum, 2).' KUM</strong>.',
                 'border_color' => 'border-emerald-500',
-                'is_expanded'  => true,
+                'is_expanded' => true,
                 'activity_items' => $activityItems,
-                'evaluation'   => $allEvaluations,
+                'evaluation' => $allEvaluations,
             ];
         } else {
             // Tampilkan informasi jika data masih kosong (Alternate Flow)

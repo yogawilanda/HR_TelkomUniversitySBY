@@ -101,15 +101,6 @@
 
 					<!-- Tab Content: Activities Table -->
 					<div x-show="tab === 'activities'">
-						<div class="flex justify-between items-center mb-4">
-							<h4 class="text-sm font-black text-gray-400 uppercase tracking-[0.2em]">Daftar Butir Kegiatan</h4>
-							@if(in_array($pengajuan->status, ['Draft', 'Pending', 'Revisi']))
-							<a onclick="openModal()" class="px-3 py-1.5 text-xs font-bold text-blue-900 border border-blue-900 rounded-lg hover:bg-blue-50 cursor-pointer transition-colors flex items-center gap-1">
-								<i class="fas fa-plus"></i> Tambah Kegiatan
-							</a>
-							@endif
-						</div>
-
 						<div class="overflow-x-auto border border-gray-200 rounded-lg">
 							<table class="min-w-full divide-y divide-gray-200">
 								<thead class="bg-blue-900 text-white text-xs uppercase">
@@ -185,71 +176,6 @@
 
 			<!-- Right Column: Sidebar (lg:col-span-1) -->
 			<div id="containerRightSide" class="space-y-6">
-				
-				<!-- Action Control Card (Matching dashboard style) -->
-				<div class="p-6 border rounded-lg bg-white shadow-sm flex flex-col space-y-4">
-					<h3 class="text-sm font-bold text-gray-900 flex items-center">
-						<i class="fas fa-user-circle mr-2 text-blue-900"></i> Kontrol Aksi Pengajuan
-					</h3>
-					
-					<div class="flex flex-col gap-3">
-						@if(in_array($pengajuan->status, ['Draft', 'Pending', 'Revisi']))
-							<!-- Add Activity -->
-							<a onclick="openModal()" class="px-5 py-2.5 text-sm font-bold text-blue-900 border border-blue-900 rounded-lg hover:bg-blue-50 cursor-pointer flex-1 text-center transition-colors">
-								<i class="fas fa-plus-circle mr-1"></i> Tambahkan Kegiatan
-							</a>
-
-							<!-- Submit DUPAK -->
-							<form action="{{ route('dupak.pengajuan.submit', $pengajuan->id) }}" method="POST" class="w-full flex" onsubmit="return confirm('Kirim pengajuan DUPAK ini ke TPAK? Setelah dikirim, Anda tidak dapat mengubah butir kegiatan sampai dinilai.')">
-								@csrf
-								<button type="submit" class="px-5 py-2.5 text-sm font-bold text-white bg-blue-900 rounded-lg hover:bg-blue-950 transition-all flex-1 text-center">
-									<i class="fas fa-paper-plane mr-1"></i> Kirim Pengajuan
-								</button>
-							</form>
-
-							<div class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100">
-								<!-- Edit Details -->
-								<a href="{{ route('dupak.pengajuan.edit', $pengajuan->id) }}" class="px-3 py-2 text-xs font-bold text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 text-center transition-colors">
-									<i class="fas fa-edit mr-1"></i> Edit Info
-								</a>
-
-								<!-- Delete Submission -->
-								<form action="{{ route('dupak.pengajuan.destroy', $pengajuan->id) }}" method="POST" class="w-full flex" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengajuan DUPAK ini beserta seluruh kegiatannya?')">
-									@csrf
-									@method('DELETE')
-									<button type="submit" class="w-full px-3 py-2 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200 text-center transition-colors">
-										<i class="fas fa-trash-alt mr-1"></i> Hapus
-									</button>
-								</form>
-							</div>
-						@elseif($pengajuan->status === 'Diajukan')
-							<!-- Submitted Assessment State -->
-							<div class="p-4 border-l-4 border-yellow-500 bg-yellow-50 rounded text-center">
-								<p class="text-xs text-yellow-800 font-semibold flex items-center justify-center gap-1.5 animate-pulse">
-									<i class="fas fa-hourglass-half"></i> Sedang Dinilai TPAK
-								</p>
-								<p class="text-[10px] text-gray-500 mt-1">Berkas pengajuan DUPAK sedang dalam tahap verifikasi dan validasi oleh TPAK.</p>
-							</div>
-						@elseif($pengajuan->status === 'Diterima')
-							<!-- Approved State -->
-							<div class="p-4 border-l-4 border-green-500 bg-green-50 rounded text-center">
-								<p class="text-xs text-green-800 font-semibold flex items-center justify-center gap-1.5">
-									<i class="fas fa-check-circle"></i> Pengajuan Disetujui
-								</p>
-								<p class="text-[10px] text-gray-500 mt-1">Selamat! Pengajuan usulan kenaikan jabatan fungsional telah selesai dinilai dan diterima.</p>
-							</div>
-						@else
-							<!-- Locked State -->
-							<div class="p-4 border-l-4 border-gray-500 bg-gray-50 rounded text-center">
-								<p class="text-xs text-gray-800 font-semibold flex items-center justify-center gap-1.5">
-									<i class="fas fa-lock"></i> Pengajuan Terkunci
-								</p>
-								<p class="text-[10px] text-gray-500 mt-1">Pengajuan dengan status {{ $pengajuan->status }} tidak dapat diubah kembali.</p>
-							</div>
-						@endif
-					</div>
-				</div>
-
 				<!-- KUM Career Progress Card (Matching info-kum layout and spacing) -->
 				<div class="p-6 border rounded-lg bg-white shadow-sm flex flex-col">
 					<div class="flex justify-between items-start mb-6">
