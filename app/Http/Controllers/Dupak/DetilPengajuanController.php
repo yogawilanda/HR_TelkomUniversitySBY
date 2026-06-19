@@ -57,8 +57,8 @@ class DetilPengajuanController extends Controller
         $komponenId = $request->query('komponen_id');
 
         // <!-- For II. Pelaksanaan pendidikan. Melaksanakan perkuliahan -->
-        // 						<!-- There is special input which pengaju need to fill -->
-        // 						 <!-- Periode Pengajuan Ex. "Semester Ganjil 2025/2026", SKS Ex. 4 Kelas Ex. 2  this will be calculcated for the scoring -->
+        // <!-- There is special input which pengaju need to fill -->
+        // <!-- Periode Pengajuan Ex. "Semester Ganjil 2025/2026", SKS Ex. 4 Kelas Ex. 2  this will be calculcated for the scoring -->
 
         $isPerkuliahan = ($komponenId == 3);
         $isBimbinganTA = ($komponenId == 6);
@@ -76,8 +76,6 @@ class DetilPengajuanController extends Controller
             ->where('idKomponen', $komponen->id)
             ->get(); // This populates the "Detail Butir Kegiatan" dropdown
         // dd($jenisInputs);
-
-
 
         return view('dupak.pengisian_detil_pengajuan.generic_form', compact(
             'pengajuan',

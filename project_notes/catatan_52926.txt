@@ -9,7 +9,9 @@ solved. referensi ke 1
 4. Presentasi fitur, 
 	a. Melihat daftar pengajuan dupak.
 	b. Detail Pengajuan DUPAK dari sisi TPAK.
+
 5. Bug di detail pengajuan dupak, KUM saat ini harusnya hanya mendisplay yang sudah di acc oleh TPAK, dan yang masih menunggu validasi tetap dimasukan ke dalam profil(diubah menjadi: "menunggu"), acc : <current_acc>
+
 6. Dashboard TPAK, desainnya masih belum rapih
 	a. progress dibuat yang benar indikatornya
 	b. indikator selesai masih belum di fixkan untuk yang sudah selesai.
