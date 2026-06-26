@@ -161,14 +161,6 @@
                         class="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition">
                         Batal
                     </button>
-                    <form id="deleteForm" method="POST" class="flex-1">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit"
-                            class="w-full px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
-                            Hapus
-                        </button>
-                    </form>
                 </div>
             </div>
         </div>
