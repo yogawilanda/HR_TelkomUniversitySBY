@@ -15,55 +15,6 @@ class KelompokKeahlianController extends Controller
 
     public function index()
     {
-        // $query = DB::select('
-        //     SELECT
-        //         m.id as fakultas_id, m.position_name as fakultas_name, m.kode as fakultas_code,
-        //         a.id as kk_id, a.nama as kk_name, a.kode as kk_code,   a.deskripsi as kk_deskripsi,
-        //         b.id as sub_kk_id, b.nama as sub_kk_name, b.kode as sub_kk_code, b.deskripsi as sub_kk_deskripsi
-        //     FROM kelompok_keahlian a
-        //     JOIN work_positions m ON m.id = a.fakultas_id
-        //     LEFT JOIN ref_sub_kelompok_keahlians b ON b.kk_id = a.id
-        // ');
-        // $registryData = collect($query)->groupBy('fakultas_id')->map(function ($items) {
-        //     $first = $items->first();
-
-        //     return [
-        //         'id' => $first->fakultas_id,
-        //         'nama_fakultas' => $first->fakultas_name,
-        //         'kode_fakultas' => $first->fakultas_code,
-        //         'kks' => $items->groupBy('kk_id')->map(function ($kkItems) {
-        //             $kkFirst = $kkItems->first();
-
-        //             return [
-        //                 'id' => $kkFirst->kk_id,
-        //                 'nama_kk' => $kkFirst->kk_name,
-        //                 'kode_kk' => $kkFirst->kk_code,
-        //                 'deskripsi' => $kkFirst->kk_deskripsi,
-        //                 'subs' => $kkItems->whereNotNull('sub_kk_id')->map(function ($sub) {
-        //                     return [
-        //                         'id' => $sub->sub_kk_id,
-        //                         'nama_sub_kk' => $sub->sub_kk_name,
-        //                         'kode_sub_kk' => $sub->sub_kk_code,
-        //                         'deskripsi_sub' => $sub->sub_kk_deskripsi,
-        //                     ];
-        //                 })->values()->all(),
-        //             ];
-        //         })->values()->all(),
-        //     ];
-        // })->values()->all();
-
-        // // Ambil data untuk dropdown select di form
-        // $fakultas = Work_Position::where('type_work_position', 'Fakultas')
-        //     ->orderBy('position_name', 'asc')
-        //     ->get();
-        // $kks = KelompokKeahlian::all();
-        // // dd($registryData, $fakultas, $kk);
-        // $this->MakeLog('User Mengakses Halaman List Data '.$this->aksi);
-
-        // // return view('nama_file_blade_anda', compact('registryData', 'fakultas'));
-        // return view('kelola_data.kelompok_keahlian.list', compact('registryData', 'fakultas', 'kks'));
-
-
         $kelompok_keahlian = KelompokKeahlian::withCount('sub_kk')->with('fakultas')->get();
         // dd($kelompok_keahlian, 'amsuk');
         return view('kelola_data.kelompok_keahlian.list2',compact('kelompok_keahlian'));
