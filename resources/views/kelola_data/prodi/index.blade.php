@@ -34,7 +34,7 @@
 
 
     @if (session('error'))
-    {{-- {{ dd(session('error')) }} --}}
+        {{-- {{ dd(session('error')) }} --}}
         <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
             {{ session('error') }}
         </div>
@@ -70,38 +70,42 @@
                         <x-tb-cl-fill>{{ $prodi->data_prodi->position_name }}</x-tb-cl-fill>
                         <x-tb-cl-fill>{{ $prodi->fakultas->position_name ?? '-' }}</x-tb-cl-fill>
                         <x-tb-cl-fill>
-                            <div class="flex flex-wrap items-center justify-between gap-3">
-                                <div class="flex flex-wrap items-center gap-2">
-                                    <button type="button"
-                                        onclick="openDetailModal({{ json_encode($prodi->kode) }}, {{ json_encode($prodi->position_name) }}, {{ json_encode($prodi->parent->position_name ?? '-') }})"
-                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100 shadow-sm transition-all duration-200">
-                                        <i class="bi bi-eye"></i>
-                                        Detail
-                                    </button>
+                            <div class="flex items-center justify-center w-full">
+                                <div class="flex flex-wrap items-center justify-center gap-3 w-full">
+                                    <!-- Tombol Aksi Utama (Detail & Edit) -->
+                                    <div class="flex flex-wrap items-center justify-center gap-2">
+                                        <button type="button"
+                                            onclick="openDetailModal({{ json_encode($prodi->kode) }}, {{ json_encode($prodi->position_name) }}, {{ json_encode($prodi->parent->position_name ?? '-') }})"
+                                            class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100 shadow-sm transition-all duration-200">
+                                            <i class="bi bi-eye"></i>
+                                            Detail
+                                        </button>
 
-                                    <a href="{{ route('manage.prodi.edit', $prodi->id) }}"
-                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-sm font-medium border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 shadow-sm transition-all duration-200">
-                                        <i class="bi bi-pencil-square"></i>
-                                        Edit
-                                    </a>
-                                </div>
+                                        <a href="{{ route('manage.prodi.edit', $prodi->id) }}"
+                                            class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-sm font-medium border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 shadow-sm transition-all duration-200">
+                                            <i class="bi bi-pencil-square"></i>
+                                            Edit
+                                        </a>
+                                    </div>
 
-                                <div class="dropdown">
-                                    <button type="button"
-                                        class="inline-flex items-center justify-center p-1.5 bg-white border border-slate-300 text-slate-500 rounded-lg hover:bg-slate-50 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-100 shadow-sm transition-all duration-200"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fas fa-ellipsis-v fa-fw"></i>
-                                    </button>
+                                    <!-- Dropdown Menu -->
+                                    <div class="dropdown flex items-center justify-center">
+                                        <button type="button"
+                                            class="inline-flex items-center justify-center p-1.5 bg-white border border-slate-300 text-slate-500 rounded-lg hover:bg-slate-50 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-100 shadow-sm transition-all duration-200"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v fa-fw"></i>
+                                        </button>
 
-                                    <ul
-                                        class="dropdown-menu border-0 shadow-lg rounded-xl mt-2 py-2 min-w-[200px] text-sm overflow-hidden">
-                                        <li>
-                                            <a class="dropdown-item flex items-center gap-2 px-4 py-2.5 text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition-colors route_pop_up"
-                                                href="{{ route('manage.pegawai.list', ['destination' => 'Active', 'tipe' => 'Dosen', 'bagian' => $prodi->data_prodi->kode]) }}">
-                                                <i class="bi bi-mortarboard text-slate-400"></i> Daftar Dosen
-                                            </a>
-                                        </li>
-                                    </ul>
+                                        <ul
+                                            class="dropdown-menu border-0 shadow-lg rounded-xl mt-2 py-2 min-w-[200px] text-sm overflow-hidden">
+                                            <li>
+                                                <a class="dropdown-item flex items-center gap-2 px-4 py-2.5 text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition-colors route_pop_up"
+                                                    href="{{ route('manage.pegawai.list', ['destination' => 'Active', 'tipe' => 'Dosen', 'bagian' => $prodi->data_prodi->kode]) }}">
+                                                    <i class="bi bi-mortarboard text-slate-400"></i> Daftar Dosen
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </x-tb-cl-fill>
