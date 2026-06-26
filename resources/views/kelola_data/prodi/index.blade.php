@@ -84,13 +84,6 @@
                                         <i class="bi bi-pencil-square"></i>
                                         Edit
                                     </a>
-
-                                    <button type="button"
-                                        onclick="confirmDelete('{{ $prodi->id }}', '{{ $prodi->data_prodi->position_name }}')"
-                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-600 text-white text-sm font-medium border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-200 shadow-sm transition-all duration-200">
-                                        <i class="bi bi-trash"></i>
-                                        Hapus
-                                    </button>
                                 </div>
 
                                 <div class="dropdown">
@@ -167,16 +160,6 @@
     </div>
 
     <script>
-        function confirmDelete(prodiId, prodiName) {
-            document.getElementById('deleteProdiName').textContent = prodiName;
-            document.getElementById('deleteForm').action = `/manage/prodi/${prodiId}`;
-            document.getElementById('deleteModal').classList.remove('hidden');
-        }
-
-        function closeDeleteModal() {
-            document.getElementById('deleteModal').classList.add('hidden');
-        }
-
         // Close modal when clicking outside
         document.getElementById('deleteModal')?.addEventListener('click', function(e) {
             if (e.target === this) {
