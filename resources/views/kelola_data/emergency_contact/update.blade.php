@@ -6,6 +6,7 @@
 @extends('kelola_data.base-profile')
 
 @section('content-profile')
+
     <x-form
         route="{{ (session('account')['is_admin'] || isset(session('account')['role']['sumber daya manusia'])) && $user['id'] != session('account')['id']
             ? route('manage.emergency-contact.updateData', ['id_User' => $user['id'], 'id_emergency_contact' => $data['id']])
@@ -21,8 +22,14 @@
                 <x-tb-td nama="hp" sorting=true>Alamat</x-tb-td> --}}
         {{-- {{ Dd($data) }} --}}
         <div class="flex flex-col gap-8 w-full max-w-100 mx-auto rounded-md border p-3">
-            <h2 class="text-lg font-semibold text-black text-center">Data Kontak Darurat</h2>
+            {{-- <h2 class="text-lg font-semibold text-black text-center">Ubah Data Kontak Darurat</h2> --}}
 
+            <div class="text-center">
+                <h2 class="text-lg font-semibold text-black text-center">Ubah Data Kontak Darurat</h2>
+                <span class="font-normal text-[10.280795097351074px] leading-[14.686850547790527px] text-[#1f2028]">Anda
+                dapat
+                mengubah data <span class="textlg font-bold" >kontak darurat</span> milik pegawai <span class="font-bold">{{ $user['nama_lengkap'] }}</span> disini</span>
+            </div>
             <div class="grid md:grid-cols-2 gap-8">
                 {{-- <div class="flex flex-col gap-4"> --}}
                 <x-itxt lbl="Nama Kontak Darurat" plc="Sisca Shafira" nm="nama_lengkap" max="200"

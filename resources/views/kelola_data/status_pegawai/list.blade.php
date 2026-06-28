@@ -27,7 +27,7 @@
         </div>
         <div class="flex items-center w-full justify-end gap-[11.74px]">
             <x-print-tb target_id="StatusTable"></x-print-tb>
-            
+
             {{-- Tombol Tambah --}}
             <button onclick="openStatusModal()" class="flex items-center gap-[5.87px] bg-[#0070ff] px-[11.74px] py-[7.34px] rounded-[5.87px] border border-[#0070ff] hover:bg-[#005fe0] transition text-white">
                 <i class="bi bi-plus text-sm"></i>
@@ -51,17 +51,17 @@
                         <x-tb-cl-fill><strong>{{ $sp->status_pegawai }}</strong></x-tb-cl-fill>
 
                         <x-tb-cl-fill>
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center justify-center gap-2">
                                 {{-- Tombol Ubah --}}
-                                <button onclick="openStatusModal('{{ $sp->id }}', '{{ $sp->status_pegawai }}')" 
+                                <button onclick="openStatusModal('{{ $sp->id }}', '{{ $sp->status_pegawai }}')"
                                     class="px-3 py-1 bg-amber-500 text-white rounded-md text-[10px] hover:bg-amber-600 transition">
                                     <i class="bi bi-pencil-square mr-1"></i> Ubah
                                 </button>
 
                                 {{-- Tombol Hapus (Tanpa Fungsi/Non-aktif) --}}
-                                <button type="button" class="px-3 py-1 bg-red-500 text-white rounded-md text-[10px] opacity-50 cursor-not-allowed">
+                                {{-- <button type="button" class="px-3 py-1 bg-red-500 text-white rounded-md text-[10px] opacity-50 cursor-not-allowed">
                                     <i class="bi bi-trash mr-1"></i> Hapus
-                                </button>
+                                </button> --}}
                             </div>
                         </x-tb-cl-fill>
                     </x-tb-cl>
@@ -82,15 +82,15 @@
     <script>
         function openStatusModal(id = '', currentStatus = '') {
             const isEdit = id !== '';
-            
+
             Swal.fire({
                 title: isEdit ? 'Ubah Status Pegawai' : 'Tambah Status Pegawai',
                 html: `
                     <div style="text-align: left;">
                         <label for="swal-input-status" style="display:block; margin-bottom:5px; font-weight:600;">Nama Status Pegawai:</label>
-                        <input id="swal-input-status" class="swal2-input" 
-                               placeholder="Contoh: Pegawai Tetap" 
-                               value="${currentStatus}" 
+                        <input id="swal-input-status" class="swal2-input"
+                               placeholder="Contoh: Pegawai Tetap"
+                               value="${currentStatus}"
                                style="margin-top:0; width: 85%;">
                     </div>
                 `,
@@ -105,26 +105,26 @@
                         Swal.showValidationMessage('Nama status tidak boleh kosong!');
                         return false;
                     }
-                    
+
                     // Trigger Loading Indicator
                     Swal.showLoading(Swal.getConfirmButton());
-                    
+
                     return { status_pegawai: statusVal };
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
                     const form = document.getElementById('main-action-form');
-                    
+
                     if (isEdit) {
                         form.action = "{{ route('manage.status-pegawai.update') }}";
                         document.getElementById('form-id').value = id;
                     } else {
                         form.action = "{{ route('manage.status-pegawai.create') }}";
-                        document.getElementById('form-id').value = ""; 
+                        document.getElementById('form-id').value = "";
                     }
-                    
+
                     document.getElementById('form-status-pegawai').value = result.value.status_pegawai;
-                    
+
                     // Submit form
                     form.submit();
                 }

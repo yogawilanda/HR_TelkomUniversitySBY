@@ -83,13 +83,13 @@ return [
 
             ],
             [
-                'label' => 'Level Jabatan',
+                'label' => 'Level Struktural',
                 'route' => 'manage.level.list',
                 'icon' => 'fa-solid fa-layer-group',
                 'roles' => ['is_admin', 'sdm'],
             ],
             [
-                'label' => 'Formasi Pegawai',
+                'label' => 'Formasi Struktural',
                 'route' => 'manage.formasi.list',
                 'icon' => 'fa-solid fa-users-rectangle',
                 'roles' => ['is_admin', 'sdm'],

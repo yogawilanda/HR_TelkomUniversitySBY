@@ -73,17 +73,14 @@
                         </x-tb-cl-fill>
 
                         {{-- TMT Mulai --}}
-                        <x-tb-cl-fill>
+                        <x-tb-cl-fill clsText="text-center">
                             {{ date('d/m/Y', strtotime($item->tmt_mulai)) }}
                         </x-tb-cl-fill>
 
                         {{-- TMT Selesai --}}
-                        <x-tb-cl-fill>
+                        <x-tb-cl-fill clsText="text-center">
                             @if ($item->tmt_selesai == null || $item->tmt_selesai >= now())
-                                <span
-                                    class="text-xs text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded-full border border-green-100">
-                                    Aktif
-                                </span>
+                                {{ $item->tmt_selesai!=null ?  date('d/m/Y', strtotime($item->tmt_selesai)) : 'Belum Di Set' }}
                             @else
                                 {{ date('d/m/Y', strtotime($item->tmt_selesai)) }}
                             @endif

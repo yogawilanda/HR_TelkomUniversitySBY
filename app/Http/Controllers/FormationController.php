@@ -25,7 +25,6 @@ class FormationController extends Controller
                 $this->MakeLog('User Mengakses Halaman List Data '.$this->aksi);
 
             return view('kelola_data.sotk-formasi.list', compact('formations'));
-
     }
 
     public function new()

@@ -92,12 +92,15 @@
                                     View Details
                                 </button>
 
-                                <a href="{{ route('manage.prodi.index',['fakultas'=>$f->position_name]) }}"
-                                    class="px-3 py-1.5 border border-[#1C2762] text-[#1C2762] rounded-md text-xs font-medium hover:bg-[#1C2762] hover:text-white transition duration-200">
+                                @php
+                                    $cek = isset($f->prodi_count) && $f->prodi_count>0
+                                @endphp
+                                <a @if($cek==true) href="{{ route('manage.prodi.index',['fakultas'=>$f->position_name]) }}" @endif
+                                    class="px-3 py-1.5 border @if($cek==false) opacity-50 @endif border-[#1C2762] text-[#1C2762] rounded-md text-xs font-medium hover:bg-[#1C2762] hover:text-white transition duration-200">
                                     Daftar Prodi Terkait
                                 </a>
 
-                                @if (session('account')['is_admin'] == 1)
+                                {{-- @if (session('account')['is_admin'] == 1)
                                     <!-- Delete Button -->
                                     <button type="button"
                                         onclick="openDeleteFakultasModal('{{ $f->id }}', '{{ addslashes($f->position_name) }}', '{{ route('manage.fakultas.destroy', $f->id) }}')"
@@ -106,7 +109,7 @@
                                         class="flex items-center justify-center w-7 h-7 rounded-md border border-[#d0d5dd] bg-white hover:bg-red-50 transition duration-150 ease-in-out">
                                         <i class="bi bi-trash text-red-600 text-[14px]"></i>
                                     </button>
-                                @endif
+                                @endif --}}
                             </div>
                         </x-tb-cl-fill>
                     </x-tb-cl>

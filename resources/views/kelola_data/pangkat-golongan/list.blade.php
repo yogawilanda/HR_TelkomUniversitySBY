@@ -74,7 +74,7 @@
                             <x-tb-cl-fill>
                                 {{ $jpg->dosen->pegawai->nama_lengkap }}
                             </x-tb-cl-fill>
-                            <x-tb-cl-fill>
+                            <x-tb-cl-fill clsText="text-center">
                                 {{ $jpg->refPangkatGolongan->pangkat }}
                             </x-tb-cl-fill>
                             <x-tb-cl-fill>
@@ -101,7 +101,7 @@
                                     <span class="text-gray-400 italic text-xs px-2">-</span>
                                 @endif
                             </x-tb-cl-fill>
-                            <x-tb-cl-fill>
+                            <x-tb-cl-fill clsText="text-center">
                                 {{-- {{ dd($jpg) }} --}}
                                 {{ $jpg->tmt_mulai }}
                             </x-tb-cl-fill>

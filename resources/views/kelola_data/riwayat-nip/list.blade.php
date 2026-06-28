@@ -73,7 +73,7 @@
             <x-slot:table_header>
                 <x-tb-td nama="nama" sorting=true>Pemilik</x-tb-td>
                 <x-tb-td nama="nip" sorting=true>NIP</x-tb-td>
-                <x-tb-td nama="status_pegawai" sorting=true>Status Pegawai</x-tb-td>
+                <x-tb-td type="select" nama="status_pegawai" sorting=true>Status Pegawai</x-tb-td>
                 <x-tb-td nama="no_sk" sorting=true>No. SK YPT</x-tb-td>
                 <x-tb-td nama="created_at" sorting=true>Tanggal Input</x-tb-td>
                 <x-tb-td nama="action">Aksi</x-tb-td>
@@ -91,8 +91,8 @@
                             </div>
                         </x-tb-cl-fill>
 
-                        <x-tb-cl-fill>
-                            <div class="flex flex-col">
+                        <x-tb-cl-fill clsTxt="text-center">
+                            <div class="flex flex-col text-center">
                                 <span class="font-bold text-[#101828] text-sm">{{ $item->nip }}</span>
                                 {{-- <span class="text-[10px] text-gray-400">ID: {{ Str::limit($item->id, 8) }}</span> --}}
                             </div>
@@ -142,8 +142,8 @@
                         </x-tb-cl-fill>
 
                         {{-- Tanggal Input --}}
-                        <x-tb-cl-fill>
-                            <div class="flex items-center gap-2 text-gray-600">
+                        <x-tb-cl-fill clsTxt="text-center">
+                            <div class="flex items-center text-center justify-center gap-2 text-gray-600">
                                 <i class="bi bi-calendar3 text-[10px]"></i>
                                 <span
                                     class="text-xs">{{ \Carbon\Carbon::parse($item->created_at)->translatedFormat('d M Y') }}</span>

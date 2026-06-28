@@ -95,7 +95,6 @@
             <x-slot:table_column>
                 @forelse ($sk_all as $sk)
                     <x-tb-cl id="{{ $sk->id }}">
-
                         <x-tb-cl-fill>
                             {{ $sk->no_sk }}
                         </x-tb-cl-fill>
@@ -105,11 +104,23 @@
                         <x-tb-cl-fill>
                             {{ $sk->tipe_sk }}
                         </x-tb-cl-fill>
-                        <x-tb-cl-fill>
-                            {{ $sk->tmt_mulai }}
+                        <x-tb-cl-fill clsText="text-center">
+                            @if(isset($sk->tmt_mulai)&&$sk->tmt_mulai!=null)
+                                {{ $sk->tmt_mulai }}
+                            @else
+                                <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
+                                    Belum di set
+                                </span>
+                            @endif
                         </x-tb-cl-fill>
-                        <x-tb-cl-fill>
-                            {{ $sk->tmt_selesai }}
+                        <x-tb-cl-fill clsText="text-center">
+                            @if(isset($sk->tmt_selesai)&&$sk->tmt_selesai!=null)
+                                {{ $sk->tmt_selesai }}
+                            @else
+                                <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
+                                    Belum di set
+                                </span>
+                            @endif
                         </x-tb-cl-fill>
                         <x-tb-cl-fill>
                             {{ $sk->created_at }}
@@ -128,24 +139,21 @@
                                     </button>
                                     <ul class="dropdown-menu shadow-sm z-50">
                                         <li class="border-b border-b-gray-300">
-                                            <a href="" class="dropdown-item route_pop_up hover:bg-blue-500 hover:text-white"
-                                                href="#">
+                                            <a href="{{ route('manage.sk.edit', ['id' => $sk->id]) }}" class="dropdown-item route_pop_up hover:bg-blue-500 hover:text-white">
                                                 <p class="transition-transform duration-200 active:scale-95">
                                                     {{-- Hover aku --}}
                                                     Ubah Data
                                                 </p>
                                             </a>
                                         </li>
-                                        <li>
+                                        {{-- <li>
                                             <a href="" class="dropdown-item hover:bg-blue-500 hover:text-white"
                                                 href="#">
                                                 <p class="transition-transform duration-200 active:scale-95">
-                                                    {{-- Hover aku --}}
-                                                    {{-- Ubah Data --}}
                                                     Akhirkan SK
                                                 </p>
                                             </a>
-                                        </li>
+                                        </li> --}}
                                     </ul>
                                 </div>
                             </div>

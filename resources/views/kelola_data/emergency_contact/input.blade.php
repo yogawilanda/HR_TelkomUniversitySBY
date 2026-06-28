@@ -6,6 +6,15 @@
 @extends('kelola_data.base-profile')
 
 @section('content-profile')
+    {{-- <div class="flex w-full flex-col gap-[2.93px] grow">
+            <div class="flex items-center gap-[5.87px] self-stretch">
+                <span class="font-medium font-bold text-2xl leading-[20.56px] text-[#101828]">Tambah Kontak Darurat Baru</span>
+            </div>
+            <span class="font-normal text-[10.280795097351074px] leading-[14.686850547790527px] text-[#1f2028]">Anda
+                dapat
+                melihat semua <span class="textlg font-bold" >kontak darurat</span> milik pegawai <span class="font-bold">{{ $user['nama_lengkap'] }}</span> yang
+                terdaftar di sistem disini</span>
+        </div> --}}
     <x-form route="{{ route('profile.emergency-contacts.new-data', ['id_User' => $user->id]) }}">
 
         {{-- <x-tb-td nama="nama" sorting=true>Nama Kontak Darurat</x-tb-td>
@@ -14,7 +23,11 @@
                 <x-tb-td nama="nik" sorting=true>Email</x-tb-td>
                 <x-tb-td nama="hp" sorting=true>Alamat</x-tb-td> --}}
         <div class="flex flex-col gap-8 w-full max-w-100 mx-auto rounded-md border p-3">
-            <h2 class="text-lg font-semibold text-black text-center">Data Kontak Darurat</h2>
+            <div class="text-center">
+                <h2 class="text-lg font-semibold text-black text-center">Tambah Data Kontak Darurat</h2>
+                <span class="font-normal text-[10.280795097351074px] leading-[14.686850547790527px] text-[#1f2028]">Anda
+                dapat menambah data <span class="textlg font-bold" >kontak darurat</span> milik pegawai <span class="font-bold">{{ $user['nama_lengkap'] }}</span> disini</span>
+            </div>
 
             <div class="grid md:grid-cols-2 gap-8">
                 {{-- <div class="flex flex-col gap-4"> --}}

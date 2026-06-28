@@ -91,7 +91,7 @@
     </x-modal-view>
 
 
-    <div class="flex flex-col xl:flex-row gap-2">
+    <div class="flex flex-col xl:flex-row gap-2 h-fit">
         <div class="">
             <x-tb id="LevelTable">
                 <x-slot:table_header>
@@ -109,9 +109,9 @@
 
                         <x-tb-cl id="{{ $level->id }}" idTargetModal="level-update">
                             <x-tb-cl-fill id="nama-level">{{ $level['nama_level'] }}</x-tb-cl-fill>
-                            <x-tb-cl-fill id="singkatan">{{ $level['singkatan_level'] }}</x-tb-cl-fill>
+                            <x-tb-cl-fill id="singkatan" clsText="text-center">{{ $level['singkatan_level'] }}</x-tb-cl-fill>
                             <x-tb-cl-fill id="atasan">{{ $level['atasan']['nama_level']??'-'}}</x-tb-cl-fill>
-                            <x-tb-cl-fill id="urut">{{ $level['urut']??'-'}}</x-tb-cl-fill>
+                            <x-tb-cl-fill id="urut" clsText="text-center">{{ $level['urut']??'-'}}</x-tb-cl-fill>
                             <x-tb-cl-fill>
                                 <div class="flex items-center justify-center gap-3">
                                     <a href="{{ route('manage.level.update', ['idLevel' => $level->id]) }}"

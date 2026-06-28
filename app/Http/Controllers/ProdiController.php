@@ -16,7 +16,8 @@ class ProdiController extends Controller
     public function index()
     {
         //DT
-        $prodis = Prodi::with('fakultas', 'data_prodi')->get()->sortBy(fn($item) => $item->data_prodi->position_name);
+        $prodis = Prodi::with('fakultas', 'data_prodi' , 'formasi.people')->get()->sortBy(fn($item) => $item->data_prodi->position_name);
+        // dd($prodis);
 
         $fakultas = Work_Position::where('type_work_position', 'Fakultas')->orderBy('position_name')->get();
 

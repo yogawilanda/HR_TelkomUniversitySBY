@@ -41,10 +41,19 @@ class Prodi extends Model
         return $this->belongsTo(Work_Position::class,'prodi_id', 'id');
     }
 
+    public function formasi()
+    {
+        return $this->belongsTo(Formation::class,'prodi_id', 'work_position_id');
+    }
+
     public function dosen()
     {
-        return $this->hasMany(Dosen::class);
+        return $this->hasMany(Pengawakan::class);
     }
+
+
+
+
 
     protected static function boot()
     {

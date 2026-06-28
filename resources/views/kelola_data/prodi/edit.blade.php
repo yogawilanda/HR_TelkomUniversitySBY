@@ -23,7 +23,7 @@
 @endsection
 
 @section('content-base')
-    <div class="max-w-2xl mx-auto">
+    <div class="max-w-2xl mx-auto items-start">
         <div class="bg-white rounded-lg shadow-md p-6">
             <form method="POST" action="{{ route('manage.prodi.update', $prodi->id) }}">
                 @csrf

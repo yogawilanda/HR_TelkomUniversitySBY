@@ -8,7 +8,7 @@
         <div class="flex w-full flex-col gap-[2.94px] grow">
             <div class="flex items-center gap-[5.87px] self-stretch">
                 <span class="font-medium text-2xl leading-[20.56px] text-[#101828]">
-                    Tambah Jenjang Pendidikan Baru
+                    Perbarui Referensi Jenjang Pendidikan
                 </span>
             </div>
         </div>

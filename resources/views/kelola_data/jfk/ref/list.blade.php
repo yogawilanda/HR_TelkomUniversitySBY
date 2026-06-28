@@ -26,7 +26,7 @@
         </div>
         <div class="flex items-center w-full justify-end gap-[11.74px]">
             <x-print-tb target_id="JFKTable"></x-print-tb>
-            
+
             <button onclick="openJFKModal()" class="flex items-center gap-[5.87px] bg-[#0070ff] px-[11.74px] py-[7.34px] rounded-[5.87px] border border-[#0070ff] hover:bg-[#005fe0] transition text-white">
                 <i class="bi bi-plus text-sm"></i>
                 <span class="font-medium text-[10.28px]">Tambah JFK</span>
@@ -49,15 +49,15 @@
                         <x-tb-cl-fill><strong>{{ $jfk->nama_jfk }}</strong></x-tb-cl-fill>
 
                         <x-tb-cl-fill>
-                            <div class="flex items-center gap-2">
-                                <button onclick="openJFKModal('{{ $jfk->id }}', '{{ $jfk->nama_jfk }}')" 
+                            <div class="flex items-center justify-center gap-2">
+                                <button onclick="openJFKModal('{{ $jfk->id }}', '{{ $jfk->nama_jfk }}')"
                                     class="px-3 py-1 bg-amber-500 text-white rounded-md text-[10px] hover:bg-amber-600 transition">
                                     <i class="bi bi-pencil-square mr-1"></i> Ubah
                                 </button>
 
-                                <button type="button" class="px-3 py-1 bg-red-500 text-white rounded-md text-[10px] opacity-50 cursor-not-allowed">
+                                {{-- <button type="button" class="px-3 py-1 bg-red-500 text-white rounded-md text-[10px] opacity-50 cursor-not-allowed">
                                     <i class="bi bi-trash mr-1"></i> Hapus
-                                </button>
+                                </button> --}}
                             </div>
                         </x-tb-cl-fill>
                     </x-tb-cl>
@@ -80,15 +80,15 @@
     <script>
         function openJFKModal(id = '', currentJFK = '') {
             const isEdit = id !== '';
-            
+
             Swal.fire({
                 title: isEdit ? 'Ubah Nama JFK' : 'Tambah Nama JFK',
                 html: `
                     <div style="text-align: left;">
                         <label for="swal-input-jfk" style="display:block; margin-bottom:5px; font-weight:600;">Nama JFK:</label>
-                        <input id="swal-input-jfk" class="swal2-input" 
-                               placeholder="Contoh: Perawat Ahli Madya" 
-                               value="${currentJFK}" 
+                        <input id="swal-input-jfk" class="swal2-input"
+                               placeholder="Contoh: Perawat Ahli Madya"
+                               value="${currentJFK}"
                                style="margin-top:0; width: 85%;">
                     </div>
                 `,
@@ -103,7 +103,7 @@
                         Swal.showValidationMessage('Nama JFK tidak boleh kosong!');
                         return false;
                     }
-                    
+
                     Swal.showLoading(Swal.getConfirmButton());
                     return { nama_jfk: jfkVal };
                 }
@@ -113,7 +113,7 @@
                     const methodInput = document.getElementById('form-method');
                     const idInput = document.getElementById('form-id');
                     const nameInput = document.getElementById('form-nama-jfk');
-                    
+
                     // Reset Method ke POST (sesuai dukungan route Anda)
                     methodInput.value = "POST";
                     nameInput.value = result.value.nama_jfk;
@@ -126,9 +126,9 @@
                     } else {
                         // Rute store
                         form.action = "{{ route('manage.jfk.ref.store') }}";
-                        idInput.value = ""; 
+                        idInput.value = "";
                     }
-                    
+
                     form.submit();
                 }
             });

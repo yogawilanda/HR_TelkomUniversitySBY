@@ -1,5 +1,5 @@
 @php
-    $active_sidebar = 'Daftar Formasi';
+    $active_sidebar = 'Formasi Struktural';
 @endphp
 @extends('kelola_data.base')
 @section('header-base')
@@ -96,25 +96,25 @@
                 @forelse ($formations as $formation)
                     {{-- {{ dd($formation) }} --}}
                     <x-tb-cl id="{{ $formation->id }}">
-                        <x-tb-cl-fill>
+                        <x-tb-cl-fill clsText="text-center">
                             <p id="level">{{ $formation->level_data->singkatan_level }}</p>
                         </x-tb-cl-fill>
                         <x-tb-cl-fill>
                             <p class="text-wrap" id="nama_formasi">{{ $formation->nama_formasi }}</p>
                         </x-tb-cl-fill>
-                        <x-tb-cl-fill>
+                        <x-tb-cl-fill clsText="text-center">
                             <p id="tipe_bagian"> {{ $formation->bagian->type_work_position }}</p>
                         </x-tb-cl-fill>
-                        <x-tb-cl-fill>
+                        <x-tb-cl-fill clsText="text-center">
 
-                            <p id="kode">{{ $formation->bagian->kode }}</p>
+                            <p id="kode" >{{ $formation->bagian->kode }}</p>
                         </x-tb-cl-fill>
                         <x-tb-cl-fill>
                             <p class="text-wrap" id="atasan">
                                 {{ $formation->atasan_formation ? $formation->atasan_formation->nama_formasi : '-' }}</p>
                         </x-tb-cl-fill>
-                        <x-tb-cl-fill>
-                            <p id="kuota">{{ $formation->kuota }}</p>
+                        <x-tb-cl-fill clsText="text-center">
+                            <p id="kuota" class="text-center">{{ $formation->kuota }}</p>
                         </x-tb-cl-fill>
                         <x-tb-cl-fill>
                             <div class="flex items-center justify-center gap-3">

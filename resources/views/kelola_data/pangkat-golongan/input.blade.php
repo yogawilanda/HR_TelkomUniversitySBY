@@ -17,7 +17,7 @@
                 }
             }
 
-            
+
         </style>
     @endsection --}}
 
@@ -36,7 +36,7 @@
 
     @section('content-base')
         <x-form route="{{ route('manage.pangkat-golongan.store') }}" id="pemetaan-input">
-            <div class="grid md:grid-cols-2 gap-8">
+            <div class="grid lg:grid-cols-2 sm:grid-col-1 gap-8">
                 {{-- Kolom Kiri --}}
                 <div class="flex flex-col justify-start  gap-4">
                     <x-islc lbl="Nama Dosen" nm='dosen_id' full="false">

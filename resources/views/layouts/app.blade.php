@@ -183,15 +183,6 @@
             route="{{ route('testing', ['kode' => $testing['kode'], 'nama_fitur' => $testing['name']]) }}"
             fitur_code="{{ $testing['kode'] }}" fitur_name="{!! html_entity_decode($testing['name']) !!}" :config="$testingQuestions" />
     @endif
-
-    <footer class="w-full bg-[#0a1645] border-t border-white/10 mt-auto">
-        <div class="max-w-7xl mx-auto py-1 px-1 flex flex-col items-center">
-            <p class="text-sm flex flex-row gap-2 justify-end align-items-end md:text-base text-blue-100/70 italic text-end tracking-wide leading-relaxed">
-                &copy; 2026 - Tim Penelitian SDM
-                <strong class="text-white font-semibold not-italic sm:italic">Telkom University Surabaya</strong>
-            </p>
-        </div>
-    </footer>
 </body>
 
 </html>

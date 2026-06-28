@@ -127,7 +127,7 @@
         display: none;
     }
 </style>
-<div class="min-h-[50vh] h-[70vh] max-h-[85vh] pb-4 sticky mb-10 top-0 z-10">
+<div class="min-h-[50vh] h-[77vh] max-h-fit pb-4 sticky mb-10 top-0 z-10">
     @if ($search_status == true)
         <div id="cekser" class="flex flex-col lg:flex-row items-stretch lg:items-center gap-4 mb-6 px-1">
             <div class="search-input-wrapper px-4 rounded-[14px] flex-grow shadow-sm">
@@ -143,7 +143,7 @@
         </div>
     @endif
 
-    <div class="w-full flex-1">
+    <div class="w-full flex-1 min-h-[50vh] h-[70vh] mb-10 max-h-fit">
         <div class="apple-wrapper overflow-hidden flex-1 bg-white">
             <div class="overflow-x-auto min-h-max h-max table-container-sticky">
                 <table id="{{ $id }}" data-toggle="table" data-search="true" data-filter-control="true"

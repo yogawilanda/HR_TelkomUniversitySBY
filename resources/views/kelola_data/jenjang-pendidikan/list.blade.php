@@ -70,14 +70,14 @@
 
                             {{ $result->nama_lengkap }}
                         </x-tb-cl-fill>
-                        <x-tb-cl-fill>
+                        <x-tb-cl-fill clsText="text-center">
                             {{ isset($result['pendidikan_data']->refJenjangPendidikan) ? $result['pendidikan_data']->refJenjangPendidikan->jenjang_pendidikan : '-' }}
                         </x-tb-cl-fill>
                         <x-tb-cl-fill>
                             {{-- {{ dd($result['pendidikan_data']->bidang_pendidikan) }} --}}
                             {{ isset($result['pendidikan_data']->bidang_pendidikan) ? $result['pendidikan_data']->bidang_pendidikan : '-' }}
                         </x-tb-cl-fill>
-                        <x-tb-cl-fill>
+                        <x-tb-cl-fill clsText="text-center">
                             {{ isset($result['pendidikan_data']->tahun_lulus) ? $result['pendidikan_data']->tahun_lulus : '-' }}
                         </x-tb-cl-fill>
                         <x-tb-cl-fill>

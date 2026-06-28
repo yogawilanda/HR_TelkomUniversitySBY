@@ -21,11 +21,11 @@
                     <h3 class="text-lg font-semibold tracking-wide text-gray-900 dark:text-gray-100">Aplikasi</h3>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Pilih aplikasi untuk membuka.</p>
                 </div>
-                
+
                 {{-- Achievement Badges (Fitur 2A5) --}}
                 <div class="flex items-center gap-3">
                     @if($badges['reliable'])
-                        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-amber-100 border-2 border-amber-400 text-amber-600 shadow-sm transition-transform hover:scale-110" 
+                        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-amber-100 border-2 border-amber-400 text-amber-600 shadow-sm transition-transform hover:scale-110"
                             title="The Reliable: Memiliki 10 laporan 'Approved' berturut-turut.">
                             <i class="fa-solid fa-medal text-lg"></i>
                         </div>
@@ -33,7 +33,7 @@
 
                     @if($badges['speedy'])
                         @php $workEndTime = \App\Models\KinerjaSetting::get('work_end_time', '17:00'); @endphp
-                        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 border-2 border-blue-400 text-blue-600 shadow-sm transition-transform hover:scale-110" 
+                        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 border-2 border-blue-400 text-blue-600 shadow-sm transition-transform hover:scale-110"
                             title="Speedy Submitter: Rata-rata waktu input laporan dilakukan sebelum jam {{ $workEndTime }}.">
                             <i class="fa-solid fa-bolt-lightning text-lg"></i>
                         </div>
@@ -88,6 +88,8 @@
         </div>
     </div>
 </x-app-layout>
+<x-footer></x-footer>
+
 
 {{-- {{ dd(session('testing')) }} --}}
 

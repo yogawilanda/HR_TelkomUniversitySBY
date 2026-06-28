@@ -63,6 +63,8 @@ class Work_Position extends Model
         return $this->hasMany(Dosen::class, 'prodi_id', 'id');
     }
 
+    
+
     public function tpa()
     {
         return $this->hasMany(Tpa::class, 'bagian_id', 'id');

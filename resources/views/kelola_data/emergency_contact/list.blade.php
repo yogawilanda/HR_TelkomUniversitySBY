@@ -8,12 +8,22 @@
 @section('content-profile')
     <div
         class="flex flex-col md:flex-row items-center gap-[11.749480247497559px] self-stretch px-1 pb-[13.952507972717285px]">
-        <div class="flex w-full flex-col gap-[2.9373700618743896px] grow">
+        {{-- <h4>KONTAK DARURAT</h4> --}}
+        <div class="flex w-full flex-col gap-[2.93px] grow">
+            {{-- <div class="flex items-center gap-[5.87px] self-stretch">
+                <span class="font-medium font-bold text-2xl leading-[20.56px] text-[#101828]">Daftar Kontak Darurat</span>
+            </div> --}}
+            <span class="font-normal text-[10.280795097351074px] leading-[14.686850547790527px] text-[#1f2028]">Anda
+                dapat
+                melihat semua <span class="textlg font-bold" >kontak darurat</span> milik pegawai <span class="font-bold">{{ $user['nama_lengkap'] }}</span> yang
+                terdaftar di sistem disini</span>
+        </div>
+        {{-- <div class="flex w-full flex-col gap-[2.9373700618743896px] grow">
             <span class="font-normal text-[10.280795097351074px] leading-[14.686850547790527px] text-[#1f2028]">Anda
                 dapat
                 melihat semua kontak darurat milik pegawai <span class="font-bold">{{ $user['nama_lengkap'] }}</span> yang
                 terdaftar di sistem disini</span>
-        </div>
+        </div> --}}
         <div class="flex items-center w-full justify-end gap-[11.749480247497559px]">
 
             {{-- <x-print-tb target_id="pegawaiTable"></x-print-tb> --}}

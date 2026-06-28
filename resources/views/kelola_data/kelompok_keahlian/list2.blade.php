@@ -57,9 +57,9 @@
                         </x-tb-cl-fill>
 
                         {{-- Kode KK --}}
-                        <x-tb-cl-fill>
+                        <x-tb-cl-fill clsText="text-center">
                             <span class="px-2 py-1 bg-slate-100 text-slate-600 rounded font-mono text-xs">
-                                {{ htmlspecialchars($kk->kode) }}
+                                {{ strtoupper(htmlspecialchars($kk->kode)) }}
                             </span>
                         </x-tb-cl-fill>
 

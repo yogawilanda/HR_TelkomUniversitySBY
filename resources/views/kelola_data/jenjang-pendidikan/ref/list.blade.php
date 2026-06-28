@@ -66,10 +66,10 @@
             <x-slot:table_column>
                 @foreach ($data as $d)
                     <x-tb-cl id="{{ $d['id'] }}" idTargetModal="modal-detail-jenjang">
-                        <x-tb-cl-fill id="col-kode">{{ $d['jenjang_pendidikan'] }}</x-tb-cl-fill>
+                        <x-tb-cl-fill id="col-kode" clsText="text-center">{{ $d['jenjang_pendidikan'] }}</x-tb-cl-fill>
                         <x-tb-cl-fill id="col-tingkat">{{ $d['tingkat'] }}</x-tb-cl-fill>
-                        <x-tb-cl-fill id="col-urut">{{ $d['urutan'] }}</x-tb-cl-fill>
-                        <x-tb-cl-fill id="col-gelar">{{ $d['kode_gelar'] }}</x-tb-cl-fill>
+                        <x-tb-cl-fill id="col-urut" clsText="text-center">{{ $d['urutan'] }}</x-tb-cl-fill>
+                        <x-tb-cl-fill id="col-gelar" clsText="text-center">{{ $d['kode_gelar'] }}</x-tb-cl-fill>
                         <x-tb-cl-fill>
                             <div class="flex justify-center items-center gap-2">
                                 <a href="{{ route('manage.jenjang-pendidikan.ref.edit', ['id' => $d->id]) }}"
@@ -77,12 +77,12 @@
                                     Ubah
                                 </a>
 
-                                <form action="" method="post" class="m-0">
+                                {{-- <form action="" method="post" class="m-0">
                                     <button type="submit" onclick="return confirm('Yakin ingin menghapus data ini?')"
                                         class="px-4 py-1.5 border border-red-500 text-red-500 rounded-lg text-xs font-medium hover:bg-red-500 hover:text-white transition-all duration-200">
                                         Hapus
                                     </button>
-                                </form>
+                                </form> --}}
                             </div>
                         </x-tb-cl-fill>
                     </x-tb-cl>

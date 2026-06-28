@@ -96,14 +96,14 @@
         <!-- Main Content -->
         <div class="flex-grow pattern-batik-kawung bg-white overflow-y-auto h-full" id="wrapper-table">
             <h1 class="text-2xl font-bold mb-4 px-4 pt-4" id="page-name">@yield('page-name')</h1>
-            <div class="px-4 pb-4 items-stretch">
-                @yield('content-base')
+            <div class="flex flex-col justify-between" style="min-height: 97.5vh;">
+                <div class="px-4 pb-4 items-stretch max-h-fit">
+                    @yield('content-base')
+                </div>
+                <x-footer></x-footer>
             </div>
-
-
         </div>
     </div>
-    
 @endsection
 @section('script')
     @once

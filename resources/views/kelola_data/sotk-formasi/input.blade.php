@@ -1,5 +1,5 @@
 @php
-    $active_sidebar = 'Tambah Formasi';
+    $active_sidebar = 'Formasi Struktural';
 @endphp
 @extends('kelola_data.base')
 

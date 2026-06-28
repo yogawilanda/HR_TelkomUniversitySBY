@@ -51,6 +51,7 @@
                 <x-tb-td nama="nip" sorting=true>JURUSAN/PRODI</x-tb-td>
                 <x-tb-td nama="nik" sorting=true>KAMPUS</x-tb-td>
                 <x-tb-td nama="hp" sorting=true>GELAR</x-tb-td>
+                <x-tb-td nama="ijazah">IJAZAH dan TRANSKRIP</x-tb-td>
                 <x-tb-td nama="option">Action</x-tb-td>
             </x-slot:table_header>
             <x-slot:table_column>
@@ -68,18 +69,26 @@
                             <div class="text-center text-md font-semibold">
                                 {{ $study['nama_kampus'] }}
                             </div>
-                            <div class="text-left">
+                            <div class="text-center opacity-75">
                                 {{ $study['alamat_kampus'] }}
                             </div>
                         </x-tb-cl-fill>
 
-                        <x-tb-cl-fill>
+                        <x-tb-cl-fill clsText="text-center">
                             <div class="text-center text-md font-semibold">
                                 {{ $study['singkatan_gelar'] }}
                             </div>
-                            <div class="text-left">
+                            <div class="text-center opacity-75">
                                 {{ $study['gelar'] }}
                             </div>
+                        </x-tb-cl-fill>
+                        <x-tb-cl-fill clsText="text-center">
+                            <a href="ss"
+                            target="_blank"
+                            class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline">
+                                view
+                                <i class="bi bi-box-arrow-up-right text-xs"></i>
+                            </a>
                         </x-tb-cl-fill>
 
                         <x-tb-cl-fill>

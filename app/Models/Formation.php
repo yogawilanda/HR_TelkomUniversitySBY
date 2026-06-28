@@ -61,4 +61,13 @@ class Formation extends Model
     {
         return $this->belongsTo(Work_Position::class, 'work_position_id', 'id');
     }
+
+    public function people()
+    {
+        return $this->hasMany(Pengawakan::class, 'formasi_id', 'id')
+            ->where(function ($query) {
+                $query->whereDate('tmt_selesai', '>=', now())
+                    ->orWhereNull('tmt_selesai');
+            });
+    }
 }
