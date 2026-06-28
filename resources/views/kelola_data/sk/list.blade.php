@@ -95,13 +95,13 @@
             <x-slot:table_column>
                 @forelse ($sk_all as $sk)
                     <x-tb-cl id="{{ $sk->id }}">
-                        <x-tb-cl-fill>
+                        <x-tb-cl-fill clsText="text-center">
                             {{ $sk->no_sk }}
                         </x-tb-cl-fill>
                         <x-tb-cl-fill>
                             {{ $sk->keterangan }}
                         </x-tb-cl-fill>
-                        <x-tb-cl-fill>
+                        <x-tb-cl-fill clsText="text-center">
                             {{ $sk->tipe_sk }}
                         </x-tb-cl-fill>
                         <x-tb-cl-fill clsText="text-center">
@@ -122,7 +122,7 @@
                                 </span>
                             @endif
                         </x-tb-cl-fill>
-                        <x-tb-cl-fill>
+                        <x-tb-cl-fill clsText="text-center">
                             {{ $sk->created_at }}
                         </x-tb-cl-fill>
                         <x-tb-cl-fill>

@@ -151,7 +151,7 @@ class SKController extends Controller
                     $blade_view = 'kelola_data.pegawai.view.history.sk.view';
                     // return view($blade_view, compact('sk', 'user_terkait','user'));
                 }
-
+                // dd($sk);
                 $route = view($blade_view, compact('sk', 'user_terkait', 'user'));
                 return $this->CekReview($route, '1S2', 'MELIHAT LIST SK/AMANDEMEN');
 
@@ -334,6 +334,7 @@ class SKController extends Controller
                 ) y
                 GROUP BY sks_id
             ", ['sksId' => $id_sk]);
+            // dd($query);
         // dd($query==null);
         // $user_terkait = [];
         // if($user_terkait){
@@ -372,6 +373,7 @@ class SKController extends Controller
                 // dd('masuk');
                 abort(404, "File tidak ditemukan: $file_path");
             }
+            // dd($path);
 
             return response()->file($path);
         }
@@ -519,11 +521,13 @@ class SKController extends Controller
     {
         // $validation = $this->validation($id);
         $validated = $request->validate($this->validation('need')[0], $this->validation('need')[1], $this->validation('need')[2]);
-
+        // dd($validated);
         try {
             DB::beginTransaction();
+            $sk_update = null;
             try {
                 $sk_update = SK::findOrFail($id);
+                // dump($sk_update->file_sk);
             } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
                 throw new \Exception('SK ini tidak terdaftar!.');
             }
@@ -543,7 +547,7 @@ class SKController extends Controller
 
 
                 $delete = Storage::delete(storage_path('app/public/'.$sk_update->file_sk));
-                // dd($delete);
+                // dump($delete);
                 $validated['file_sk'] = $save;
             }
             else{
@@ -551,14 +555,15 @@ class SKController extends Controller
             }
             // dd($validated);
             $save = $sk_update->update($validated);
-            // dd($save);
+            // dd($sk_update);
 
             if (!$save) {
                 throw new \Exception('Terjadi masalah ketika melakukan proses simpan foto, foto mungkin terlalu besar atau format tidak sesuai');
-            }
+                }
 
-            DB::commit();
 
+                DB::commit();
+                // dump($sk_update->file_sk);
             $route = redirect(route('manage.sk.view', ['id_sk_or_sk_number' => $id]))->with('success', 'SK Berhasil Diperbarui!.');
             return $this->CekReview($route, '1S4', 'MENGUBAH DATA SK');
 
