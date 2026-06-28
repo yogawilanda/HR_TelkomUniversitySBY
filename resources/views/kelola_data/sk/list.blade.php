@@ -86,7 +86,7 @@
                 <x-tb-td nama="keterangan" sorting=true>Keterangan Singkat</x-tb-td>
                 <x-tb-td type="select" nama="nama_formasi" sorting=true>Tipe SK</x-tb-td>
                 <x-tb-td nama="tmt_mulai" sorting=true>TMT Mulai</x-tb-td>
-                <x-tb-td nama="tmt_mulai" sorting=true>TMT Selesai</x-tb-td>
+                <x-tb-td nama="tmt_selesai" sorting=true>TMT Selesai</x-tb-td>
                 <x-tb-td nama="bagian" sorting=true>Tanggal Input</x-tb-td>
                 <x-tb-td nama="kuota">Action</x-tb-td>
                 {{-- <x-tb-td nama="email_pribadi"></x-tb-td> --}}
@@ -105,7 +105,7 @@
                             {{ $sk->tipe_sk }}
                         </x-tb-cl-fill>
                         <x-tb-cl-fill clsText="text-center">
-                            @if(isset($sk->tmt_mulai)&&$sk->tmt_mulai!=null)
+                            @if(isset($sk->tmt_mulai) && $sk->tmt_mulai!=null)
                                 {{ $sk->tmt_mulai }}
                             @else
                                 <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
@@ -114,7 +114,7 @@
                             @endif
                         </x-tb-cl-fill>
                         <x-tb-cl-fill clsText="text-center">
-                            @if(isset($sk->tmt_selesai)&&$sk->tmt_selesai!=null)
+                            @if(isset($sk->tmt_selesai) && $sk->tmt_selesai!=null)
                                 {{ $sk->tmt_selesai }}
                             @else
                                 <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
