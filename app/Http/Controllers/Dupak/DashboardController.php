@@ -204,7 +204,6 @@ class DashboardController extends Controller
         }
 
         $baseKum = (float) ($user->kum ?? 0);
-        // Progress sekarang menghitung Base KUM profil + KUM yang sudah divalidasi TPAK di pengajuan aktif
         $jfaData = $this->getJfaAndKumData($dosen, $baseKum + $kumDisetujui);
         $progress = $jfaData['progress'];
 
@@ -234,13 +233,12 @@ class DashboardController extends Controller
             'pending' => Pengajuan::whereIn('status', ['Draft', 'Pending', 'Diajukan', 'Revisi', 'Menunggu'])->count(),
         ];
 
-        // target di overide dibawah. disini hanya untuk instansiasi value awal
         $kumBreakdown = [
-            'pendidikan' => ['approved' => 0.0, 'pending' => 0.0, 'target' => 200],
-            'pelaksanaan_pendidikan' => ['approved' => 0.0, 'pending' => 0.0, 'target' => 10],
-            'penelitian' => ['approved' => 0.0, 'pending' => 0.0, 'target' => 10],
-            'pengabdian' => ['approved' => 0.0, 'pending' => 0.0, 'target' => 10],
-            'penunjang' => ['approved' => 0.0, 'pending' => 0.0, 'target' => 10],
+            'pendidikan' => ['approved' => 0.0, 'pending' => 0.0, 'target' => 100],
+            'pelaksanaan_pendidikan' => ['approved' => 0.0, 'pending' => 0.0, 'target' => 142],
+            'penelitian' => ['approved' => 0.0, 'pending' => 0.0, 'target' => 100],
+            'pengabdian' => ['approved' => 0.0, 'pending' => 0.0, 'target' => 40],
+            'penunjang' => ['approved' => 0.0, 'pending' => 0.0, 'target' => 100],
         ];
 
         if ($dosen && $personalSubmission) {
@@ -262,6 +260,21 @@ class DashboardController extends Controller
                 ->get()
                 ->groupBy('detail_pengajuan_id');
 
+            // =========================================================================
+            // AMBIL DATA TARGET DARI DATABASE SEBELUM LOOPING (BIAR GAK BINGUNG)
+            // =========================================================================
+            $riwayat = $this->getCurrentJFA($dosen);
+            $jfaAsal = $riwayat?->ref_jfa_id;
+            $jfaTujuan = $this->getJfaTujuan($jfaAsal);
+
+            $targetJabatan = null;
+            if ($jfaAsal && $jfaTujuan) {
+                $targetJabatan = RefTargetJabatanPengajuan::where('jfaAsal', $jfaAsal)
+                    ->where('jfaTujuan', $jfaTujuan)
+                    ->first();
+            }
+            // =========================================================================
+
             foreach ($details as $det) {
                 $lowerCat = strtolower($det->kategori);
                 $status = strtolower($det->status);
@@ -279,26 +292,21 @@ class DashboardController extends Controller
                     $key = 'penunjang';
                 }
 
-                // Set target default, misal 100 jika tidak match
-                $targetValue = 100;
-                // revisi @Pak Dahliar, indikator pengajuan.
-                // Kondisi dinamis sesuai kebutuhan
-                // ganti dengan logic pembeda target
-                // alih alih menggunakan static value, itu harus mengambil value dari db ref_target_jabatan_pengajuan -> target_lam<kode lampiran>
-                if ($key === 'pendidikan') {
-                    $targetValue = 200;
-                } elseif ($key === 'pelaksanaan_pendidikan') {
-                    $targetValue = 142;
-                } elseif ($key === 'pengabdian') {
-                    $targetValue = 40;
-                }
-                
-                // target_lampiran ambil dari model.
-                // $target_lam = 100;
-                // dd($target_lam);
+                // dd($targetJabatan);
 
-                // Simpan nilai target ke dalam breakdown
-                $kumBreakdown[$key]['target'] = $targetValue;
+                if ($targetJabatan) {
+                    if ($key === 'pendidikan') {
+                        $kumBreakdown[$key]['target'] = (float) ($targetJabatan->limit_lampiran_1 ?? 100);
+                    } elseif ($key === 'pelaksanaan_pendidikan') {
+                        $kumBreakdown[$key]['target'] = (float) ($targetJabatan->limit_lampiran_2 ?? 142);
+                    } elseif ($key === 'penelitian') {
+                        $kumBreakdown[$key]['target'] = (float) ($targetJabatan->limit_lampiran_3 ?? 100);
+                    } elseif ($key === 'pengabdian') {
+                        $kumBreakdown[$key]['target'] = (float) ($targetJabatan->limit_lampiran_4 ?? 40);
+                    } elseif ($key === 'penunjang') {
+                        $kumBreakdown[$key]['target'] = (float) ($targetJabatan->limit_lampiran_5 ?? 100);
+                    }
+                }
 
                 if ($status === 'approved') {
                     $val = $evaluationsMap->has($det->detail_id)
@@ -312,9 +320,12 @@ class DashboardController extends Controller
             }
         }
 
+        // Bagian mapping data number_format dan return view tetap sama seperti kodemu
         foreach ($kumBreakdown as $key => $values) {
             $kumBreakdown[$key]['approved'] = number_format($values['approved'], 2);
             $kumBreakdown[$key]['pending'] = number_format($values['pending'], 2);
+            // Pastikan target juga ikut terformat atau dibiarkan float tergantung kebutuhan di blade
+            $kumBreakdown[$key]['target'] = number_format($values['target'], 2);
         }
 
         $isMaxJfa = $this->isMaxJfa($dosen);
@@ -327,9 +338,6 @@ class DashboardController extends Controller
             'totalPengajuanMandiri' => $totalPengajuanMandiri,
             'totalSeluruhPengajuan' => $totalSeluruhPengajuan,
             'isMaxJfa' => $isMaxJfa,
-
-            // kum['pending_kum'] = Kum yang diajukan oleh pengaju
-            // kum['current'] = Kum yang sudah di acc oleh TPAK dan dianggap sebagai progress oleh bar
             'kum' => [
                 'current' => $progress['current'],
                 'pending_kum' => number_format($kumPengajuan, 2),
@@ -345,12 +353,10 @@ class DashboardController extends Controller
                 'pengabdian' => $kumBreakdown['pengabdian'],
                 'penunjang' => $kumBreakdown['penunjang'],
             ],
-
             'jfa' => [
                 'current' => $jfaData['namaJabatanSaatIni'],
                 'next' => $jfaData['jfaTujuanNama'],
             ],
-
             'submissions' => [
                 'list' => $this->submissions($user, $dosen?->id)->paginate(10),
                 'has_pending' => $this->hasPendingSubmission($dosen?->id),
@@ -358,7 +364,6 @@ class DashboardController extends Controller
             ],
             'isTpak' => $tugasTpak->isNotEmpty(),
             'penugasanTpak' => $tugasTpak,
-
             'tpak' => [
                 'is_tpak' => $tugasTpak->isNotEmpty(),
                 'assignments' => $tugasTpak,
@@ -368,8 +373,6 @@ class DashboardController extends Controller
             'statistik' => $statistik,
         ];
 
-        // melihat kum pendidikan yang diapproved
-        // dd($viewData['kum']['pendidikan']['approved']);
         return view('dupak.dashboard', $viewData);
     }
 }

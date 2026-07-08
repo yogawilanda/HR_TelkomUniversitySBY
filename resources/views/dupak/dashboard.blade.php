@@ -129,7 +129,7 @@
 
                 {{-- Daftar Pengajuan --}}
                 <div class="mt-10">
-                    <div class="flex justify-between items-center mb-6">
+                    <div class="flex justify-between items-center mb-6 ">
                         <h3 class="text-xl font-semibold">Daftar Pengajuan DUPAK</h3>
 
                         @if (!$user->is_admin)
@@ -183,7 +183,7 @@
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
+                    <table class="min-w-full divide-y divide-gray-200 rounded-b-lg">
                         <thead class="bg-blue-900 text-white text-xs uppercase">
                             <tr>
                                 <th class="px-6 py-3 text-left">Dosen Pengaju</th>

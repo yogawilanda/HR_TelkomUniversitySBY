@@ -12,7 +12,7 @@
         <div class="flex justify-between items-start mb-6">
             <div>
                 <h3 class="text-lg font-bold text-gray-900">Informasi KUM</h3>
-                <p class="text-xs text-gray-500 italic">Terakhir diperbarui: {{ $kum['updatedAtFormatted'] ?? 'Tidak tersedia' }}</p>
+                <!-- <p class="text-xs text-gray-500 italic">Terakhir diperbarui: {{ $kum['updatedAtFormatted'] ?? 'Tidak tersedia' }}</p> -->
             </div>
             <div class="text-right bg-blue-50 px-3 py-1 rounded-lg border border-blue-100">
                 <span class="text-[10px] uppercase font-bold text-blue-600 block">Jabatan</span>
@@ -123,11 +123,9 @@
                     <div class="flex text-xl font-black text-gray-800">
                         <!-- angka kredit yang muncul di rincian per komponen -->
                         {{ $kum[$item['key']]['approved'] ?? '0.00' }}
-
                         <!-- update request Pak Dahliar : Penambahan icon centang apabila sudah komponen sudah memenuhi syarat pengajuan per komponennya -->
                         <!-- tambahkan if statement : jika user sudah memenuhi maka munculkan centangnya. -->
-                        
-                        @if(isset($kum[$item['key']]['approved']) && (float)$kum[$item['key']]['approved'] >= ($kum[$item['key']]['target'] ?? 200))
+                        @if(isset($kum[$item['key']]['approved']) && (float)$kum[$item['key']]['approved'] >= ($kum[$item['key']]['target'] ?? 999))
                         <div class="text-[10px] font-bold text-blue-600 mt-0.5" title="Sedang Diajukan">
                             <i class="fa-solid fa-circle-check"></i>
                         </div>

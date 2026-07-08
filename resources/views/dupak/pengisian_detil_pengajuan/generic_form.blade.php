@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="mt-16 md:ml-64 sm:ml-12 lg:ml-64">
+<div class="md:ml-64 sm:ml-12 lg:ml-64">
     <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">
@@ -34,18 +34,48 @@
                                 </select>
                                 <p class="text-xs text-gray-500 mt-1">Pilih butir kegiatan untuk melihat Angka Kredit (AK) baku.</p>
                             </div>
+                            <!-- Revisi : Input periode seperti semester dan tahunnya dibuat menjadi dropdown yang  terpisah namun saat di submit akan dijadikan menjadi satu. -->
+                             <!-- Catatan : Input tahun dibuat berdasarkan migrasi baru, yang dimana isi inputnya tahunnya diubah menjadi 2010 keatas. dan menggunakan dropdown -->
+
+                            <!-- <div>
+                                <label class="block mb-1 text-xs font-bold text-gray-700">Periode Pengajuan</label>
+                                <input id="periode_pengajuan" name="periode_pengajuan" type="text" name="periode" class="w-full border-gray-300 rounded-md shadow-sm text-sm" placeholder="Contoh: Semester Ganjil 2025/2026">
+                            </div> -->
 
                             <div>
                                 <label class="block mb-1 text-xs font-bold text-gray-700">Periode Pengajuan</label>
-                                <input id="periode_pengajuan" name="periode_pengajuan" type="text" name="periode" class="w-full border-gray-300 rounded-md shadow-sm text-sm" placeholder="Contoh: Semester Ganjil 2025/2026">
+                                
+                                <input type="hidden" id="periode_pengajuan" name="periode_pengajuan" value="Semester Ganjil 2010/2011">
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <select id="select_semester" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                            <option value="Semester Ganjil">Semester Ganjil</option>
+                                            <option value="Semester Genap">Semester Genap</option>
+                                            <option value="Semester Antara">Semester Ganjil & Genap </option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <select id="select_tahun" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                            @for ($year = 2010; $year <= 2026; $year++)
+                                                @php 
+                                                    $nextYear = $year + 1;
+                                                    $formattedYear = "{$year}/{$nextYear}";
+                                                @endphp
+                                                <option value="{{ $formattedYear }}" {{ $year == 2025 ? 'selected' : '' }}>
+                                                    {{ $formattedYear }}
+                                                </option>
+                                            @endfor
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
 
                             @if($isPerkuliahan)
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 p-3 bg-blue-50 rounded-md border border-blue-100">
 
-                            <!-- Revisi : Input periode seperti semester dan tahunnya dibuat menjadi dropdown yang  terpisah namun saat di submit akan dijadikan menjadi satu. -->
-                             <!-- Catatan : Input tahun dibuat berdasarkan migrasi baru, yang dimana isi inputnya tahunnya diubah menjadi 2010 keatas. dan menggunakan dropdown -->
-
+                          
                                 <div>
                                     <label class="block mb-1 text-xs font-bold text-gray-700">Jumlah SKS</label>
                                     <input type="number" step="0.1" name="sks" class="w-full border-gray-300 rounded-md shadow-sm text-sm">
@@ -95,7 +125,7 @@
                                     <label class="block mb-2 text-sm font-semibold text-gray-700">Angka Kredit Total (Preview)</label>
                                     <input type="text" id="ak_preview" readonly
                                         class="w-full bg-gray-100 border-gray-300 rounded-md shadow-sm sm:text-sm text-gray-700 font-bold"
-                                        value="0.000">
+                                        value="0.0">
                                     <p class="text-xs text-gray-500 mt-1">Dihitung otomatis dari AK Baku × Volume[cite: 1].</p>
                                 </div>
                             </div>
@@ -126,6 +156,25 @@
 </div>
 
 <script>
+        // Perubahan Logika Dropdown Periode Pengajuan
+        const selectSemester = document.getElementById('select_semester');
+        const selectTahun = document.getElementById('select_tahun');
+        const hiddenPeriode = document.getElementById('periode_pengajuan');
+
+        function updatePeriodeString() {
+            if (selectSemester && selectTahun && hiddenPeriode) {
+                hiddenPeriode.value = `${selectSemester.value} ${selectTahun.value}`;
+            }
+        }
+
+        if (selectSemester && selectTahun) {
+            selectSemester.addEventListener('change', updatePeriodeString);
+            selectTahun.addEventListener('change', updatePeriodeString);
+            
+            // Jalankan sekali saat load awal untuk mensinkronkan nilai default input hidden
+            updatePeriodeString();
+        }
+
     /**
      * Fungsi Utama: Menghitung volume berdasarkan SKS dan Kelas 
      * Khusus Komponen Perkuliahan sesuai scoring_mechanism_dupak.txt[cite: 1]
@@ -184,8 +233,15 @@
         if (!jenisSelect || !volumeInput || !akPreview) return;
 
         const selectedOption = jenisSelect.options[jenisSelect.selectedIndex];
+        if (!selectedOption || selectedOption.value === "") {
+            akPreview.value = "0.0";
+            return;
+        }
 
-        // Logika khusus Bimbingan TA (Component 6)
+        // 1. Ambil nilai_baku default dari data-attribute option select HTML
+        let nilaiBaku = parseFloat(selectedOption.getAttribute('data-nilai')) || 0;
+
+        // 2. Logika khusus Overwrite Bimbingan TA jika element peranSelect tersedia (Component 6)
         if (peranSelect) {
             const jenisNama = selectedOption.text.toLowerCase();
             const peran = peranSelect.value;
@@ -199,12 +255,13 @@
             }
         }
 
+        // 3. Ambil volume terkini
         const volume = parseFloat(volumeInput.value) || 0;
 
+        // 4. Hitung dan tampilkan total dengan presisi 1 desimal
         const total = nilaiBaku * volume;
-        akPreview.value = total.toFixed(3);
+        akPreview.value = total.toFixed(1);
     }
-
     // Inisialisasi Event Listeners
     document.addEventListener('DOMContentLoaded', function() {
         const jenisSelect = document.getElementById('id_jenis_input');

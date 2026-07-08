@@ -47,8 +47,8 @@
                 @endif
 
                 <!-- List Pengajuan -->
-                <div class="overflow-hidden bg-white rounded-lg shadow">
-                    <table class="min-w-full divide-y divide-gray-200">
+                <div class="overflow-hidden bg-white rounded-lg shadow rounded-b-lg">
+                    <table class="min-w-full divide-y divide-gray-200 rounded-b-lg">
                         <thead class="bg-blue-900">
                             <tr>
                                 <th scope="col"
