@@ -95,6 +95,7 @@
         <div class="border-t border-gray-100 my-8"></div>
 
         {{-- Rincian Angka Kredit Spesifik --}}
+        <!-- revisi: kolom pendidikan dan pelaksanaan pendidikan seakan dicampur menjadi satu untuk menjadi acuan di excel saat melihat rincian, ketika sudah memenuhi syarat yang berdasarkan acuan dari rincian maka menjadi centang hijau, ketika belum maka masih ongoing atau tidak ada simbol. -->         
         <div class="mb-6">
             <div class="flex items-center gap-2 mb-4">
                 <h4 class="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Rincian Per Komponen</h4>
@@ -114,11 +115,23 @@
                 @foreach($komponen as $item)
                 <div class="bg-white p-3 rounded-lg border border-gray-200 shadow-sm group hover:border-blue-300 transition-colors">
                     <div class="flex items-center justify-between mb-1">
+                        <!-- judul item komponen -->
                         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tight">{{ $item['label'] }}</span>
+                        <!-- icon item komponen -->
                         <i class="fas fa-info-circle text-[10px] text-gray-300 cursor-help" title="{{ $item['info'] }}"></i>
                     </div>
-                    <div class="text-xl font-black text-gray-800">
+                    <div class="flex text-xl font-black text-gray-800">
+                        <!-- angka kredit yang muncul di rincian per komponen -->
                         {{ $kum[$item['key']]['approved'] ?? '0.00' }}
+
+                        <!-- update request Pak Dahliar : Penambahan icon centang apabila sudah komponen sudah memenuhi syarat pengajuan per komponennya -->
+                        <!-- tambahkan if statement : jika user sudah memenuhi maka munculkan centangnya. -->
+                        
+                        @if(isset($kum[$item['key']]['approved']) && (float)$kum[$item['key']]['approved'] >= ($kum[$item['key']]['target'] ?? 200))
+                        <div class="text-[10px] font-bold text-blue-600 mt-0.5" title="Sedang Diajukan">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                        @endif
                     </div>
                     @if(isset($kum[$item['key']]['pending']) && (float)$kum[$item['key']]['pending'] > 0)
                         <div class="text-[10px] font-bold text-yellow-600 mt-0.5" title="Sedang Diajukan">

@@ -3,19 +3,18 @@
 namespace App\Http\Controllers\Dupak;
 
 use App\Http\Controllers\Controller;
-use App\Models\Dupak\Pengajuan;
 use App\Models\Dosen;
-use App\Models\Dupak\RefJenisInput;
-use App\Models\Dupak\RefKegiatanKomponen;
+use App\Models\Dupak\DetailPengajuan;
+use App\Models\Dupak\HasilEvaluasi;
+use App\Models\Dupak\Pengajuan;
+use App\Models\Dupak\PenunjukanTPAKModel;
+use App\Models\Dupak\RefKegiatanUtama;
 use App\Models\Dupak\RefTargetJabatanPengajuan;
 use App\Models\refJabatanFungsionalAkademik;
-use App\Models\Dupak\RefKegiatanUtama;
-use App\Models\Dupak\PenunjukanTPAKModel;
 use App\Models\riwayatJabatanFungsionalAkademik;
-use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -44,8 +43,9 @@ class DashboardController extends Controller
 
     private function getJfaTujuan(?string $jfaId)
     {
-        if (!$jfaId)
+        if (! $jfaId) {
             return null;
+        }
 
         $keys = array_keys($this->aturanPengajuanJFA);
         $i = array_search($jfaId, $keys);
@@ -55,8 +55,9 @@ class DashboardController extends Controller
 
     private function getTargetKum(?string $asal, ?string $tujuan, $minimal)
     {
-        if (!$asal || !$tujuan)
+        if (! $asal || ! $tujuan) {
             return $minimal;
+        }
 
         $record = RefTargetJabatanPengajuan::where('jfaAsal', $asal)
             ->where('jfaTujuan', $tujuan)
@@ -88,7 +89,7 @@ class DashboardController extends Controller
             ->orderByDesc('created_at')
             ->orderByDesc('id');
 
-        if (!$user->is_admin) {
+        if (! $user->is_admin) {
             $q->where('idDosen', $dosenId ?? '___INVALID___');
         }
 
@@ -97,8 +98,9 @@ class DashboardController extends Controller
 
     private function hasPendingSubmission(?string $dosenId): bool
     {
-        if (!$dosenId)
+        if (! $dosenId) {
             return false;
+        }
 
         $pendingStatuses = ['Draft', 'Pending', 'Diajukan', 'Revisi', 'Menunggu'];
 
@@ -113,8 +115,9 @@ class DashboardController extends Controller
      */
     private function isMaxJfa(?Dosen $dosen): bool
     {
-        if (!$dosen)
+        if (! $dosen) {
             return false;
+        }
 
         $riwayat = $this->getCurrentJFA($dosen);
         $jfaId = $riwayat?->ref_jfa_id;
@@ -130,7 +133,7 @@ class DashboardController extends Controller
     {
         $query = Pengajuan::query();
 
-        if ($user->is_admin && !$dosen) {
+        if ($user->is_admin && ! $dosen) {
             return $query->latest()->first();
         }
 
@@ -164,7 +167,7 @@ class DashboardController extends Controller
         $user = Auth::user();
         $dosen = $this->getDosen($user);
 
-        if (!$dosen && !$user->is_admin) {
+        if (! $dosen && ! $user->is_admin) {
             abort(403, 'Akses ditolak. Anda bukan Dosen.');
         }
 
@@ -179,7 +182,7 @@ class DashboardController extends Controller
 
             if ($personalSubmission) {
                 // Ambil ID detail kegiatan yang sudah memiliki penilaian dari TPAK
-                $evaluatedIds = \App\Models\Dupak\HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
+                $evaluatedIds = HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
                     ->where('detail_pengajuan.pengajuan_id', $personalSubmission->id)
                     ->where('hasil_evaluasi.peran_pemeriksa', 'TPAK')
                     ->pluck('detail_pengajuan.id');
@@ -190,7 +193,7 @@ class DashboardController extends Controller
                     ->sum('angka_kredit_total');
 
                 // KUM Disetujui: Akumulasi nilai yang sudah diberikan TPAK (rata-rata jika penilai > 1)
-                $kumDisetujui = (float) \App\Models\Dupak\HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
+                $kumDisetujui = (float) HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
                     ->where('detail_pengajuan.pengajuan_id', $personalSubmission->id)
                     ->where('hasil_evaluasi.peran_pemeriksa', 'TPAK')
                     ->groupBy('hasil_evaluasi.detail_pengajuan_id')
@@ -205,7 +208,7 @@ class DashboardController extends Controller
         $jfaData = $this->getJfaAndKumData($dosen, $baseKum + $kumDisetujui);
         $progress = $jfaData['progress'];
 
-        $hasNoPengajuan = $dosen ? !Pengajuan::where('idDosen', $dosen->id)->exists() : true;
+        $hasNoPengajuan = $dosen ? ! Pengajuan::where('idDosen', $dosen->id)->exists() : true;
         $totalPengajuanMandiri = $dosen ? Pengajuan::where('idDosen', $dosen->id)->count() : 0;
         $totalSeluruhPengajuan = Pengajuan::count();
 
@@ -221,7 +224,7 @@ class DashboardController extends Controller
             ->with([
                 'komponens' => function ($query) {
                     $query->select('id', 'nama', 'idKegiatanUtama');
-                }
+                },
             ])
             ->where('status', 1)
             ->get();
@@ -231,16 +234,17 @@ class DashboardController extends Controller
             'pending' => Pengajuan::whereIn('status', ['Draft', 'Pending', 'Diajukan', 'Revisi', 'Menunggu'])->count(),
         ];
 
+        // target di overide dibawah. disini hanya untuk instansiasi value awal
         $kumBreakdown = [
-            'pendidikan' => ['approved' => 0.0, 'pending' => 0.0],
-            'pelaksanaan_pendidikan' => ['approved' => 0.0, 'pending' => 0.0],
-            'penelitian' => ['approved' => 0.0, 'pending' => 0.0],
-            'pengabdian' => ['approved' => 0.0, 'pending' => 0.0],
-            'penunjang' => ['approved' => 0.0, 'pending' => 0.0],
+            'pendidikan' => ['approved' => 0.0, 'pending' => 0.0, 'target' => 200],
+            'pelaksanaan_pendidikan' => ['approved' => 0.0, 'pending' => 0.0, 'target' => 10],
+            'penelitian' => ['approved' => 0.0, 'pending' => 0.0, 'target' => 10],
+            'pengabdian' => ['approved' => 0.0, 'pending' => 0.0, 'target' => 10],
+            'penunjang' => ['approved' => 0.0, 'pending' => 0.0, 'target' => 10],
         ];
 
         if ($dosen && $personalSubmission) {
-            $details = \App\Models\Dupak\DetailPengajuan::join('ref_kegiatan_komponen', 'detail_pengajuan.idKomponen', '=', 'ref_kegiatan_komponen.id')
+            $details = DetailPengajuan::join('ref_kegiatan_komponen', 'detail_pengajuan.idKomponen', '=', 'ref_kegiatan_komponen.id')
                 ->join('ref_kegiatan_utama', 'ref_kegiatan_komponen.idKegiatanUtama', '=', 'ref_kegiatan_utama.id')
                 ->where('detail_pengajuan.pengajuan_id', $personalSubmission->id)
                 ->select(
@@ -251,7 +255,7 @@ class DashboardController extends Controller
                 )
                 ->get();
 
-            $evaluationsMap = \App\Models\Dupak\HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
+            $evaluationsMap = HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
                 ->where('detail_pengajuan.pengajuan_id', $personalSubmission->id)
                 ->where('hasil_evaluasi.peran_pemeriksa', 'TPAK')
                 ->select('detail_pengajuan_id', 'nilai_angka_kredit')
@@ -274,6 +278,27 @@ class DashboardController extends Controller
                 } elseif (str_contains($lowerCat, 'penunjang')) {
                     $key = 'penunjang';
                 }
+
+                // Set target default, misal 100 jika tidak match
+                $targetValue = 100;
+                // revisi @Pak Dahliar, indikator pengajuan.
+                // Kondisi dinamis sesuai kebutuhan
+                // ganti dengan logic pembeda target
+                // alih alih menggunakan static value, itu harus mengambil value dari db ref_target_jabatan_pengajuan -> target_lam<kode lampiran>
+                if ($key === 'pendidikan') {
+                    $targetValue = 200;
+                } elseif ($key === 'pelaksanaan_pendidikan') {
+                    $targetValue = 142;
+                } elseif ($key === 'pengabdian') {
+                    $targetValue = 40;
+                }
+                
+                // target_lampiran ambil dari model.
+                // $target_lam = 100;
+                // dd($target_lam);
+
+                // Simpan nilai target ke dalam breakdown
+                $kumBreakdown[$key]['target'] = $targetValue;
 
                 if ($status === 'approved') {
                     $val = $evaluationsMap->has($det->detail_id)
@@ -337,12 +362,14 @@ class DashboardController extends Controller
             'tpak' => [
                 'is_tpak' => $tugasTpak->isNotEmpty(),
                 'assignments' => $tugasTpak,
-                'count' => $tugasTpak->count()
+                'count' => $tugasTpak->count(),
             ],
             'kegiatanUtama' => $kegiatanUtama,
             'statistik' => $statistik,
         ];
 
+        // melihat kum pendidikan yang diapproved
+        // dd($viewData['kum']['pendidikan']['approved']);
         return view('dupak.dashboard', $viewData);
     }
 }

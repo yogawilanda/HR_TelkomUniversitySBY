@@ -43,6 +43,9 @@
                             @if($isPerkuliahan)
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 p-3 bg-blue-50 rounded-md border border-blue-100">
 
+                            <!-- Revisi : Input periode seperti semester dan tahunnya dibuat menjadi dropdown yang  terpisah namun saat di submit akan dijadikan menjadi satu. -->
+                             <!-- Catatan : Input tahun dibuat berdasarkan migrasi baru, yang dimana isi inputnya tahunnya diubah menjadi 2010 keatas. dan menggunakan dropdown -->
+
                                 <div>
                                     <label class="block mb-1 text-xs font-bold text-gray-700">Jumlah SKS</label>
                                     <input type="number" step="0.1" name="sks" class="w-full border-gray-300 rounded-md shadow-sm text-sm">
@@ -88,6 +91,7 @@
                                 </div>
 
                                 <div>
+                                    <!-- revisi: ini masih bug karena ternyata saat input dibuat oleh user, hasil akhirnya masih menjadi 0 AK padahal harusnya kalau semisal ada perhitungan, hasil akhir juga muncul disini -->
                                     <label class="block mb-2 text-sm font-semibold text-gray-700">Angka Kredit Total (Preview)</label>
                                     <input type="text" id="ak_preview" readonly
                                         class="w-full bg-gray-100 border-gray-300 rounded-md shadow-sm sm:text-sm text-gray-700 font-bold"
