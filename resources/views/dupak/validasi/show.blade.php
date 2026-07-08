@@ -54,14 +54,14 @@
                                     </div>
                                     <div class="min-w-0">
                                         <p class="font-black text-gray-900 text-lg leading-tight uppercase">{{ $pengajuan->nama_dosen }}</p>
-                                        <p class="text-sm font-bold text-gray-400 mt-1">{{ $pengajuan->idDosen }}</p>
+                                        <p class="text-sm font-bold text-gray-400 mt-1">{{ $pengajuan->dosen?->nidn }}</p>
                                     </div>
                                 </div>
 
                                 <div class="mt-6 pt-6 border-t border-gray-100">
                                     <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100/50">
-                                        <p class="text-[10px] font-black text-blue-400 uppercase mb-1 tracking-widest">Target Jabatan</p>
-                                        <p class="text-sm font-black text-blue-900">{{ $pengajuan->jabatanTujuan->nama ?? 'N/A' }}</p>
+                                        <p class="text-[10px] font-black text-blue-400 uppercase mb-1 tracking-widest">NIDN</p>
+                                        <p class="text-sm font-black text-blue-900">{{ $pengajuan->dosen?->nidn ?? 'N/A' }}</p>
                                     </div>
                                 </div>
 

@@ -41,14 +41,15 @@ class ValidasiController extends Controller
         $dosen = Dosen::where('users_id', $userId)->first();
         $tpakDosenId = $dosen?->id;
 
-if ($tpakDosenId) {
+        if ($tpakDosenId) {
             // Get pengajuan IDs where this TPAK is assigned
             $assignedPengajuanIds = PenunjukanTPAKModel::where('idDosenTpak', $tpakDosenId)
                 ->pluck('pengajuan_id')
                 ->toArray();
             
             // Query pengajuan dengan eager loading details dan komponen
-            $query = Pengajuan::with(['details.komponen'])
+            // update: tambah mengambil data dari model dosen juga.
+            $query = Pengajuan::with(['details.komponen', 'dosen'])
                 ->whereIn('id', $assignedPengajuanIds);
         } else {
             $query = Pengajuan::query()->whereRaw('1 = 0');
@@ -122,7 +123,7 @@ if ($tpakDosenId) {
             $avgScore = $counted > 0 ? round($totalPercent / $counted, 1) : 0;
         }
 
-// Mapping progress per pengajuan (berdasarkan detail yang sudah di-evaluasi)
+        // Mapping progress per pengajuan (berdasarkan detail yang sudah di-evaluasi)
         $progressMap = [];
         foreach ($allDetailsMap as $pid => $details) {
             $detailIds = array_map(function($d) { return $d->id; }, $details);
@@ -137,6 +138,7 @@ if ($tpakDosenId) {
                 'evaluatedCount' => $evaluatedCount,
             ];
         }
+        // dd($pengajuanList);
 
         return view('dupak.validasi.index', compact(
             'pengajuanList',
@@ -158,6 +160,9 @@ if ($tpakDosenId) {
         if (!$this->isAuthorizedTpak($pengajuan->id)) {
             abort(403, 'Anda tidak memiliki akses untuk menilai pengajuan ini.');
         }
+
+        $nidnDosenPengaju = $pengajuan->dosen?->nidn;
+        // dd($nidnDosenPengaju);
 
         $detailIds = $pengajuan->details->pluck('id')->toArray();
 

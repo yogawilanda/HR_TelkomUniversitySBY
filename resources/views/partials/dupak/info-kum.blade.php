@@ -120,7 +120,7 @@
                         <!-- icon item komponen -->
                         <i class="fas fa-info-circle text-[10px] text-gray-300 cursor-help" title="{{ $item['info'] }}"></i>
                     </div>
-                    <div class="flex text-xl font-black text-gray-800">
+                    <div class="flex item-center gap-1.5 text-xl font-black text-gray-800">
                         <!-- angka kredit yang muncul di rincian per komponen -->
                         {{ $kum[$item['key']]['approved'] ?? '0.00' }}
                         <!-- update request Pak Dahliar : Penambahan icon centang apabila sudah komponen sudah memenuhi syarat pengajuan per komponennya -->

@@ -82,15 +82,43 @@ class DashboardController extends Controller
         ];
     }
 
+    // private function submissions(User $user, ?string $dosenId)
+    // {
+    //     // fixing sorting algorithm for 2 layered sorts.
+    //     $q = Pengajuan::with(['dosen.pegawai'])
+    //         ->orderByDesc('created_at')
+    //         ->orderByDesc('id');
+
+    //     if (!$user->is_admin) {
+    //         $q->where('idDosen', $dosenId ?? '___INVALID___');
+    //     }
+
+    //     return $q;
+    // }
+
     private function submissions(User $user, ?string $dosenId)
     {
-        // fixing sorting algorithm for 2 layered sorts.
         $q = Pengajuan::with(['dosen.pegawai'])
             ->orderByDesc('created_at')
             ->orderByDesc('id');
 
         if (! $user->is_admin) {
-            $q->where('idDosen', $dosenId ?? '___INVALID___');
+            // Ambil semua ID pengajuan yang ditugaskan ke dosen ini sebagai TPAK
+            $assignedPengajuanIds = [];
+            if ($dosenId) {
+                $assignedPengajuanIds = PenunjukanTPAKModel::where('idDosenTpak', $dosenId)
+                    ->pluck('pengajuan_id') // Sesuaikan nama kolom ID pengajuan di tabel penunjukan_tpak kamu jika berbeda
+                    ->toArray();
+            }
+
+            // Tampilkan pengajuan miliknya SENDIRI ATAU pengajuan orang lain yang DITUGASKAN kepadanya
+            $q->where(function ($query) use ($dosenId, $assignedPengajuanIds) {
+                $query->where('idDosen', $dosenId ?? '___INVALID___');
+
+                if (! empty($assignedPengajuanIds)) {
+                    $query->orWhereIn('id', $assignedPengajuanIds);
+                }
+            });
         }
 
         return $q;

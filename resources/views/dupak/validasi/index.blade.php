@@ -110,7 +110,8 @@
                             </td>
                             <td class="px-4 py-4">
                                 <div class="font-medium text-gray-900">{{ $pengajuan->nama_dosen }}</div>
-                                <div class="text-sm text-gray-500">NIDN {{ $pengajuan->idDosen }}</div>
+                                <!-- update : nidn mengambil dari dosen model -->
+                                <div class="text-sm text-gray-500">NIDN {{ $pengajuan->dosen?->nidn }}</div>
                             </td>
                             <td class="px-4 py-4 text-center">
                                 <span class="inline-block px-3 py-1 rounded-full text-sm font-bold bg-blue-50 text-blue-700">

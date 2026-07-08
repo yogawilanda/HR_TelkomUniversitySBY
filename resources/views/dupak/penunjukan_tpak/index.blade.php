@@ -17,7 +17,7 @@
                 class="text-sm text-gray-500 hover:text-gray-700 mb-4 inline-block">&larr; Kembali ke Dashboard DUPAK</a>
             <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white text-left">Command Center DUPAK</h1>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white text-left">Penunjukan TPAK - DUPAK</h1>
                     <p class="text-sm text-gray-600 dark:text-gray-400 text-left">Monitoring pengajuan, penugasan TPAK, dan
                         beban kerja penilai.</p>
                 </div>
@@ -132,14 +132,14 @@
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center">
                                 <div class="p-2 bg-blue-600 rounded-lg mr-3"><i class="fas fa-clock text-white"></i></div>
-                                <h2 class="text-xl font-bold dark:text-white">Antrean Pengajuan (Belum Ada Penilai)</h2>
+                                <h2 class="text-xl font-bold dark:text-white">Antrean Pengajuan</h2>
                             </div>
-                            <form action="{{ route('dupak.penunjukan_tpak.index') }}" method="GET" class="relative">
+                            <!-- <form action="{{ route('dupak.penunjukan_tpak.index') }}" method="GET" class="relative">
                                 <input type="text" name="antrean_search" value="{{ request('antrean_search') }}"
                                     placeholder="Cari pengaju..."
                                     class="pl-8 pr-3 py-1.5 text-xs rounded-full border-gray-300 dark:bg-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 <i class="fas fa-search absolute left-2.5 top-2 text-gray-400 text-[10px]"></i>
-                            </form>
+                            </form> -->
                         </div>
 
                         <div
@@ -207,19 +207,21 @@
                             </table>
                         </div>
                     </div>
+                    <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center">
+                                <div class="p-2 bg-blue-600 rounded-lg mr-3"><i class="fas fa-clock text-white"></i></div>
+                                <h2 class="text-xl font-bold dark:text-white">Daftar Penugasan Aktif</h2>
+                            </div>
+                            <!-- <form action="{{ route('dupak.penunjukan_tpak.index') }}" method="GET" class="relative">
+                                <input type="text" name="antrean_search" value="{{ request('antrean_search') }}"
+                                    placeholder="Cari pengaju..."
+                                    class="pl-8 pr-3 py-1.5 text-xs rounded-full border-gray-300 dark:bg-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <i class="fas fa-search absolute left-2.5 top-2 text-gray-400 text-[10px]"></i>
+                            </form> -->
+                        </div>
                     <div
                         class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                        <div
-                            class="p-4 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800 flex justify-between items-center">
-                            <h2 class="font-bold text-blue-800 dark:text-blue-200">Daftar Penugasan Aktif</h2>
-                            <form action="{{ route('dupak.penunjukan_tpak.index') }}" method="GET" class="relative">
-                                <input type="text" name="search" value="{{ request('search') }}"
-                                    placeholder="Cari pengajuan..."
-                                    class="pl-9 pr-4 py-1.5 text-xs rounded-full border-gray-300 dark:bg-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
-                            </form>
-                        </div>
-
+                        
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead class="bg-blue-50 dark:bg-blue-900/20">

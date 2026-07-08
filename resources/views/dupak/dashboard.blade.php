@@ -48,7 +48,7 @@
                     :class="tab === 'tpak' ? 'border-blue-900 text-blue-900' : 'border-transparent text-gray-500'"
                     class="px-4 py-2 font-semibold border-b-2 transition-colors flex items-center">
                     Penugasan TPAK
-                    <span class="ml-2 px-2 py-0.5 bg-red-100 text-red-600 rounded-full text-xs">
+                    <span class="ml-2 px-2 py-0.5 bg-blue-900 text-white rounded-full text-xs">
                         {{ $penugasanTpak->count() }}
                     </span>
                 </button>
@@ -114,15 +114,7 @@
                             </a>
                         </div>
                         @elseif (isset($user) && isset($dosen))
-                        <div class="p-6 border rounded-lg bg-white shadow-sm">
-                            <h3 class="mb-4 text-sm font-semibold text-gray-700">
-                                <i class="fas fa-user-circle mr-2 text-blue-900"></i>
-                                Anda saat ini masuk sebagai Pengaju DUPAK
-                            </h3>
-                            <a href="{{ route('dupak.validasi.index') }}" class="px-4 py-2 text-sm text-white bg-blue-900 rounded hover:bg-blue-950 inline-block">
-                                Menjadi TPAK
-                            </a>
-                        </div>
+                        
                         @endif
                     </div>
                 </div>
@@ -131,16 +123,10 @@
                 <div class="mt-10">
                     <div class="flex justify-between items-center mb-6 ">
                         <h3 class="text-xl font-semibold">Daftar Pengajuan DUPAK</h3>
-
                         @if (!$user->is_admin)
                         @php
                         $buttonDisabled = $submissions['has_pending'] || $isMaxJfa;
                         @endphp
-                        <a href="{{ $buttonDisabled ? '#' : route('dupak.pengajuan.create', ['userId' => $user->id]) }}"
-                           class="px-4 py-2 text-xs font-semibold text-white uppercase rounded-md
-                           {{ $buttonDisabled ? 'bg-gray-400 cursor-not-allowed opacity-60' : 'bg-blue-900 hover:bg-blue-950' }}">
-                            Buat Pengajuan Baru
-                        </a>
                         @endif
                     </div>
 
@@ -205,7 +191,7 @@
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <a href="{{ route('dupak.validasi.show', $tugas->pengajuan->id) }}"
-                                       class="inline-block bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-md text-sm transition">
+                                       class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-md text-sm transition">
                                         Mulai Penilaian
                                     </a>
                                 </td>
