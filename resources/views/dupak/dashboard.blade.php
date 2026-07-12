@@ -32,7 +32,7 @@
             <h1 class="text-2xl font-semibold mb-6">
                 Dasbor DUPAK
                 @if ($user->is_admin)
-                <span class="text-sm text-gray-500 font-normal">(Admin)</span>
+                <span class="text-sm text-gray-500 font-normal">(Admin)a</span>
                 @endif
             </h1>
 
