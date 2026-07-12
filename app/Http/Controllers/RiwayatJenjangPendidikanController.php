@@ -8,6 +8,8 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+                use Illuminate\Support\Facades\Storage;
+
 
 class RiwayatJenjangPendidikanController extends Controller
 {
@@ -35,7 +37,6 @@ class RiwayatJenjangPendidikanController extends Controller
 
     public function new()
     {
-
         if ($this->onlyOwnerAdminAndSdm(request()->id_User) == true) {
             $data_user = User::where('id', request()->id_User)->first();
             // dd($data_user);
@@ -60,10 +61,28 @@ class RiwayatJenjangPendidikanController extends Controller
     {
         $validation = $this->validation();
         $validated = $request->validate($validation[0], $validation[1], $validation[2]);
+        // dd($validated);
 
-        DB::beginTransaction();
+        // DB::beginTransaction();
         try {
-            RiwayatJenjangPendidikan::create($validated);
+            // if($save){
+                // File To Save (FTS)
+            $FTS = $validated['ijazah_file'];
+            $extension = $FTS->getClientOriginalExtension();
+            $namaFile = time().'_'.'file_ijazah.'.$extension;
+
+            $save_to_storage = $FTS->storeAs(
+                'IJAZAH',
+                $namaFile,
+                'public'
+            );
+            if($save_to_storage == null){
+                throw new \Exception('Terjadi masalah ketika melakukan proses simpan foto, foto mungkin terlalu besar atau format tidak sesuai');
+            }else{
+                $validated['ijazah'] = $save_to_storage;
+            }
+
+            $save = RiwayatJenjangPendidikan::create($validated);
 
             DB::commit();
             $default = route('manage.jenjang-pendidikan.list');
@@ -78,9 +97,7 @@ class RiwayatJenjangPendidikanController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-
             return redirect()->back()->withInput($validated)->with('error_alert', $e->getMessage());
-
         }
     }
 
@@ -121,7 +138,7 @@ class RiwayatJenjangPendidikanController extends Controller
     {
         $validation = $this->validation($id_jp);
         $validated = $request->validate($validation[0], $validation[1], $validation[2]);
-
+        // dd($validated);
         if ($this->onlyOwnerAdminAndSdm($request->users_id) == true) {
             try {
                 $jp = RiwayatJenjangPendidikan::findOrFail($id_jp);
@@ -132,6 +149,24 @@ class RiwayatJenjangPendidikanController extends Controller
             $old_jp = RiwayatJenjangPendidikan::where('id', $id_jp)->first();
             if (! isset($validated['ijazah_file'])) {
                 $validated['ijazah'] = $old_jp->ijazah;
+            }else{
+                $FTS = $validated['ijazah_file'];
+                $extension = $FTS->getClientOriginalExtension();
+                $namaFile = time().'_'.'file_ijazah.'.$extension;
+
+                $save_to_storage = $FTS->storeAs(
+                    'IJAZAH',
+                    $namaFile,
+                    'public'
+                );
+                if($save_to_storage == null){
+                    throw new \Exception('Terjadi masalah ketika melakukan proses simpan foto, foto mungkin terlalu besar atau format tidak sesuai');
+                }else{
+                    // $delete = Storage::delete(storage_path('app/public/'.$old_jp->ijazah));
+                    $delete = Storage::delete('public/'.$old_jp->ijazah);
+                    // dd($delete);
+                    $validated['ijazah'] = $save_to_storage;
+                }
             }
 
             DB::beginTransaction();
@@ -158,7 +193,7 @@ class RiwayatJenjangPendidikanController extends Controller
             }
         }
 
-        return redirect(route('profile.personal-info    ', ['idUser' => session('account')['id']]))->with('error_alert', 'Anda hanya boleh mengelola data anda sendiri!.');
+        return redirect(route('profile.personal-info', ['idUser' => session('account')['id']]))->with('error_alert', 'Anda hanya boleh mengelola data anda sendiri!.');
     }
 
     public function profileRiwayatPendidikan($idUser)
@@ -210,7 +245,7 @@ class RiwayatJenjangPendidikanController extends Controller
                 'singkatan_gelar' => ['nullable', 'string', 'max:20'],
 
                 // File Ijazah / Sertifikat
-                'ijazah_file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png'],
+                'ijazah_file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png','max:20480'],
 
             ], [
 
@@ -223,6 +258,7 @@ class RiwayatJenjangPendidikanController extends Controller
                 'date' => ':attribute harus berupa tanggal yang valid.',
                 'mimes' => ':attribute harus berformat: :values.',
                 'exists' => ':attribute Tidak Terdaftar!.',
+                'ijazah_file.max' => 'Ukuran :attribute maksimal 20 MB.',
 
             ], [
 
@@ -241,10 +277,31 @@ class RiwayatJenjangPendidikanController extends Controller
                 'gelar' => 'Gelar yang didapat',
                 'singkatan_gelar' => 'Singkatan gelar',
 
-                'ijazah_file' => 'Ijazah / Sertifikat kelulusan',
+                'ijazah_file' => 'File Ijazah / Sertifikat kelulusan',
 
             ],
         ];
 
+    }
+
+    public function view_ijazah($idUser,$id_jp){
+        // dd($this->onlyOwnerAdminAndSdm($idUser));
+        if ($this->onlyOwnerAdminAndSdm($idUser)==true) {
+            $jp = RiwayatJenjangPendidikan::where('id', $id_jp)->first();
+            // dd($jp);
+            if($jp){
+                $storagePath = storage_path('app/public/'.$jp->ijazah);
+                if (file_exists($storagePath)) {
+                    $path = $storagePath;
+                    return response()->file($path);
+
+                }  else {
+                    return $this->handleRedirectBack()->with('error_alert', 'File Ijazah tidak ditemukan!.');
+                }
+            }else{
+                return $this->handleRedirectBack()->with('error_alert', 'Data pegawai Tidak Ditemukan!.');
+            }
+        }
+        return $this->handleRedirectBack()->with('error_alert', 'Anda hanya boleh mengelola data anda sendiri!.');
     }
 }

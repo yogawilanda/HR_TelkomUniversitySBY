@@ -1,5 +1,7 @@
 @if (session('success'))
-    <script>
+
+<script>
+        // document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('DOMContentLoaded', () => {
             Swal.fire({
                 icon: 'success',
@@ -8,5 +10,6 @@
                 confirmButtonText: 'OK'
             });
         });
+    // });
     </script>
 @endif

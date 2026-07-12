@@ -157,7 +157,7 @@ Route::middleware(['auth',  \App\Http\Middleware\CekFlashUser::class])->group(fu
                 Route::get('/{idUser}/index', [RiwayatJenjangPendidikanController::class, 'profileRiwayatPendidikan'])->name('index'); //done onController (only admin, owner)
                 Route::get('/new/', [RiwayatJenjangPendidikanController::class, 'new'])->name('new'); //done onController (only admin, owner)
                 Route::get('/update/{id_jp}/', [RiwayatJenjangPendidikanController::class, 'update'])->name('update'); //done onController (only admin, owner)
-
+                Route::get('/ijazah/{idUser}/{id_jp}/', [RiwayatJenjangPendidikanController::class, 'view_ijazah'])->name('view-ijazah'); //done onController (only admin, owner)
             });
 
         });
@@ -332,6 +332,8 @@ Route::middleware(['auth',  \App\Http\Middleware\CekFlashUser::class])->group(fu
             Route::post('/update-data/{id_jp}/', [RiwayatJenjangPendidikanController::class, 'update_data'])->name('update-data')->middleware(['admin:{"is_admin":true|"bagian":"sumber daya manusia"}']);
             Route::get('/{idUser}/index', [RiwayatJenjangPendidikanController::class, 'profileRiwayatPendidikan'])->name('index')->middleware(['admin:{"is_admin":true|"bagian":"sumber daya manusia"}']);
             Route::get('/{idUser}/history', [RiwayatJenjangPendidikanController::class, 'profileRiwayatPendidikan'])->name('history')->middleware(['admin:{"is_admin":true|"bagian":"sumber daya manusia"}']);
+            Route::get('/ijazah/{idUser}/{id_jp}/', [RiwayatJenjangPendidikanController::class, 'view_ijazah'])->name('view-ijazah')->middleware(['admin:{"is_admin":true|"bagian":"sumber daya manusia"}']);
+
 
             Route::group(['prefix' => 'ref', 'as' => 'ref.'], function () {
                 Route::get('/new/', [RefJenjangPendidikanController::class, 'new'])->name('new')->middleware(['admin:{"is_admin":true}']);

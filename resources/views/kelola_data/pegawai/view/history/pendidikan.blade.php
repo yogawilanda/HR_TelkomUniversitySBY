@@ -83,7 +83,7 @@
                             </div>
                         </x-tb-cl-fill>
                         <x-tb-cl-fill clsText="text-center">
-                            <a href="ss"
+                            <a href="{{ route('profile.history.pendidikan.view-ijazah',['idUser'=>$study->users_id,'id_jp'=>$study->id]) }}"
                             target="_blank"
                             class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline">
                                 view
