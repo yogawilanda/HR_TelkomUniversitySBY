@@ -10,7 +10,7 @@ use App\Models\Dupak\Pengajuan;
 use App\Models\Dupak\PenunjukanTPAKModel;
 use App\Models\Dupak\RefKegiatanUtama;
 use App\Models\Dupak\RefTargetJabatanPengajuan;
-use App\Models\refJabatanFungsionalAkademik;
+use App\Models\RefJabatanFungsionalAkademik;
 use App\Models\riwayatJabatanFungsionalAkademik;
 use App\Models\User;
 use Carbon\Carbon;
@@ -172,7 +172,7 @@ class DashboardController extends Controller
     {
         $riwayat = $this->getCurrentJFA($dosen);
         $jfaAsal = $riwayat?->ref_jfa_id;
-        $refJfa = $jfaAsal ? refJabatanFungsionalAkademik::find($jfaAsal) : null;
+        $refJfa = $jfaAsal ? RefJabatanFungsionalAkademik::find($jfaAsal) : null;
 
         $minimalKum = $refJfa?->kum ?? 0;
         $namaJabatanSaatIni = $refJfa?->nama_jabatan ?? 'Belum memiliki JFA';

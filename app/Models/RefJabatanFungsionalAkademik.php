@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class refJabatanFungsionalAkademik extends Model
+class RefJabatanFungsionalAkademik extends Model
 {
     /** @use HasFactory<\Database\Factories\RefJabatanFungsionalAkademikFactory> */
     use HasFactory;

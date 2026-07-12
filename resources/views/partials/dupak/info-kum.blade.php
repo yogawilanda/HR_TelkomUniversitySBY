@@ -1,11 +1,11 @@
 <div class="md:col-span-2 p-6 border rounded-lg bg-white shadow-sm flex flex-col">
     @if ($hasNoPengajuan == true)
         <div class="flex-1 flex flex-col justify-center" id="userHasSubmissionDialog">
-            <h3 class="text-lg font-medium text-gray-900">Informasi KUM</h3>
-            <p class="text-sm text-gray-600">Anda belum memiliki pengajuan DUPAK. Silakan buat pengajuan baru untuk melihat informasi KUM Anda.</p>
-            <a href="{{ route('dupak.pengajuan.create', ['userId' => $user->id]) }}" class="mt-4 inline-block px-4 py-2 bg-blue-900 text-white rounded-md hover:bg-blue-950 w-max">
+            <h3 class="text-lg font-medium text-gray-900">Informasi Pengajuan DUPAK:</h3>
+            <p class="text-sm text-gray-600">Anda adalah TPAK namun bukan Dosen. Pengajuan hanya dapat dilakukan oleh Dosen.</p>
+            <!-- <a href="{{ route('dupak.pengajuan.create', ['userId' => $user->id]) }}" class="mt-4 inline-block px-4 py-2 bg-blue-900 text-white rounded-md hover:bg-blue-950 w-max">
                 Buat Pengajuan Baru
-            </a>
+            </a> -->
         </div>
     @else
         {{-- Header Informasi --}}
