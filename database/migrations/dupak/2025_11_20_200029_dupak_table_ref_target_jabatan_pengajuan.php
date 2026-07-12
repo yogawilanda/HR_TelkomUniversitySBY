@@ -95,7 +95,7 @@ return new class extends Migration
                 'limit_lampiran_4' => 40,
                 'limit_lampiran_5' => 100,
                 'created_at' => now(),
-                'updated_at()',
+                'updated_at' => now(),
             ],
             [
                 'id' => 4,

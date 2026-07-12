@@ -68,7 +68,7 @@ return [
             'url' => env('DUPAK_DB_URL'),
             'host' => env('DUPAK_DB_HOST', '127.0.0.1'),
             'port' => env('DUPAK_DB_PORT', '3306'),
-            'database' => env('DUPAK_DB_DATABASE', 'dupak_v_1_2_1'),
+            'database' => env('DUPAK_DB_DATABASE', 'dupak_fix'),
             'username' => env('DUPAK_DB_USERNAME', 'root'),
             'password' => env('DUPAK_DB_PASSWORD', ''),
             'charset' => 'utf8mb4',
