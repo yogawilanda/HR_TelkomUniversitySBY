@@ -155,7 +155,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <x-islc lbl="Pilih SK LLKDIKTI" nm='sk_llkdikti_id' :req=false>
+                            <x-islc fill="mt-4" lbl="Pilih SK LLKDIKTI" nm='sk_llkdikti_id' :req=false>
                                 <option value="" disabled selected>-- Pilih Data SK --</option>
                                 @forelse ($sk_diktis as $sk)
                                     <option value="{{ $sk->id }}"
@@ -247,7 +247,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <x-islc lbl="Pilih SK Pengakuan YPT" nm='sk_pengakuan_ypt_id' :req=false>
+                            <x-islc lbl="Pilih SK Pengakuan YPT" fill="mt-4" nm='sk_pengakuan_ypt_id' :req=false>
                                 <option value="" disbaled selected>-- Pilih Data SK --</option>
                                 @forelse ($sk_ypts as $sk)
                                     <option value="{{ $sk->id }}"

@@ -64,7 +64,7 @@
                                     class="text-yellow-600 hover:text-yellow-800">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <form action="{{ route('manage.sertifikasi-dosen.destroy', $item->id) }}" method="POST"
+                                {{-- <form action="{{ route('manage.sertifikasi-dosen.destroy', $item->id) }}" method="POST"
                                     class="inline">
                                     @csrf
                                     @method('DELETE')
@@ -72,7 +72,7 @@
                                         onclick="return confirm('Yakin ingin menghapus data ini?')">
                                         <i class="bi bi-trash"></i>
                                     </button>
-                                </form>
+                                </form> --}}
                             </div>
                         </x-tb-cl-fill>
                     </x-tb-cl>

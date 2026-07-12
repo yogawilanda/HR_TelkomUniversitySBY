@@ -6,11 +6,11 @@
 
 @section('page-name')
     <div class="flex flex-col md:flex-row items-center gap-[11.749480247497559px] self-stretch px-1 pt-[14.686850547790527px] pb-[13.952507972717285px]">
-        <div class="flex w-full flex-col gap-[2.9373700618743896px] grow">
-            <div class="flex items-center gap-[5.874740123748779px] self-stretch">
+        <div class="flex w-full flex-col justify-center gap-[2.9373700618743896px] grow">
+            <div class="flex items-center justify-center gap-[5.874740123748779px] self-stretch">
                 <span class="font-medium text-2xl leading-[20.56159019470215px] text-[#101828]">Tambah Studi Lanjut</span>
             </div>
-            <span class="font-normal text-[10.280795097351074px] leading-[14.686850547790527px] text-[#1f2028]">
+            <span class="font-normal justify-center text-center text-[10.280795097351074px] leading-[14.686850547790527px] text-[#1f2028]">
                 Tambah data studi lanjut pegawai baru
             </span>
         </div>
@@ -18,10 +18,10 @@
 @endsection
 
 @section('content-base')
-<div class="container mx-auto px-4 py-6">
-    <div class="mb-6">
+<div class="container mx-auto px-4 pb-6">
+    {{-- <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-800">Tambah Data Studi Lanjut</h1>
-    </div>
+    </div> --}}
 
     <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
         <x-form route="{{ route('manage.studi-lanjut.store') }}" cancelRoute="{{ route('manage.studi-lanjut.list') }}" id="studi-lanjut-input">

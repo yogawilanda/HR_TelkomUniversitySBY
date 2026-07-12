@@ -25,7 +25,7 @@
         <div class="flex w-full flex-col gap-[2.9373700618743896px] grow">
             <div class="flex items-center gap-[5.874740123748779px] self-stretch">
                 <span class="font-medium text-2xl leading-[20.56159019470215px] text-[#101828]">
-                    Tambah Pemetaan Dosen CoE
+                    Perbaharui Pemetaan Dosen CoE
                 </span>
             </div>
         </div>

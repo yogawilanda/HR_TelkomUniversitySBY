@@ -8,7 +8,7 @@
             </svg>
         </div>
 
-        <h2 class="text-xl font-semibold text-gray-800 mb-2">Cek Email Anda</h2>
+        <h2 class="text-xl font-semibold text-gray-800 mb-2">Cek Email Pribadi Anda</h2>
         <p class="text-gray-600 leading-relaxed mb-4">
             Kami telah mengirimkan tautan untuk mengubah kata sandi ke <span class="font-medium text-gray-900">email
                 pribadi yang terdaftar</span>.

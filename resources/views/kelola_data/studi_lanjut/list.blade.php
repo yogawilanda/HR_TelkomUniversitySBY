@@ -88,7 +88,7 @@
             <x-tb id="studiLanjutTable">
                 <x-slot:table_header>
                     <x-tb-td nama="nama_pegawai" sorting=true>Nama Pegawai</x-tb-td>
-                    <x-tb-td nama="negara" sorting=true>Negara</x-tb-td>
+                    <x-tb-td type="select" nama="negara" sorting=true>Negara</x-tb-td>
                     <x-tb-td nama="studi" sorting=true>Jenjang & Prodi</x-tb-td>
                     <x-tb-td type="select" sorting=true>Universitas</x-tb-td>
                     <x-tb-td type="select" nama="status" sorting=true>Status</x-tb-td>

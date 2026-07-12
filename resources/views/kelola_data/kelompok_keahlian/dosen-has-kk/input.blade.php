@@ -19,7 +19,7 @@
 
     @section('content-base')
         <x-form route="{{ route('manage.kelompok-keahlian.dosen-with-kk.store') }}" id="pegawai-input">
-            <div class="grid md:grid-cols-2 gap-8">
+            <div class="grid lg:grid-cols-2 sm:grid-cols-1 gap-8">
                 {{-- Kolom Kiri --}}
                 <div class="flex flex-col justify-start gap-4">
 

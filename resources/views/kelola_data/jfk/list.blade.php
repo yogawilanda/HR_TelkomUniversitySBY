@@ -55,8 +55,8 @@
     <div class="flex flex-grow-0 flex-col gap-2 max-w-100">
         <x-tb id="formasiTable">
             <x-slot:table_header>
-                <x-tb-td type="select" nama="level" sorting=true>Nama Staff</x-tb-td>
-                <x-tb-td nama="nama_formasi" sorting=true>JFK</x-tb-td>
+                <x-tb-td  nama="level" sorting=true>Nama Staff</x-tb-td>
+                <x-tb-td type="select" nama="nama_formasi" sorting=true>JFK</x-tb-td>
                 <x-tb-td type="select" nama="tmt_start" sorting=true>TMT Mulai</x-tb-td>
                 <x-tb-td type="select" nama="tmt_end" sorting=true>TMT Selesai</x-tb-td>
                 <x-tb-td type="select" nama="bagian" sorting=true>SK YPT atau Amandemen</x-tb-td>

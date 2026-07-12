@@ -68,15 +68,15 @@
                 @forelse ($jfas as $jfa)
                     <x-tb-cl id="{{ $jfa->id }}">
                         {{-- Nama Dosen --}}
-                        <x-tb-cl-fill>
+                        <x-tb-cl-fill clsText="text-xs">
                             {{ $jfa->dosen->pegawai->nama_lengkap }}
                         </x-tb-cl-fill>
 
                         {{-- Nama Jabatan --}}
                         <x-tb-cl-fill>
                             <div class="flex font-semibold justify-center flex-col">
-                                <span class="text-md font-bold">{{ $jfa->jfa->kode }}</span> <span
-                                    class="text-sm text-gray-600">{{ $jfa->jfa->nama_jabatan }}</span>
+                                <span class="text-md font-bold text-xs">{{ $jfa->jfa->kode }}</span> <span
+                                    class="text-sm text-gray-600 text-xs">{{ $jfa->jfa->nama_jabatan }}</span>
                             </div>
                         </x-tb-cl-fill>
 
@@ -91,7 +91,7 @@
                                     </p>
                                 @else
                                     <a href="{{ route('manage.sk.view', ['id_sk_or_sk_number' => $jfa->sk_dikti->id]) }}"
-                                        target="_blank" class="text-blue-600 hover:underline">
+                                        target="_blank" class="text-blue-600 text-xs hover:underline">
                                         <i class="bi bi-file-earmark-check"></i> {{ $jfa->sk_dikti->no_sk }}
                                     </a>
                                 @endif
@@ -109,7 +109,7 @@
                                     </p>
                                 @else
                                     <a href="{{ route('manage.sk.view', ['id_sk_or_sk_number' => $jfa->sk_ypt->id]) }}"
-                                        target="_blank" class="text-blue-600 hover:underline">
+                                        target="_blank" class="text-blue-600 text-xs hover:underline">
                                         <i class="bi bi-file-earmark-check"></i> {{ $jfa->sk_ypt->no_sk }}
                                     </a>
                                 @endif
@@ -118,7 +118,7 @@
 
                         {{-- TMT Mulai --}}
                         <x-tb-cl-fill>
-                            <div class="flex justify-center italic">
+                            <div class="flex justify-center italic text-sm">
                                 {{ $jfa->tmt_mulai }}
                             </div>
                         </x-tb-cl-fill>
