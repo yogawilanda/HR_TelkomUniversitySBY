@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - yoga
-	# - main # Ganti 'master' jika branch utamamu namanya master
 	
 jobs:
   web-deploy:
