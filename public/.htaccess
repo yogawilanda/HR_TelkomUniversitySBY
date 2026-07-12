@@ -22,4 +22,11 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+
+       
+    #  DEPLOYMENT ONLY: agar tidak bisa diakses dari browser
+    # RedirectMatch 404 /\..*$
+
+    # DEPLOYMENT ONLY: Alihkan seluruh trafik ke folder public secara background
+    # RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>

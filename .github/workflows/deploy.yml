@@ -1,0 +1,39 @@
+name: Deploy Laravel to Hostinger Subfolder
+
+on:
+  push:
+    branches:
+      - yoga
+	# - main # Ganti 'master' jika branch utamamu namanya master
+	
+jobs:
+  web-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Get latest code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2' # Samakan dengan versi PHP Hostinger-mu
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql
+
+    - name: Install Composer Dependencies
+      run: composer install --no-ansi --no-dev --no-interaction --no-plugins --no-progress --no-scripts --optimize-autoloader
+
+    - name: Install NPM Dependencies & Build Assets
+      run: |
+        npm install
+        npm run build
+
+    - name: Sync Files to Hostinger via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./
+        server-dir: public_html/dupak/
