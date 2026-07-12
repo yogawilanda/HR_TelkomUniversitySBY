@@ -127,36 +127,39 @@
 	});
 
 	/**
-	 * Menangani pengiriman form dan melakukan redirect berdasarkan kategori.
-	 */
-	document.getElementById('kegiatan-form').addEventListener('submit', function(e) {
-		e.preventDefault();
+       * Menangani pengiriman form dan melakukan redirect berdasarkan kategori.
+       */
+      document.getElementById('kegiatan-form').addEventListener('submit', function(e) {
+            e.preventDefault();
 
-		const kategoriId = document.getElementById('kategori').value;
-		const komponenId = document.getElementById('idKomponen').value;
-		const utama = kegiatanUtamaData.find(item => item.id == kategoriId);
+            const kategoriId = document.getElementById('kategori').value;
+            const komponenId = document.getElementById('idKomponen').value;
+            const utama = kegiatanUtamaData.find(item => item.id == kategoriId);
 
-		if (utama && currentPengajuanId) {
-			const name = utama.nama.toLowerCase();
-			let path = '';
+            if (utama && currentPengajuanId) {
+                  const name = utama.nama.toLowerCase();
+                  let path = '';
 
-			if (name.includes('pelaksanaan pendidikan')) path = 'pelaksanaan_pendidikan';
-			else if (name.includes('pendidikan')) path = 'pendidikan';
-			else if (name.includes('penelitian')) path = 'penelitian';
-			else if (name.includes('pengabdian')) path = 'pengabdian';
-			else if (name.includes('penunjang')) path = 'penunjang';
+                  if (name.includes('pelaksanaan pendidikan')) path = 'pelaksanaan_pendidikan';
+                  else if (name.includes('pendidikan')) path = 'pendidikan';
+                  else if (name.includes('penelitian')) path = 'penelitian';
+                  else if (name.includes('pengabdian')) path = 'pengabdian';
+                  else if (name.includes('penunjang')) path = 'penunjang';
 
-			if (path && komponenId) {
-				// Redirect sesuai dengan struktur route di web.php
-				window.location.href = `/dupak/detil_pengajuan/${path}/${currentPengajuanId}?komponen_id=${komponenId}`;
-			} else {
-				alert('ID Komponen tidak ditemukan. Silakan pilih komponen terlebih dahulu.');
-			}
-		} else if (!currentPengajuanId) {
-			alert('ID Pengajuan tidak ditemukan. Silakan buat pengajuan terlebih dahulu.');
-		}
-	});
-
+                  if (path && komponenId) {
+                        // 1. Ambil basis URL absolut aplikasi secara dinamis dari Laravel
+                        const baseUrl = "{{ url('/') }}"; 
+                        
+                        // 2. Gabungkan baseUrl dengan pathing target tanpa garis miring absolut di depan
+                        window.location.href = `${baseUrl}/dupak/detil_pengajuan/${path}/${currentPengajuanId}?komponen_id=${komponenId}`;
+                  } else {
+                        alert('ID Komponen tidak ditemukan. Silakan pilih komponen terlebih dahulu.');
+                  }
+            } else if (!currentPengajuanId) {
+                  alert('ID Pengajuan tidak ditemukan. Silakan buat pengajuan terlebih dahulu.');
+            }
+      });
+	
 	// Menutup modal jika tombol ESC ditekan
 	document.addEventListener('keydown', function(event) {
 		if (event.key === 'Escape') {
