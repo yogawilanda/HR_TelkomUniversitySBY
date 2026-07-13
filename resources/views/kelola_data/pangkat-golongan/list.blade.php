@@ -57,7 +57,7 @@
         <x-tb id="formasiTable">
             <x-slot:table_header>
                 <x-tb-td type="select" nama="level" sorting=true>Nama Dosen</x-tb-td>
-                <x-tb-td nama="pangkat" sorting=true>Pangkat</x-tb-td>
+                <x-tb-td type="select" nama="pangkat" sorting=true>Pangkat</x-tb-td>
                 <x-tb-td nama="golongan" sorting=true>Golongan</x-tb-td>
                 <x-tb-td nama="tipe_bagian" sorting=true>SK LLKDIKTI atau AMANDEMEN</x-tb-td>
                 <x-tb-td type="select" nama="atasan" sorting=true>TMT Mulai</x-tb-td>
