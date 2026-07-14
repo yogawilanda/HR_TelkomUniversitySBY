@@ -6,6 +6,12 @@ use App\Http\Controllers\CoeController;
 use App\Http\Controllers\DashboardProdiController;
 use App\Http\Controllers\DosenHasCOEController;
 use App\Http\Controllers\DosenHasKKController;
+use App\Http\Controllers\Dupak\DashboardController;
+use App\Http\Controllers\Dupak\DetilPengajuanController;
+use App\Http\Controllers\Dupak\PengajuanController;
+use App\Http\Controllers\Dupak\PenunjukanTPAKController;
+use App\Http\Controllers\Dupak\RiwayatController;
+use App\Http\Controllers\Dupak\ValidasiController;
 use App\Http\Controllers\EmergencyContactController;
 use App\Http\Controllers\FakultasController;
 use App\Http\Controllers\FormationController;
@@ -621,29 +627,49 @@ Route::middleware(['auth',  \App\Http\Middleware\CekFlashUser::class])->group(fu
             ->name('leave-impersonate');
     });
 
-    Route::group([
+     Route::group([
         'prefix' => 'dupak',
         'as' => 'dupak.',
-        // 'middleware' => ['auth'],
     ], function () {
         // Dashboard
-        Route::get('/dashboard', [App\Http\Controllers\Dupak\DashboardController::class, 'index'])
+        Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
 
         // Pengajuan DUPAK
-        Route::resource('pengajuan', \App\Http\Controllers\Dupak\PengajuanController::class)
-            ->except(['edit', 'update', 'destroy']);
+        Route::resource('pengajuan', PengajuanController::class);
+        Route::post('pengajuan/{id}/submit', [PengajuanController::class, 'submit'])
+            ->name('pengajuan.submit');
 
         // Riwayat DUPAK
-        Route::resource('riwayat', \App\Http\Controllers\Dupak\RiwayatController::class)
+        Route::resource('riwayat', RiwayatController::class)
             ->only(['index', 'show']);
 
         // Validasi DUPAK (for admin/validator)
-        Route::resource('validasi', \App\Http\Controllers\Dupak\ValidasiController::class)
-            ->only(['index', 'show', 'update']);
+        Route::resource('validasi', ValidasiController::class)
+            ->only(['index', 'show', 'update', 'store']);
 
-        // Pengisian Detil Formulir Pengajuan
-        Route::resource('detil_pengajuan', \App\Http\Controllers\Dupak\DetilPengajuanController::class);
+        Route::post('validasi/{pengajuan}/detail/{detail}/save', [ValidasiController::class, 'saveDetail'])
+            ->name('validasi.detail.save');
+
+        // Rute Dinamis untuk Input Form Detail Pengajuan
+        Route::get('detil_pengajuan/{category}/{id}', [DetilPengajuanController::class, 'showForm'])
+            ->name('dupak.detil_pengajuan.form');
+
+        // Rute untuk menyimpan data detail pengajuan
+        Route::post('detil_pengajuan/{category}/{id}', [DetilPengajuanController::class, 'store'])
+            ->name('dupak.detil_pengajuan.store');
+
+        // Pengisian Detil Formulir Pengajuan (Resource ditaruh setelah rute spesifik)
+        // Route::resource('detil_pengajuan', \App\Http\Controllers\Dupak\DetilPengajuanController::class);
+
+        // route penunjukan_tpak, tanpa id, karena sistemnya SDM akan menunjuk TPAK berdasarkan kebutuhan, bukan berdasarkan pengajuan tertentu
+        Route::group(['prefix' => 'penunjukan-tpak', 'as' => 'penunjukan_tpak.'], function () {
+            Route::get('/', [PenunjukanTPAKController::class, 'index'])->name('index');
+            Route::post('/', [PenunjukanTPAKController::class, 'store'])->name('store');
+            Route::delete('/{id}', [PenunjukanTPAKController::class, 'destroy'])->name('destroy');
+            // Route::post('/store', [\App\Http\Controllers\Dupak\TPAKController::class, 'store'])->name('store');
+            // Route::delete('/destroy/{id}', [\App\Http\Controllers\Dupak\PenunjukanTpakController::class, 'destroy'])->name('destroy');
+        });
     });
 });
 
