@@ -39,6 +39,7 @@ class DashboardController extends Controller
                 ->latest()
                 ->first()
             : null;
+            // local save before merging. this comment is useless ill delete later.
     }
 
     private function getJfaTujuan(?string $jfaId)
