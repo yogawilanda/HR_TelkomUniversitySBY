@@ -11,7 +11,7 @@ use App\Models\Dupak\PenunjukanTPAKModel;
 use App\Models\Dupak\RefKegiatanUtama;
 use App\Models\Dupak\RefTargetJabatanPengajuan;
 use App\Models\RefJabatanFungsionalAkademik;
-use App\Models\riwayatJabatanFungsionalAkademik;
+use App\Models\RiwayatJabatanFungsionalAkademik;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +34,7 @@ class DashboardController extends Controller
     private function getCurrentJFA(?Dosen $dosen)
     {
         return $dosen
-            ? riwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
+            ? RiwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
                 ->whereNull('tmt_selesai')
                 ->latest()
                 ->first()
