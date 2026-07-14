@@ -10,7 +10,7 @@ use App\Models\Dupak\PenunjukanTPAKModel;
 use App\Models\Dupak\RefKegiatanUtama;
 use App\Models\Dupak\RefTargetJabatanPengajuan;
 use App\Models\RefJabatanFungsionalAkademik;
-use App\Models\riwayatJabatanFungsionalAkademik;
+use App\Models\RiwayatJabatanFungsionalAkademik;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -148,7 +148,7 @@ class PengajuanController extends Controller
             ->first();
 
         if ($riwayat_jfa_aktif) {
-            $jabatan_fungsional = refJabatanFungsionalAkademik::find($riwayat_jfa_aktif->ref_jfa_id)->nama_jabatan ?? 'Tidak Diketahui';
+            $jabatan_fungsional = RefJabatanFungsionalAkademik::find($riwayat_jfa_aktif->ref_jfa_id)->nama_jabatan ?? 'Tidak Diketahui';
             $nextJfaId = $this->getNextJfaId($dosen);
             if ($nextJfaId) {
                 $jfa_tujuan = $this->aturanPengajuanJFA[$nextJfaId];
