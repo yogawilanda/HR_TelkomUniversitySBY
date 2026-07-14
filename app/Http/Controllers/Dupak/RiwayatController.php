@@ -18,7 +18,7 @@ class RiwayatController extends Controller
         $dosen = Dosen::where('users_id', Auth::id())->first();
 
         if (! $dosen) {
-            return $this->handleRedirectBack()->with('error', 'Data Dosen tidak ditemukan untuk pengguna ini.');
+            return redirect()->back()->with('error', 'Data Dosen tidak ditemukan untuk pengguna ini.');
         }
 
         $query = Pengajuan::where('idDosen', $dosen->id);
@@ -51,7 +51,7 @@ class RiwayatController extends Controller
         $dosen = Dosen::where('users_id', Auth::id())->first();
 
         if (! $dosen) {
-            return $this->handleRedirectBack()->with('error', 'Data Dosen tidak ditemukan untuk pengguna ini.');
+            return redirect()->back()->with('error', 'Data Dosen tidak ditemukan untuk pengguna ini.');
         }
 
         $pengajuan = Pengajuan::with(['details.kegiatan'])

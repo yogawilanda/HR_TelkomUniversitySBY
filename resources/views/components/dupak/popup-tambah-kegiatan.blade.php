@@ -1,3 +1,5 @@
+@props(['kegiatanUtama' => [], 'pengajuanId' => null])
+
 <div id="add-kegiatan-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
 
 	<div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -24,25 +26,27 @@
 
 				<!-- Modal Body (Form) -->
 				<!-- route : kegiatan.store -->
-				<form action="#" method="POST" enctype="multipart/form-data" class="mt-4 space-y-4">
+				<form id="kegiatan-form" action="#" method="POST" enctype="multipart/form-data" class="mt-4 space-y-4">
 					@csrf
 
 					<div>
 						<label for="kategori" class="block text-sm font-medium text-gray-700">Kategori Kegiatan</label>
 						<select id="kategori" name="kategori" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md shadow-sm">
 							<option value="">Pilih Kategori</option>
-							<option value="Pendidikan">Pendidikan</option>
-							<option value="Penelitian">Penelitian</option>
-							<option value="Pengabdian">Pengabdian Kepada Masyarakat</option>
-							<option value="Penunjang">Penunjang Tridharma</option>
+							@foreach ($kegiatanUtama as $utama)
+								<option value="{{ $utama->id }}">{{ $utama->nama }}</option>
+							@endforeach
 						</select>
 					</div>
 
 					<div>
-						<label for="deskripsi" class="block text-sm font-medium text-gray-700">Deskripsi/Nama Kegiatan</label>
-						<input type="text" name="deskripsi" id="deskripsi" required class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 p-2 border" placeholder="Contoh: Menulis Jurnal Internasional Q1">
+						<label for="idKomponen" class="block text-sm font-medium text-gray-700">Detail Kegiatan (Komponen)</label>
+						<select id="idKomponen" name="idKomponen" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md shadow-sm">
+							<!-- jika belum termuat dari server isinya  maka isi ini dengan default value-->
+							<option value="">Pilih Kategori Terlebih Dahulu</option>
+						</select>
 					</div>
-
+<!-- 
 					<div>
 						<label for="tanggal_mulai" class="block text-sm font-medium text-gray-700">Tanggal Pelaksanaan</label>
 						<input type="date" name="tanggal_mulai" id="tanggal_mulai" required class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 p-2 border">
@@ -50,8 +54,8 @@
 
 					<div>
 						<label for="file_bukti" class="block text-sm font-medium text-gray-700">Unggah File Bukti (PDF/Gambar)</label>
-						<input type="text" name="deskripsi" id="file_bukti" required class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 p-2 border" placeholder="contoh bitly/MK23_pengajuan_rangga">
-					</div>
+						<input type="text" name="file_bukti" id="file_bukti" required class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 p-2 border" placeholder="contoh bitly/MK23_pengajuan_rangga">
+					</div> -->
 
 					<!-- Footer Tombol -->
 					<div class="mt-6 flex justify-end gap-3">
@@ -87,6 +91,75 @@
 		document.body.style.overflow = ''; // Mengembalikan scroll pada body
 	}
 
+	/**
+	 * Data dari server untuk dropdown dinamis.
+	 */
+	const kegiatanUtamaData = @json($kegiatanUtama);
+
+	/**
+	 * ID Pengajuan yang sedang aktif diambil dari props.
+	 */
+	const currentPengajuanId = "{{ $pengajuanId }}";
+
+	/**
+	 * Handle perubahan kategori utama untuk memperbarui list komponen (detail kegiatan).
+	 */
+	document.getElementById('kategori').addEventListener('change', function() {
+		const selectedUtamaId = this.value;
+		const komponenSelect = document.getElementById('idKomponen');
+		
+		// Reset opsi komponen
+		komponenSelect.innerHTML = '<option value="">Pilih Komponen</option>';
+
+		if (selectedUtamaId) {
+			const utama = kegiatanUtamaData.find(item => item.id == selectedUtamaId);
+			if (utama && utama.komponens) {
+				utama.komponens.forEach(komp => {
+					const option = document.createElement('option');
+					option.value = komp.id;
+					option.textContent = komp.nama;
+					komponenSelect.appendChild(option);
+				});
+			}
+		} else {
+			komponenSelect.innerHTML = '<option value="">Pilih Kategori Terlebih Dahulu</option>';
+		}
+	});
+
+	/**
+       * Menangani pengiriman form dan melakukan redirect berdasarkan kategori.
+       */
+      document.getElementById('kegiatan-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const kategoriId = document.getElementById('kategori').value;
+            const komponenId = document.getElementById('idKomponen').value;
+            const utama = kegiatanUtamaData.find(item => item.id == kategoriId);
+
+            if (utama && currentPengajuanId) {
+                  const name = utama.nama.toLowerCase();
+                  let path = '';
+
+                  if (name.includes('pelaksanaan pendidikan')) path = 'pelaksanaan_pendidikan';
+                  else if (name.includes('pendidikan')) path = 'pendidikan';
+                  else if (name.includes('penelitian')) path = 'penelitian';
+                  else if (name.includes('pengabdian')) path = 'pengabdian';
+                  else if (name.includes('penunjang')) path = 'penunjang';
+
+                  if (path && komponenId) {
+                        // 1. Ambil basis URL absolut aplikasi secara dinamis dari Laravel
+                        const baseUrl = "{{ url('/') }}"; 
+                        
+                        // 2. Gabungkan baseUrl dengan pathing target tanpa garis miring absolut di depan
+                        window.location.href = `${baseUrl}/dupak/detil_pengajuan/${path}/${currentPengajuanId}?komponen_id=${komponenId}`;
+                  } else {
+                        alert('ID Komponen tidak ditemukan. Silakan pilih komponen terlebih dahulu.');
+                  }
+            } else if (!currentPengajuanId) {
+                  alert('ID Pengajuan tidak ditemukan. Silakan buat pengajuan terlebih dahulu.');
+            }
+      });
+	
 	// Menutup modal jika tombol ESC ditekan
 	document.addEventListener('keydown', function(event) {
 		if (event.key === 'Escape') {

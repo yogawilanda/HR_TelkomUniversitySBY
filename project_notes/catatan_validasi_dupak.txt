@@ -1,0 +1,62 @@
+# Catatan Validasi Pengajuan — DUPAK
+
+> Fitur validasi, flagging, dan penilaian oleh Admin & TPAK.
+
+---
+
+## Halaman Validasi Detail Pengajuan
+
+### Status Saat Ini
+Halaman validasi sudah ada tapi masih belum 100% selesai.
+
+### Isi Halaman
+- Record komponen kegiatan yang telah disubmit oleh pengaju.
+- Informasi: No., Pengaju, Komponen/Detail Pengajuan, Tombol lihat detail.
+- Textbox/paragraf untuk berkomentar.
+- Status flagging: Approved, Reject/Ditolak, Need Revision.
+
+### Batasan Peran
+
+| Peran | Komentar | Flagging | Nilai AK |
+|-------|----------|----------|----------|
+| TPAK | ✅ | ✅ | ✅ |
+| Admin | ✅ | ✅ | ❌ (tidak berpengaruh ke nilai) |
+| Pengaju | ❌ (hanya lihat) | ❌ | ❌ (menunggu update) |
+
+---
+
+## Flow Status Detail Pengajuan
+
+```
+Pengaju Submit
+      ↓
+[TPAK/Admin Review]
+      ↓
+Approved  → Nilai AK diproses oleh sistem
+Rejected  → Status ditolak, pengaju bisa edit jika Revisi
+Revision  → Pengaju/Admin bisa edit komponen
+```
+
+---
+
+## Perbaikan Validasi Controller (Sesi Terbaru)
+
+1. **Eager Loading**: `with(['pengajuan.details'])` untuk hindari N+1 query.
+2. **Query DetailPengajuan Langsung**: JOIN ke `pengajuan`, `penunjukan_tpak`, `dosens`.
+3. **Filter TPAK**: `WHERE dosens.users_id = user yang login`.
+4. **Paginasi**: 15 per halaman.
+
+---
+
+## File yang Diperbaiki
+
+- `app/Http/Controllers/Dupak/ValidasiController.php`
+- `resources/views/dupak/validasi/index.blade.php`
+
+---
+
+## Fitur Belum Dibuat
+
+- ~~Fitur "Kirim Pengajuan": Draft → Submitted~~ ✅ SELESAI
+- Fitur Verifikasi Admin: cek kelengkapan dokumen sebelum penilaian TPAK
+- Rekapitulasi Akhir & Export PDF

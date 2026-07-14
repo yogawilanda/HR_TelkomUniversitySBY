@@ -1,0 +1,20 @@
+1. Target KUM pada nilai pengajuan di halaman admin dan tpak, di halaman show pengajuan dupak/pengajuan/10 masih belum dipanggil datanya.
+solved, masalahnya ada di migration NJAD masih menggunakan id 00000, sudah diganti mengikuti yang baru.
+
+2. tambah kegiatan di show pengajuan dihapus saja. biarkan user input sendiri.
+
+3. Bugnya ternyata khusus di NON JAD ke Asisten Ahli saja. selain itu aman.
+solved. referensi ke 1
+
+4. Presentasi fitur, 
+	a. Melihat daftar pengajuan dupak.
+	b. Detail Pengajuan DUPAK dari sisi TPAK.
+
+5. Bug di detail pengajuan dupak, KUM saat ini harusnya hanya mendisplay yang sudah di acc oleh TPAK, dan yang masih menunggu validasi tetap dimasukan ke dalam profil(diubah menjadi: "menunggu"), acc : <current_acc>
+
+6. Dashboard TPAK, desainnya masih belum rapih
+	a. progress dibuat yang benar indikatornya
+	b. indikator selesai masih belum di fixkan untuk yang sudah selesai.
+	c. di validasi show/id, statusnya masih belum fix semua, jika belum dibuat On Progress jika belum
+	d. dupak/validasi
+	e. dupak/validasi/<id>

@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -18,24 +18,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::connection($this->connection)->create('ref_kegiatan_komponen', function (Blueprint $table) {
-            
+
             $table->id(); // Auto-incrementing primary key (matches `id` int NOT NULL)
 
             // Original: `nama` varchar(200) DEFAULT NULL
             $table->string('nama', 200)->nullable()->comment('Nama sub-kegiatan komponen DUPAK (e.g., Melaksanakan perkuliahan)');
-            
+
             // Original: `idKegiatanUtama` int NOT NULL (Foreign key)
             // Asumsi: Menunjuk ke tabel ref_kegiatan_utama (yang harus dibuat sebelum ini atau sudah ada)
-            $table->unsignedBigInteger('idKegiatanUtama')->comment('Foreign key ke ref_kegiatan_utama'); 
-            
+            $table->unsignedBigInteger('idKegiatanUtama')->comment('Foreign key ke ref_kegiatan_utama');
+
             // Original: `satuanHasil` varchar(100) NOT NULL
             $table->string('satuanHasil', 100)->comment('Satuan hasil kegiatan (e.g., Ijazah, SKS, Kegiatan)');
 
             // Original: `status` int NOT NULL
             $table->unsignedTinyInteger('status')->default(1)->comment('Status aktif: 1=Aktif, 0=Tidak Aktif');
-            
+
             // Standard Laravel timestamps
-            $table->timestamps(); 
+            $table->timestamps();
 
             // Foreign Key Constraint
             // Menambahkan constraint, asumsi tabel ref_kegiatan_utama sudah ada atau akan segera dibuat
@@ -65,6 +65,9 @@ return new class extends Migration
             ['id' => 18, 'nama' => 'III. C. Mengedit/menyunting karya ilmiah', 'idKegiatanUtama' => 3, 'status' => 1, 'satuanHasil' => '', 'created_at' => now(), 'updated_at' => now()],
             ['id' => 19, 'nama' => 'III. D. Membuat rancangan dan karya teknologi yang dipatenkan terdaftar HaKi', 'idKegiatanUtama' => 3, 'status' => 1, 'satuanHasil' => '', 'created_at' => now(), 'updated_at' => now()],
             ['id' => 20, 'nama' => 'III. E. Membuat rancangan dan karya teknologi yang Tidak dipatenkan atau Tidak terdaftar HKI tetapi telah dipresentasikan pada Forum Teragenda', 'idKegiatanUtama' => 3, 'status' => 1, 'satuanHasil' => '', 'created_at' => now(), 'updated_at' => now()],
+            // sementara idnya dibuat 99 daripada harus ngubah seluruh controller dan seeder yang berhubungan
+            ['id' => 99, 'nama' => 'III. F. Membuat rancangan dan karya Seni / Seni Pertunjukan yang tidak terdaftar di HaKI Angka Kreditnya', 'idKegiatanUtama' => 3, 'status' => 1, 'satuanHasil' => '', 'created_at' => now(), 'updated_at' => now()],
+
             ['id' => 21, 'nama' => 'IV. A. Menduduki jabatan pimpinan', 'idKegiatanUtama' => 4, 'status' => 1, 'satuanHasil' => '', 'created_at' => now(), 'updated_at' => now()],
             ['id' => 22, 'nama' => 'IV. B. Melaksanakan pengembangan hasil pendidikan & penelitian', 'idKegiatanUtama' => 4, 'status' => 1, 'satuanHasil' => '', 'created_at' => now(), 'updated_at' => now()],
             ['id' => 23, 'nama' => 'IV. C. Memberi latihan/peyuluhan/penataran/ceramah pada masyarakat', 'idKegiatanUtama' => 4, 'status' => 1, 'satuanHasil' => '', 'created_at' => now(), 'updated_at' => now()],

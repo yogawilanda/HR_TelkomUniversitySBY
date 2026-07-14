@@ -3,8 +3,15 @@
 namespace App\Http\Controllers\Dupak;
 
 use App\Http\Controllers\Controller;
+use App\Models\Dosen;
+use App\Models\Dupak\DetailPengajuan;
 use App\Models\Dupak\Pengajuan;
+use App\Models\Dupak\RefKomponen as RefKategori;
+use App\Helpers\DupakScoringHelper;
+use App\Models\Dupak\RefKegiatanKomponen;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DetilPengajuanController extends Controller
 {
@@ -24,18 +31,114 @@ class DetilPengajuanController extends Controller
     {
         $getPengajuan = Pengajuan::find($id);
         if (!$getPengajuan) {
-            return $this->handleRedirectBack()->with('error', 'Pengajuan not found.');
+            return redirect()->back()->with('error', 'Pengajuan not found.');
         }
         $id = $getPengajuan->id;
         return view('dupak.pengisian_detil_pengajuan.show', ['id' => $id]);
+    }
 
+    /**
+     * Menampilkan form dinamis berdasarkan kategori (pendidikan, penelitian, dsb)
+     */
+    public function showForm(Request $request, $category, $id)
+    {
+        $pengajuan = Pengajuan::findOrFail($id);
+
+        // Mapping category slugs to idKegiatanUtama
+        $categoryMap = [
+            'pendidikan' => 1,
+            'pelaksanaan_pendidikan' => 2,
+            'penelitian' => 3,
+            'pengabdian' => 4,
+            'penunjang' => 5
+        ];
+
+        $idUtama = $categoryMap[strtolower($category)] ?? null;
+        $komponenId = $request->query('komponen_id');
+
+        // <!-- For II. Pelaksanaan pendidikan. Melaksanakan perkuliahan -->
+        // <!-- There is special input which pengaju need to fill -->
+        // <!-- Periode Pengajuan Ex. "Semester Ganjil 2025/2026", SKS Ex. 4 Kelas Ex. 2  this will be calculcated for the scoring -->
+
+        $isPerkuliahan = ($komponenId == 3);
+        $isBimbinganTA = ($komponenId == 6);
+
+        // dd($category, $pengajuan->id);
+
+        // Ambil komponen berdasarkan ID dan pastikan sesuai dengan kategori utama
+        $komponen = RefKegiatanKomponen::where('id', $komponenId)
+            ->where('idKegiatanUtama', $idUtama)
+            ->firstOrFail();
+
+        // Fetch specific activity items (S1, S2, etc.) based on the component ID
+        $jenisInputs = DB::connection('dupak')
+            ->table('ref_jenis_input')
+            ->where('idKomponen', $komponen->id)
+            ->get(); // This populates the "Detail Butir Kegiatan" dropdown
+        // dd($jenisInputs);
+
+        return view('dupak.pengisian_detil_pengajuan.generic_form', compact(
+            'pengajuan',
+            'komponen',
+            'jenisInputs',
+            'category',
+            'isPerkuliahan',
+            'isBimbinganTA'
+        ));
+    }
+
+    /**
+     */
+    public function store(Request $request, $category, $id)
+    {
+        $user = Auth::user();
+        $dosen = Dosen::where('users_id', $user->id)->first();
+
+        if (!$dosen) {
+            return redirect()->route('dupak.dashboard')->with('error', 'Akses ditolak. Anda bukan Dosen.');
+        }
+
+        $request->validate([
+            'id_komponen' => 'required',
+            'id_jenis_input' => 'required',
+            'deskripsi_kegiatan' => 'required|string',
+            'link_bukti_pendukung' => 'required|url',
+            
+            'volume' => 'nullable|numeric',
+        ]);
+
+        // Cari nilai baku (Angka Kredit) dari ref_jenis_input
+        $refInput = DB::connection('dupak')
+            ->table('ref_jenis_input')
+            ->where('id', $request->id_jenis_input)
+            ->first();
+
+        $nilaiBaku = $refInput->nilai_baku ?? 0;
+        $volume = $request->input('volume', 1);
+
+        $detail = new DetailPengajuan();
+        $detail->setConnection('dupak'); // Pastikan menyimpan ke DB dupak
+        $detail->pengajuan_id = $id;
+        $detail->idKomponen = $request->id_komponen;
+        $detail->idJenisInput = $request->id_jenis_input;
+        $detail->deskripsi_kegiatan = $request->deskripsi_kegiatan;
+        $detail->angka_kredit_murni = $nilaiBaku;
+        $detail->angka_kredit_total = $nilaiBaku * $volume;
+        $detail->periode_pengajuan = $request->periode_pengajuan;
+        $detail->status = 'pending';
+        $detail->link_bukti_pendukung = $request->link_bukti_pendukung;
+        $detail->volume = $volume;
+        $detail->save();
+
+        // return redirect()->route('dupak.pengajuan.show', $id)
+        // ->with('success', 'Detail kegiatan berhasil ditambahkan.');
+
+        // return to dashboard.dupak
+        return redirect()->route('dupak.dashboard')->with('success', 'Detail kegiatan berhasil ditambahkan.');
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
-    {
-
-    }
+    public function update(Request $request, $id) {}
 }

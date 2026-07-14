@@ -1,0 +1,65 @@
+# Master Index — Catatan Pengerjaan DUPAK
+
+> File ini adalah indeks utama. Detail tiap kategori ada di file terpisah.
+
+## Daftar File Catatan
+
+| No | File | Keterangan | Status |
+|----|------|------------|--------|
+| 1 | `catatan_bug_dupak.txt` | Log bug (red, yellow, critical) | ✅ Lengkap |
+| 2 | `catatan_fitur_selesai_dupak.txt` | Fitur yang sudah selesai dikerjakan | ✅ Lengkap |
+| 3 | `catatan_tpaK_dupak.txt` | Penunjukan TPAK & audit trail | ✅ Lengkap |
+| 4 | `catatan_dashboard_dupak.txt` | Audit & perbaikan Dashboard | ✅ Lengkap |
+| 5 | `catatan_migrasi_dupak.txt` | Migration, seeding, struktur DB | ✅ Lengkap |
+| 6 | `catatan_validasi_dupak.txt` | Validasi pengajuan & flagging | ✅ Lengkap |
+| 7 | `catatan_rapat_dupak.txt` | Hasil tanya jawab dengan Pak Dahliar / Evi | ✅ Lengkap |
+| 8 | `catatan_detail_pengajuan_dupak.txt` | Form detail pengajuan & perhitungan AK | ✅ Lengkap |
+| 9 | `CATATAN_TEKNIS_DUPAK.md` | Dokumentasi teknis project (multi-DB, aturan migration) | ✅ Lengkap |
+
+> **Catatan**: File master ini tidak lagi berisi detail panjang. Detail tiap kategori ada di file terpisah sesuai tabel di atas.
+
+## Quick Command
+
+```bash
+# Migrasi khusus database dupak
+php artisan make:migration nama_tabel --path=database/migrations/dupak
+
+# Migrasi baru untuk seluruh database
+php artisan db:full-refresh --seed
+```
+
+## Fitur Belum Dibuat (Ringkasan)
+19. Halaman List Penunjukan TPAK
+20. Halaman Penilaian dan evaluasi dari TPAK dan Admin
+21. Halaman Dosen menjadi mode TPAK
+22. Fitur "Kirim Pengajuan" (Draft → Submitted)
+23. Fitur Verifikasi Admin (cek kelengkapan dokumen)
+24. Fitur Rekapitulasi Akhir & Export PDF
+
+## Status Terakhir
+- Guru Besar: pengajuan kenaikan jabatan diblokir (controller + view)
+- Penunjukan TPAK: 10 blind spot sudah diperbaiki
+- Dashboard: bug critical fixed (statistik, breakdown KUM, status)
+- Migration: kolom `created_by` ditambahkan di file existing (tidak buat file baru)
+
+
+
+
+------------- Catatan untuk evi ---------------------
+ di model dosen aku nambahin function buat connect ke model user. karena ada model dupak yang butuh itu.
+ 
+ public function user()
+    {
+        return $this->belongsTo(User::class, 'users_id', 'id');
+    }
+
+
+1. Tambahkan Periode (string) di kolom detail_pengajuan dupak : done
+2. Penelitian B. menyadur : ID Komponen 17 1 Penulis Menerjemahkan/menyadur BUKU ILMIAH perse.
+3.  ID 21 Menduduki Jabatan Pimpinan - Pengabdian AK 5.5
+
+
+Bug :
+1. Angka Kredit Total di http://127.0.0.1:8000/dupak/detil_pengajuan/pendidikan/3?komponen_id=1 tidak bekerja ketika user sudah memilih jenis detail pengajuan.
+2. Notifikasi buatan evi masih ada bug bahwa jika user kembali tanpa melakukan apapun dianggap sukses.
+3. 

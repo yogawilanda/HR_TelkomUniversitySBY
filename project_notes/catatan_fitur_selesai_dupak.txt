@@ -1,0 +1,115 @@
+# Catatan Fitur yang Sudah Diselesaikan — DUPAK
+
+> File ini mencatat seluruh fitur yang sudah selesai dikerjakan per modul DUPAK.
+
+----------
+
+## Fitur yang sudah diselesaikan
+
+### Tampilan Dupak
+1. a. Kartu Informasi Dupak
+   - a.1. Progess Bar
+   - a.2. Kum Saat Ini
+   - a.3. Target Kum Value dan target jabatan yang diajukan
+   - a.4. Tersisa Value
+   - a.5. Tombol Detail Kegiatan
+   - a.6. Tombol Tambahkan Kegiatan beserta modalnya (pop up)
+
+1. b. Kartu Pengaju
+   - b.1. Nama User yang mengakses (Dosen/Admin+dosen)
+   - b.2. NIDN (dari db sdm_tus.dosen)
+   - b.3. Jabatan saat ini (dari db sdm_tus.riwayat_jfa)
+   - b.4. NIK (dari db sdm_tus.users)
+
+1. c. Tabel Pengajuan
+   - c.1. Untuk dosen
+   - c.2. Untuk admin dupak
+
+### Fungsionalitas Kartu Informasi Dupak
+   - a.1. Progress Bar
+   - a.2. Kum Saat Ini Value
+   - a.3. Target Kum Value
+   - a.4. Tersisa Value
+   - a.5. Redireksi tombol detail kegiatan dengan membawa id
+   - a.6. Pop Up Tambah Kegiatan (belum untuk aksi input/create detil pengajuan)
+
+### Migrasi
+   1. tabel pengajuan
+   2. tabel ref_target_jabatan_pengajuan_table
+   3. tabel ref_jenis_input
+   4. tabel ref_kegiatan_utama
+   5. tabel ref_kegiatan_komponen
+   6. tabel ref_nilai_kum_baku
+   7. tabel jabatan_fungsional_akademik (ini dihapus nanti soalnya sudah ada di sdm_tus.ref_jfa)
+   8. tabel migrations (bawaan dari eloquent)
+
+### Seeder/Dummy Data
+   1. create_ref_target_jabatan_pengajuan_table --path=database/migrations/dupak
+
+### Konfigurasi Database Dupak Kedalam Aplikasi
+   1. Konfigurasi .env
+   2. Konfigurasi database.php (untuk appoint ke database mana dupak bisa dipanggil)
+
+---
+
+## List yang sudah selesai (bernomor)
+
+1. Integrasi Seeding Dupak ke aplikasi utama
+2. Migrasi tabel detil pengajuan yang terbaru
+3. Migrasi tabel evaluasi yang isinya komentar/flagging/scoring untuk admin dan TPAK
+4. Migrasi tabel penunjukan tpak
+5. Seeding adaptif untuk pengisian pengajuan.
+6. mengubah privasi user yang hanya bisa mengakses laman dupak
+7. Membuat seeder untuk pengajuan dengan metode adaptif seeding antar 2 db sekaligus.
+8. Menambahkan kolom evaluasi berupa pesan dari TPAK dan admin kedalam tampilan detail pengajuan per block.
+9. Halaman untuk formulir setiap detil pengajuan di ekstensi url:
+   - http://127.0.0.1:8000/dupak/detil_pengajuan/penelitian
+   - http://127.0.0.1:8000/dupak/detil_pengajuan/pendidikan
+   - http://127.0.0.1:8000/dupak/detil_pengajuan/pengabdian
+   - http://127.0.0.1:8000/dupak/detil_pengajuan/penunjang
+   (kurang 1, yaitu pelaksanaan pendidikan)
+10. registrasi setiap halaman formulir ke web.php dari poin 9
+11. Menyiapkan TPAK controller sebagai controller tunggal untuk keperluan interaksi antar keperluan tabel penunjukan_tpak.
+12. integrasi button untuk redirect menuju laman form pengisian detil pengajuan per masing masing jenis detil pengajuan.
+13. Perbaikan error fatal "Call to a member function count() on null" dengan mendefinisikan relasi `details` pada model Pengajuan dan menambahkan pengecekan null-safety.
+14. Optimasi performa pada PengajuanController menggunakan Eager Loading (`with`) untuk memuat data komponen dan evaluasi sekaligus (mencegah N+1 query).
+15. Perbaikan bug pada DashboardController dimana Admin melihat total KUM pengajuan user lain; sekarang perhitungan KUM dipisahkan secara ketat antara data personal dosen dan ringkasan admin.
+16. Implementasi logika pengambilan nama pemeriksa (evaluator) yang mendukung pencarian lintas tabel antara `users` (Admin) dan `dosens` (TPAK/Pegawai) dengan metode array merging.
+17. Penambahan fitur breakdown KUM pada Dashboard (Base KUM dari profil + Pending KUM dari detail pengajuan) untuk transparansi progress dosen.
+18. Penambahan guard autentikasi pada TPAKController untuk mencegah crash aplikasi saat sesi user berakhir atau tidak terdeteksi.
+
+---
+
+## Yang sudah dikerjakan (fitur spesifik)
+
+1. Penyamaan kelas, nama views, dan controller untuk Penunjukan TPAK
+2. Komponen View untuk melihat Angka Kredit Spesifik untuk pengaju Dupak
+3. Paginasi Tabel Penunjukan TPAK
+4. Update untuk halaman form pengisian detail komponen pendidikan.
+5. Data statistik untuk Dupak khusus tampilan admin sudah diupdate dan mengambil data dari DB.
+6. Merapikan Tampilan Dashboard lagi karena ada tambahan card untuk data statistik.
+
+---
+
+## Detail Pengajuan per Kategori (Store Done)
+
+- Detail Pengajuan - Pendidikan Store: done
+- Detail Pengajuan - Penelitian Store: done
+- Detail Pengajuan - Pengabdian Store: done
+- Detail Pengajuan - Penunjang Store: done
+- View untuk detail: diupdate done
+- Generate secara dinamis kolom input detail pendidikan: done
+
+---
+
+## Formulasi Perhitungan Dupak dan Kolom yang diperlukan untuk input form detail pengajuan
+
+Tambahkan Kegiatan di Masing masing formulir butuh di spesifikan dan dikategorikan.
+
+Contoh:
+1. A. Pendidikan Formal
+   Kolom input user yang dibutuhkan: link, penilaian AK
+
+2. A. Pelaksanaan pendidikan
+   1. Period Pelaksanaan Perkuliahan: Contoh jawaban (Semester <ganjil/genap> <tahun awal/tahun akhir>)
+   Asumsi field: semester, tahun awal/akhir, SKS, Kelas

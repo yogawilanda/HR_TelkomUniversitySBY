@@ -1,0 +1,60 @@
+# Catatan Penunjukan TPAK — DUPAK
+
+> Audit, perbaikan, dan log pengembangan fitur TPAK.
+
+---
+
+## Negative Cases yang Sudah Ditangani (Backend)
+
+| No | Validasi | File | Status |
+|----|----------|------|--------|
+| 1 | Dosen tidak boleh menilai pengajuannya sendiri | `PenunjukanTPAKController::store()` | ✅ |
+| 2 | Tidak boleh duplikasi TPAK untuk pengajuan yang sama | `PenunjukanTPAKController::store()` | ✅ |
+| 3 | Maksimal 5 TPAK per pengajuan | `PenunjukanTPAKController::store()` | ✅ |
+| 4 | JFA TPAK harus ≥ JFA Tujuan Pengaju | `PenunjukanTPAKController::store()` | ✅ |
+| 5 | TPAK harus memiliki JFA aktif (tidak null) | `PenunjukanTPAKController::store()` | ✅ |
+| 6 | Status pengajuan harus aktif (tidak Diterima/Ditolak) | `PenunjukanTPAKController::store()` | ✅ |
+| 7 | Data tidak ditemukan saat hapus | `PenunjukanTPAKController::destroy()` | ✅ |
+| 8 | Error teknis database (try-catch) | `store()` & `destroy()` | ✅ |
+
+---
+
+## 10 Perbaikan Blind Spot (Sesi Terbaru)
+
+1. **[FIXED]** UI Dropdown TPAK mengecualikan dosen pengaju (via JS data attribute).
+2. **[FIXED]** UI Select pengajuan menampilkan jumlah TPAK yang sudah ditunjuk.
+3. **[FIXED]** Tombol "Tunjuk Penilai" di tabel antrean disabled jika sudah 5 TPAK.
+4. **[FIXED]** Dropdown TPAK mengecualikan dosen yang sudah ditunjuk untuk pengajuan tertentu.
+5. **[FIXED]** Info beban kerja TPAK (jumlah penugasan aktif) ditampilkan di dropdown.
+6. **[FIXED]** Validasi backend: blokir penunjukan jika status pengajuan sudah final.
+7. **[FIXED]** Form penunjukan diubah menjadi modal popup.
+8. **[FIXED]** Progress "Reviewing" diganti dengan progress bar real-time.
+9. **[FIXED]** Filter/search ditambahkan di tabel antrean pengajuan.
+10. **[FIXED]** Audit trail: kolom `created_by` di migration existing.
+
+---
+
+## Audit Trail
+
+- **Kolom**: `created_by` di tabel `penunjukan_tpak`
+- **Migration**: `database/migrations/dupak/2025_11_19_072934_dupak_table_penunjukan_tpak.php`
+- **Model**: `$fillable` + relasi `creator()`
+- **Controller**: menyimpan `Auth::id()` saat `store()`
+- **View**: menampilkan "Ditunjuk oleh: Nama Admin"
+
+---
+
+## Aturan dari Pak Dahliar
+
+- Limit TPAK sementara dihilangkan dahulu, tapi untuk jaga-jaga dibatasi **5 TPAK per pengajuan**.
+- Lektor Kepala: 2 TPAK, Guru Besar: 3 TPAK (jika perlu dilimit lebih ketat).
+- Sembunyikan nama TPAK ke Pengaju.
+
+---
+
+## File yang Diperbaiki
+
+- `app/Http/Controllers/Dupak/PenunjukanTPAKController.php`
+- `resources/views/dupak/penunjukan_tpak/index.blade.php`
+- `app/Models/Dupak/PenunjukanTPAKModel.php`
+- `database/migrations/dupak/2025_11_19_072934_dupak_table_penunjukan_tpak.php`
