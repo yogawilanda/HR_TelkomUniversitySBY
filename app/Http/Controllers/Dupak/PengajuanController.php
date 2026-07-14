@@ -9,7 +9,7 @@ use App\Models\Dupak\Pengajuan;
 use App\Models\Dupak\PenunjukanTPAKModel;
 use App\Models\Dupak\RefKegiatanUtama;
 use App\Models\Dupak\RefTargetJabatanPengajuan;
-use App\Models\refJabatanFungsionalAkademik;
+use App\Models\RefJabatanFungsionalAkademik;
 use App\Models\riwayatJabatanFungsionalAkademik;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -142,7 +142,7 @@ class PengajuanController extends Controller
         $jfa_tujuan = 'Belum Ada Riwayat Jabatan';
 
         // 2. Ambil riwayat JFA terakhir (pastikan tidak null)
-        $riwayat_jfa_aktif = riwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
+        $riwayat_jfa_aktif = RiwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
             ->whereNull('tmt_selesai')
             ->latest('tmt_mulai')
             ->first();
