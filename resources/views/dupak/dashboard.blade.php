@@ -4,13 +4,19 @@
 
 <x-dupak.popup-tambah-kegiatan :kegiatanUtama="$kegiatanUtama" :pengajuanId="$submissions['latest']->id ?? null" />
 
-<div class="py-6" x-data="{ tab: 'personal' }">
+{{-- Tambahkan style override lokal untuk mencegah layout shift akibat x-cloak --}}
+<style>
+    [x-cloak] { display: none !important; }
+    .smooth-scroll-container { will-change: transform; }
+</style>
+
+<div class="py-6 smooth-scroll-container" x-data="{ tab: 'personal' }">
     <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <a href="{{ route('home') }}" class="inline-flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 mb-2">
+        <a href="{{ route('home') }}" class="inline-flex items-center text-gray-500 hover:text-gray-700 mb-2">
             <i class="fas fa-arrow-left mr-2"></i> Kembali
         </a>
 
-        {{-- Statistik Admin (di luar tab) --}}
+        {{-- Statistik Admin --}}
         @if ($user->is_admin)
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div class="p-4 border rounded-lg border-blue-100 bg-white shadow-sm">
@@ -60,26 +66,21 @@
 
             {{-- TAB PERSONAL --}}
             <div x-show="tab === 'personal'">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+                {{-- PERBAIKAN: Mengubah items-stretch menjadi items-start agar tinggi kolom kanan mandiri dan tidak mengunci area scroll luar --}}
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                    
                     {{-- Kolom Kiri: Informasi KUM --}}
-                    <!-- Jika User adalah Admin yang juga sekaligus dosen : Belum, tampilkan buat pengajuan, Sudah, tampilan info card kum -->
-                     <!-- Jika User adalah Admin namun bukan dosen, maka bisa jadi adalah TPAK, maka, tampilkan "Anda terdaftar sebagai TPAK namun bukan Dosen, Pengajuan hanya dapat dilakukan oleh Dosen saja, atau hubungi Admin SDM untuk proses pengubahan jabatan apabila terdapat kesalahan data -->
-                     <!-- Jika User adalah Dosen dan TPAK, Belum, tampilkan buat pengajuan, sudah, tampilkan info card kum -->
-                      <!-- Jika User adalah Dosen/hanya TPAK, Anda tidak memiliki izin untuk mengakses halaman ini -->
                     <div class="lg:col-span-2">
                         @if (($user->is_admin || $isTpak) && !$dosen)
-                            {{-- Skenario: Admin murni (Bukan Dosen) --}}
                             <div class="p-6 border rounded-lg bg-yellow-50 border-yellow-200 text-yellow-800 text-sm">
                                 <i class="fas fa-exclamation-triangle mr-2"></i>
                                 Anda terdaftar sebagai Admin/TPAK namun bukan Dosen. Pengajuan DUPAK hanya dapat dilakukan oleh Dosen. Hubungi Admin SDM untuk proses pengubahan jabatan apabila terdapat kesalahan data.
                             </div>
                         @elseif (!$user->is_admin && !$isTpak && !$dosen)
-                            {{-- Skenario: Bukan Admin, Bukan TPAK, Bukan Dosen (Tidak Punya Izin) --}}
                             <div class="p-6 border rounded-lg bg-red-50 border-red-200 text-red-800 text-sm text-center">
                                 <i class="fas fa-ban mr-2"></i> Anda tidak memiliki izin untuk mengakses halaman ini.
                             </div>
                         @else
-                            {{-- Skenario: Dosen (Baik Dosen murni, Dosen+Admin, atau Dosen+TPAK) --}}
                             @if($submissions['latest'])
                                 @include('partials.dupak.info-kum')
                             @else
@@ -114,7 +115,6 @@
                         </div>
                         @endif
 
-                        {{-- Validasi Card (Admin Only) --}}
                         @if (auth()->user()->is_admin)
                         <div class="p-6 border rounded-lg bg-white shadow-sm border-l-4 border-l-blue-900">
                             <h3 class="text-lg font-semibold text-gray-900 mb-2">Validasi DUPAK</h3>
@@ -131,8 +131,6 @@
                                 Kelola TPAK
                             </a>
                         </div>
-                        @elseif (isset($user) && isset($dosen))
-                        
                         @endif
                     </div>
                 </div>
@@ -141,11 +139,6 @@
                 <div class="mt-10">
                     <div class="flex justify-between items-center mb-6 ">
                         <h3 class="text-xl font-semibold">Daftar Pengajuan DUPAK</h3>
-                        @if (!$user->is_admin)
-                        @php
-                        $buttonDisabled = $submissions['has_pending'] || $isMaxJfa;
-                        @endphp
-                        @endif
                     </div>
 
                     @if(!$user->is_admin && $submissions['has_pending'])
@@ -229,8 +222,11 @@
     document.addEventListener('DOMContentLoaded', function() {
         const progressBar = document.getElementById('progress-bar');
         if (progressBar) {
-            const percent = progressBar.getAttribute('data-percent');
-            progressBar.style.width = percent + '%';
+            // Menggunakan requestAnimationFrame untuk mencegah layout thrashing saat mengisi lebar bar
+            requestAnimationFrame(() => {
+                const percent = progressBar.getAttribute('data-percent');
+                progressBar.style.width = percent + '%';
+            });
         }
     });
 </script>
