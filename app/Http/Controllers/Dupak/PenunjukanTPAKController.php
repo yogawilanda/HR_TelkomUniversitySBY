@@ -4,13 +4,15 @@ namespace App\Http\Controllers\Dupak;
 
 use App\Http\Controllers\Controller;
 use App\Models\Dosen;
+use App\Models\Dupak\DetailPengajuan;
+use App\Models\Dupak\HasilEvaluasi;
 use App\Models\Dupak\Pengajuan;
 use App\Models\Dupak\PenunjukanTPAKModel;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 
 class PenunjukanTPAKController extends Controller
 {
@@ -18,20 +20,18 @@ class PenunjukanTPAKController extends Controller
     {
         $search = $request->input('search');
 
-        // 0. Ambil Master Nama JFA dari database (mysql connection) untuk mapping global
+        // 0. Ambil Master Nama JFA dari database untuk mapping global
         $jfaGlobalNames = DB::connection('mysql')
             ->table('ref_jabatan_fungsional_akademiks')
             ->pluck('nama_jabatan', 'id');
 
         // 1. Ambil data Dosen (Calon TPAK) dari database sdm_tus
-        // Join dengan users untuk mendapatkan nama lengkap
         $dosens = Dosen::join('users', 'dosens.users_id', '=', 'users.id')
             ->select('dosens.id', 'users.nama_lengkap')
             ->orderBy('users.nama_lengkap', 'asc')
             ->get();
 
-        // 1b. Ambil Jabatan Fungsional Akademik aktif (rank) untuk ditampilkan di UI
-        // Same source as backend validation in store(): riwayat_jabatan_fungsional_akademiks + ref_jabatan_fungsional_akademiks
+        // 1b. Ambil Jabatan Fungsional Akademik aktif (rank)
         $tpakJfaNama = [];
         if ($dosens->isNotEmpty()) {
             $tpakJfaRows = DB::connection('mysql')
@@ -43,70 +43,76 @@ class PenunjukanTPAKController extends Controller
                 ->select('riwayat_jabatan_fungsional_akademiks.dosen_id', 'ref_jabatan_fungsional_akademiks.nama_jabatan')
                 ->get();
 
-            // Ambil jfa terbaru per dosen
             foreach ($tpakJfaRows as $row) {
-                if (!isset($tpakJfaNama[$row->dosen_id])) {
+                if (! isset($tpakJfaNama[$row->dosen_id])) {
                     $tpakJfaNama[$row->dosen_id] = $row->nama_jabatan;
                 }
             }
         }
 
-        // 2. Ambil data Pengajuan DUPAK yang belum mencapai batas limit TPAK (5 orang)
-        // Kita gunakan subquery untuk menghitung jumlah TPAK yang sudah ditunjuk per pengajuan
+        // 2. Ambil data Pengajuan DUPAK
         $antreanSearch = $request->input('antrean_search');
 
-        $pengajuanQuery = Pengajuan::with(['dosen.user']) // Hapus eager load jabatan karena diambil manual via map
+        // Tarik data pengajuan dan relasi dosen saja (tanpa user)
+        $pengajuanQuery = Pengajuan::with(['dosen'])
             ->whereIn('status', ['Pending', 'Submitted'])
             ->where(function ($q) {
                 $q->selectRaw('count(*)')
-                    ->from('penunjukan_tpak') // Use table name only; connection is inherited from parent query
+                    ->from('penunjukan_tpak')
                     ->whereColumn('penunjukan_tpak.pengajuan_id', 'pengajuan.id');
             }, '<', 5);
-
+            
         if ($antreanSearch) {
+            // Pencarian antrean manual via join tabel user sdm_tus
             $pengajuanQuery->whereHas('dosen', function ($query) use ($antreanSearch) {
-                $query->whereHas('user', function ($userQuery) use ($antreanSearch) {
-                    $userQuery->where('nama_lengkap', 'like', "%{$antreanSearch}%")
-                        ->orWhere('nama', 'like', "%{$antreanSearch}%"); // Fallback jika nama_lengkap null
+                $query->whereIn('users_id', function ($sub) use ($antreanSearch) {
+                    $sub->select('id')
+                        ->from('users')
+                        ->where('nama_lengkap', 'like', "%{$antreanSearch}%")
+                        ->orWhere('nama', 'like', "%{$antreanSearch}%");
                 });
             });
         }
 
         $pengajuan = $pengajuanQuery->get();
 
-        // Hitung jumlah TPAK yang sudah ditunjuk per pengajuan (untuk info di UI)
+        // Ambil semua users_id dosen pengaju secara massal untuk mapping manual nama pengaju di antrean
+        $pengajuUserIds = $pengajuan->pluck('dosen.users_id')->filter()->unique()->toArray();
+        $pengajuNames = DB::connection('mysql')
+            ->table('users')
+            ->whereIn('id', $pengajuUserIds)
+            ->pluck('nama_lengkap', 'id'); // Jadikan users_id sebagai key array
+
+        // Hitung jumlah TPAK yang sudah ditunjuk per pengajuan
         $tpakCounts = PenunjukanTPAKModel::select('pengajuan_id', DB::raw('count(*) as total'))
             ->groupBy('pengajuan_id')
             ->pluck('total', 'pengajuan_id')
             ->toArray();
 
-        // Hitung beban kerja TPAK (jumlah penugasan aktif per dosen)
+        // Hitung beban kerja TPAK
         $dosenWorkload = PenunjukanTPAKModel::select('idDosenTpak', DB::raw('count(*) as total'))
             ->groupBy('idDosenTpak')
             ->pluck('total', 'idDosenTpak')
             ->toArray();
 
-        // Mapping pengajuan_id -> idDosen pengaju (untuk filter self-assign di UI)
+        // Mapping pengajuan_id -> idDosen pengaju
         $pengajuMap = $pengajuan->pluck('idDosen', 'id')->toArray();
 
-        // Mapping pengajuan_id -> array idDosenTpak yang sudah ditunjuk (untuk filter duplikat di UI)
+        // Mapping pengajuan_id -> array idDosenTpak yang sudah ditunjuk
         $assignedMap = PenunjukanTPAKModel::select('pengajuan_id', 'idDosenTpak')
             ->get()
             ->groupBy('pengajuan_id')
-            ->map(fn($items) => $items->pluck('idDosenTpak')->toArray())
+            ->map(fn ($items) => $items->pluck('idDosenTpak')->toArray())
             ->toArray();
 
-        // 3. Ambil Riwayat Penunjukan TPAK dari database dupak
+        // 3. Ambil Riwayat Penunjukan TPAK
         $penunjukanQuery = PenunjukanTPAKModel::with('creator')->orderBy('created_at', 'desc');
 
-        // Implementasi Fitur Pencarian (Nama Pengaju atau Nama TPAK)
         if ($search) {
-            // Cari ID Dosen yang namanya cocok di database sdm_tus
             $matchedDosenIds = Dosen::join('users', 'dosens.users_id', '=', 'users.id')
                 ->where('users.nama_lengkap', 'like', "%{$search}%")
                 ->pluck('dosens.id');
 
-            // Cari ID Pengajuan yang nama pengajunya cocok
             $matchedPengajuanIds = Pengajuan::where('nama_dosen', 'like', "%{$search}%")->pluck('id');
 
             $penunjukanQuery->where(function ($q) use ($matchedDosenIds, $matchedPengajuanIds) {
@@ -115,38 +121,48 @@ class PenunjukanTPAKController extends Controller
             });
         }
 
-        // Pagination riwayat penunjukan
         $penunjukanTpak = $penunjukanQuery->paginate(10);
 
-        // Transformasi koleksi untuk mendapatkan nama pengaju dan nama penilai (TPAK)
-        // Karena database terpisah, kita lakukan mapping manual untuk efisiensi (menghindari N+1 query)
         $pengajuanIds = $penunjukanTpak->pluck('pengajuan_id')->unique();
         $tpakDosenIds = $penunjukanTpak->pluck('idDosenTpak')->unique();
 
-        $pengajuansData = Pengajuan::with(['dosen.user'])->whereIn('id', $pengajuanIds)->get();
+        // Tarik pengajuan data dengan model 'dosen' saja
+        $pengajuansData = Pengajuan::with(['dosen'])->whereIn('id', $pengajuanIds)->get();
+        
+        // Gabungkan list users_id dari riwayat penunjukan ke pencarian nama lengkap
+        $riwayatUserIds = $pengajuansData->pluck('dosen.users_id')->filter()->unique()->toArray();
+        $allUserNames = DB::connection('mysql')
+            ->table('users')
+            ->whereIn('id', array_merge($pengajuUserIds, $riwayatUserIds))
+            ->pluck('nama_lengkap', 'id');
+
         $tpakDosensData = Dosen::join('users', 'dosens.users_id', '=', 'users.id')
             ->whereIn('dosens.id', $tpakDosenIds)
             ->select('dosens.id', 'users.nama_lengkap')
             ->get()
             ->pluck('nama_lengkap', 'id');
 
-        // Hitung progress penilaian per pengajuan (total detail yang punya evaluasi / total detail)
-        $detailCounts = \App\Models\Dupak\DetailPengajuan::select('pengajuan_id', DB::raw('count(*) as total'))
+        // Hitung progress penilaian per pengajuan
+        $detailCounts = DetailPengajuan::select('pengajuan_id', DB::raw('count(*) as total'))
             ->whereIn('pengajuan_id', $pengajuanIds)
             ->groupBy('pengajuan_id')
             ->pluck('total', 'pengajuan_id')
             ->toArray();
 
-        $evaluatedCounts = \App\Models\Dupak\HasilEvaluasi::select('detail_pengajuan.pengajuan_id', DB::raw('count(distinct hasil_evaluasi.detail_pengajuan_id) as total'))
+        $evaluatedCounts = HasilEvaluasi::select('detail_pengajuan.pengajuan_id', DB::raw('count(distinct hasil_evaluasi.detail_pengajuan_id) as total'))
             ->join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
             ->whereIn('detail_pengajuan.pengajuan_id', $pengajuanIds)
             ->groupBy('detail_pengajuan.pengajuan_id')
             ->pluck('total', 'pengajuan_id')
             ->toArray();
 
-        $penunjukanTpak->getCollection()->transform(function ($item) use ($pengajuansData, $tpakDosensData, $detailCounts, $evaluatedCounts, $jfaGlobalNames) {
+        $penunjukanTpak->getCollection()->transform(function ($item) use ($pengajuansData, $tpakDosensData, $detailCounts, $evaluatedCounts, $jfaGlobalNames, $allUserNames) {
             $p = $pengajuansData->firstWhere('id', $item->pengajuan_id);
-            $item->pengaju_nama = $p->dosen->user->nama_lengkap ?? 'N/A'; // Akses nama melalui relasi
+            
+            // Map nama pengaju secara manual tanpa memicu relasi 'user' di model Dosen
+            $userId = $p->dosen->users_id ?? null;
+            $item->pengaju_nama = $userId ? ($allUserNames[$userId] ?? 'N/A') : 'N/A';
+            
             $item->pengaju_jabatan_asal = $jfaGlobalNames[$p->jfaAsal] ?? 'N/A';
             $item->pengaju_jabatan_tujuan = $jfaGlobalNames[$p->jfaTujuan] ?? 'Tidak Diketahui';
             $item->tpak_nama_lengkap = $tpakDosensData[$item->idDosenTpak] ?? 'N/A';
@@ -161,13 +177,10 @@ class PenunjukanTPAKController extends Controller
             return $item;
         });
 
-        return view('dupak.penunjukan_tpak.index', compact('dosens', 'pengajuan', 'penunjukanTpak', 'tpakCounts', 'dosenWorkload', 'pengajuMap', 'assignedMap', 'tpakJfaNama', 'jfaGlobalNames'));
+        // Bagikan variabel pengajuNames ke view agar bisa dipakai di bagian list antrean pengaju
+        return view('dupak.penunjukan_tpak.index', compact('dosens', 'pengajuan', 'penunjukanTpak', 'tpakCounts', 'dosenWorkload', 'pengajuMap', 'assignedMap', 'tpakJfaNama', 'jfaGlobalNames', 'pengajuNames'));
     }
 
-    /**
-     * Mapping level JFA untuk validasi.
-     * Semakin tinggi angka, semakin tinggi jabatannya.
-     */
     private function getJfaLevel($namaJfa)
     {
         $map = [
@@ -182,7 +195,8 @@ class PenunjukanTPAKController extends Controller
             'professor' => 4,
         ];
         $nama = strtolower(trim($namaJfa ?? ''));
-        return $map[$nama] ?? 0; // 0 = tidak dikenali
+
+        return $map[$nama] ?? 0;
     }
 
     public function store(Request $request)
@@ -194,19 +208,16 @@ class PenunjukanTPAKController extends Controller
         ]);
 
         try {
-            // 1. Ambil dan cek status pengajuan
             $pengajuan = Pengajuan::findOrFail($request->pengajuan_id);
             $finalStatuses = ['Diterima', 'Ditolak', 'Selesai'];
             if (in_array($pengajuan->status, $finalStatuses)) {
-                return redirect()->back()->with('error', 'Pengajuan sudah final (' . $pengajuan->status . '). Tidak dapat menambahkan TPAK lagi.');
+                return redirect()->back()->with('error', 'Pengajuan sudah final ('.$pengajuan->status.'). Tidak dapat menambahkan TPAK lagi.');
             }
 
-            // 2. Validasi: Dosen tidak boleh menilai pengajuannya sendiri
             if ($pengajuan->idDosen == $request->idDosenTpak) {
                 return redirect()->back()->with('error', 'Dosen tidak diperbolehkan menjadi penilai (TPAK) untuk pengajuannya sendiri.');
             }
 
-            // 2. Validasi: Cek apakah sudah pernah ditunjuk (duplikasi)
             $isDuplicate = PenunjukanTPAKModel::where('pengajuan_id', $request->pengajuan_id)
                 ->where('idDosenTpak', $request->idDosenTpak)
                 ->exists();
@@ -214,14 +225,11 @@ class PenunjukanTPAKController extends Controller
                 return redirect()->back()->with('error', 'Dosen tersebut sudah ditunjuk sebagai TPAK untuk pengajuan ini.');
             }
 
-            // 3. Validasi: Maksimal 5 TPAK (Sesuai kebijakan)
             $tpakCount = PenunjukanTPAKModel::where('pengajuan_id', $request->pengajuan_id)->count();
             if ($tpakCount >= 5) {
                 return redirect()->back()->with('error', 'Maksimal jumlah TPAK untuk satu pengajuan adalah 5 orang.');
             }
 
-            // 4. Validasi: JFA TPAK harus >= JFA Tujuan Pengaju
-            // Ambil JFA aktif TPAK dari database sdm_tus
             $tpakJfa = DB::connection('mysql')
                 ->table('riwayat_jabatan_fungsional_akademiks')
                 ->join('ref_jabatan_fungsional_akademiks', 'riwayat_jabatan_fungsional_akademiks.ref_jfa_id', '=', 'ref_jabatan_fungsional_akademiks.id')
@@ -231,11 +239,10 @@ class PenunjukanTPAKController extends Controller
                 ->select('ref_jabatan_fungsional_akademiks.nama_jabatan')
                 ->first();
 
-            if (!$tpakJfa || empty($tpakJfa->nama_jabatan)) {
+            if (! $tpakJfa || empty($tpakJfa->nama_jabatan)) {
                 return redirect()->back()->with('error', 'Dosen yang dipilih tidak memiliki Jabatan Fungsional Akademik (JFA) aktif. Penunjukan dibatalkan.');
             }
 
-            // Ambil JFA Tujuan pengaju
             $jfaTujuanPengajuNama = null;
             if ($pengajuan->jfaTujuan) {
                 $jfaTujuanPengajuNama = DB::connection('mysql')
@@ -244,7 +251,6 @@ class PenunjukanTPAKController extends Controller
                     ->value('nama_jabatan');
             }
 
-            // Bandingkan level JFA (hanya jika keduanya terdeteksi)
             if ($jfaTujuanPengajuNama) {
                 $levelTpak = $this->getJfaLevel($tpakJfa->nama_jabatan);
                 $levelPengaju = $this->getJfaLevel($jfaTujuanPengajuNama);
@@ -257,7 +263,6 @@ class PenunjukanTPAKController extends Controller
                 }
             }
 
-            // Simpan menggunakan Model
             PenunjukanTPAKModel::create([
                 'pengajuan_id' => $request->pengajuan_id,
                 'idDosenTpak' => $request->idDosenTpak,
@@ -267,19 +272,18 @@ class PenunjukanTPAKController extends Controller
 
             return redirect()->route('dupak.penunjukan_tpak.index')->with('success', 'TPAK berhasil ditunjuk dan ditugaskan.');
         } catch (\Exception $e) {
-            // Log exception lengkap untuk debugging
             Log::error('Gagal menyimpan penunjukan TPAK', [
                 'message' => $e->getMessage(),
-                'file' => $e->getFile() . ':' . $e->getLine(),
+                'file' => $e->getFile().':'.$e->getLine(),
                 'trace' => $e->getTraceAsString(),
                 'request' => $request->only(['pengajuan_id', 'idDosenTpak']),
             ]);
 
             $debugMessage = config('app.debug')
-                ? ' [DEBUG: ' . $e->getMessage() . ' — ' . get_class($e) . ']'
+                ? ' [DEBUG: '.$e->getMessage().' — '.get_class($e).']'
                 : '';
 
-            return redirect()->back()->with('error', 'Terjadi kesalahan teknis saat menyimpan penunjukan. Silakan coba lagi atau hubungi admin.' . $debugMessage);
+            return redirect()->back()->with('error', 'Terjadi kesalahan teknis saat menyimpan penunjukan. Silakan coba lagi atau hubungi admin.'.$debugMessage);
         }
     }
 
@@ -287,11 +291,12 @@ class PenunjukanTPAKController extends Controller
     {
         try {
             $penunjukan = PenunjukanTPAKModel::find($id);
-            if (!$penunjukan) {
+            if (! $penunjukan) {
                 return redirect()->route('dupak.penunjukan_tpak.index')->with('error', 'Data penunjukan tidak ditemukan atau sudah dihapus.');
             }
 
             $penunjukan->delete();
+
             return redirect()->route('dupak.penunjukan_tpak.index')->with('success', 'Penugasan TPAK telah dibatalkan!');
         } catch (\Exception $e) {
             Log::error('Gagal membatalkan penunjukan TPAK', [
@@ -300,10 +305,10 @@ class PenunjukanTPAKController extends Controller
             ]);
 
             $debugMessage = config('app.debug')
-                ? ' [DEBUG: ' . $e->getMessage() . ']'
+                ? ' [DEBUG: '.$e->getMessage().']'
                 : '';
 
-            return redirect()->route('dupak.penunjukan_tpak.index')->with('error', 'Terjadi kesalahan teknis saat membatalkan penunjukan. Silakan coba lagi.' . $debugMessage);
+            return redirect()->route('dupak.penunjukan_tpak.index')->with('error', 'Terjadi kesalahan teknis saat membatalkan penunjukan. Silakan coba lagi.'.$debugMessage);
         }
     }
 }
