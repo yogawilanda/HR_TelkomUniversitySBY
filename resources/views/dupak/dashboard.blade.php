@@ -62,21 +62,39 @@
             <div x-show="tab === 'personal'">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
                     {{-- Kolom Kiri: Informasi KUM --}}
+                    <!-- Jika User adalah Admin yang juga sekaligus dosen : Belum, tampilkan buat pengajuan, Sudah, tampilan info card kum -->
+                     <!-- Jika User adalah Admin namun bukan dosen, maka bisa jadi adalah TPAK, maka, tampilkan "Anda terdaftar sebagai TPAK namun bukan Dosen, Pengajuan hanya dapat dilakukan oleh Dosen saja, atau hubungi Admin SDM untuk proses pengubahan jabatan apabila terdapat kesalahan data -->
+                     <!-- Jika User adalah Dosen dan TPAK, Belum, tampilkan buat pengajuan, sudah, tampilkan info card kum -->
+                      <!-- Jika User adalah Dosen/hanya TPAK, Anda tidak memiliki izin untuk mengakses halaman ini -->
                     <div class="lg:col-span-2">
-                        @if($submissions['latest'])
-                            @include('partials.dupak.info-kum')
-                        @else
-                            <div class="p-10 border-2 border-dashed border-gray-300 text-center rounded-lg">
-                                <p class="text-gray-500">Belum ada pengajuan aktif.</p>
-                                @if($isMaxJfa)
-                                    <div class="mt-4 p-3 bg-green-50 border border-green-300 text-green-800 rounded-md text-sm">
-                                        <i class="fas fa-check-circle mr-1"></i>
-                                        Anda telah mencapai jabatan tertinggi (Guru Besar). Tidak perlu pengajuan kenaikan jabatan lagi.
-                                    </div>
-                                @else
-                                    <a href="{{ route('dupak.pengajuan.create', ['userId' => $user->id]) }}" class="mt-4 inline-block bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-950">Buat Pengajuan Baru</a>
-                                @endif
+                        @if ($user->is_admin && !$dosen)
+                            {{-- Skenario: Admin murni (Bukan Dosen) --}}
+                            <div class="p-6 border rounded-lg bg-yellow-50 border-yellow-200 text-yellow-800 text-sm">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                Anda terdaftar sebagai Admin/TPAK namun bukan Dosen. Pengajuan DUPAK hanya dapat dilakukan oleh Dosen. Hubungi Admin SDM untuk proses pengubahan jabatan apabila terdapat kesalahan data.
                             </div>
+                        @elseif (!$user->is_admin && !$isTpak && !$dosen)
+                            {{-- Skenario: Bukan Admin, Bukan TPAK, Bukan Dosen (Tidak Punya Izin) --}}
+                            <div class="p-6 border rounded-lg bg-red-50 border-red-200 text-red-800 text-sm text-center">
+                                <i class="fas fa-ban mr-2"></i> Anda tidak memiliki izin untuk mengakses halaman ini.
+                            </div>
+                        @else
+                            {{-- Skenario: Dosen (Baik Dosen murni, Dosen+Admin, atau Dosen+TPAK) --}}
+                            @if($submissions['latest'])
+                                @include('partials.dupak.info-kum')
+                            @else
+                                <div class="p-10 border-2 border-dashed border-gray-300 text-center rounded-lg">
+                                    <p class="text-gray-500">Belum ada pengajuan aktif.</p>
+                                    @if($isMaxJfa)
+                                        <div class="mt-4 p-3 bg-green-50 border border-green-300 text-green-800 rounded-md text-sm">
+                                            <i class="fas fa-check-circle mr-1"></i>
+                                            Anda telah mencapai jabatan tertinggi (Guru Besar). Tidak perlu pengajuan kenaikan jabatan lagi.
+                                        </div>
+                                    @else
+                                        <a href="{{ route('dupak.pengajuan.create', ['userId' => $user->id]) }}" class="mt-4 inline-block bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-950">Buat Pengajuan Baru</a>
+                                    @endif
+                                </div>
+                            @endif
                         @endif
                     </div>
 
