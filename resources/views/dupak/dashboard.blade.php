@@ -66,131 +66,132 @@
 
             {{-- TAB PERSONAL --}}
             <div x-show="tab === 'personal'">
-                
-                {{-- HANDLE OTORISASI & KELENGKAPAN PROFIL SECARA FULL-WIDTH --}}
-                @if (($user->is_admin || $isTpak) && !$dosen)
-                    <div class="p-6 border rounded-lg bg-yellow-50 border-yellow-200 text-yellow-800 text-sm mb-6">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>
-                        Anda terdaftar sebagai Admin/TPAK namun bukan Dosen. Pengajuan DUPAK hanya dapat dilakukan oleh Dosen. Hubungi Admin SDM untuk proses pengubahan jabatan apabila terdapat kesalahan data.
-                    </div>
-                @elseif (!$user->is_admin && !$isTpak && !$dosen)
-                    <div class="p-6 border rounded-lg bg-red-50 border-red-200 text-red-800 text-sm text-center mb-6">
-                        <i class="fas fa-ban mr-2"></i> Anda tidak memiliki izin untuk mengakses halaman ini.
-                    </div>
-                @elseif ($isProfileIncomplete)
-                    {{-- ALERT PROFIL BELUM LENGKAP (Lebar penuh, menutup grid di bawahnya) --}}
-                    <div class="p-6 mb-6 border rounded-lg bg-yellow-50 border-yellow-200 text-yellow-800 text-sm">
-                        <div class="flex items-start">
-                            <i class="fas fa-exclamation-triangle mt-0.5 mr-3 text-lg text-yellow-600"></i>
-                            <div>
-                                <h4 class="font-semibold text-yellow-900 mb-1 text-base">Profil Belum Lengkap</h4>
-                                <p class="text-yellow-700 leading-relaxed">
-                                    Data profil Anda belum lengkap di sistem. Untuk dapat mengajukan DUPAK, Anda wajib memiliki:
-                                </p>
-                                <ul class="list-disc list-inside mt-2 text-yellow-700 space-y-1">
-                                    <li><strong>NIK / NIP</strong> pada akun Anda.</li>
-                                    <li><strong>NIDN atau NIDK</strong> pada data Dosen.</li>
-                                    <li>Data <strong>Riwayat JFA (Jabatan Fungsional Akademik)</strong> yang aktif.</li>
-                                </ul>
-                                <p class="mt-3 text-yellow-700 text-xs italic">
-                                    *Silakan hubungi Admin SDM / Kepegawaian untuk melengkapi data tersebut sebelum melakukan pengajuan.
-                                </p>
+                {{-- Grid utama 3 kolom --}}
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                    
+                    {{-- Kolom Kiri: Informasi KUM / Status Profil --}}
+                    <div class="lg:col-span-2">
+                        @if (($user->is_admin || $isTpak) && !$dosen)
+                            <div class="p-6 border rounded-lg bg-yellow-50 border-yellow-200 text-yellow-800 text-sm">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                Anda terdaftar sebagai Admin/TPAK namun bukan Dosen. Pengajuan DUPAK hanya dapat dilakukan oleh Dosen. Hubungi Admin SDM untuk proses pengubahan jabatan apabila terdapat kesalahan data.
                             </div>
-                        </div>
-                    </div>
-                @else
-                    {{-- JIKA AMAN, BARU TAMPILKAN LAYOUT GRID UTAMA --}}
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                        
-                        {{-- Kolom Kiri: Informasi KUM --}}
-                        <div class="lg:col-span-2">
-                            @if($submissions['latest'])
-                                @include('partials.dupak.info-kum')
-                            @else
-                                <div class="p-10 border-2 border-dashed border-gray-300 text-center rounded-lg">
-                                    <p class="text-gray-500">Belum ada pengajuan aktif.</p>
-                                    @if($isMaxJfa)
-                                        <div class="mt-4 p-3 bg-green-50 border border-green-300 text-green-800 rounded-md text-sm">
-                                            <i class="fas fa-check-circle mr-1"></i>
-                                            Anda telah mencapai jabatan tertinggi (Guru Besar). Tidak perlu pengajuan kenaikan jabatan lagi.
+                        @elseif (!$user->is_admin && !$isTpak && !$dosen)
+                            <div class="p-6 border rounded-lg bg-red-50 border-red-200 text-red-800 text-sm text-center">
+                                <i class="fas fa-ban mr-2"></i> Anda tidak memiliki izin untuk mengakses halaman ini.
+                            </div>
+                        @else
+                            {{-- ALTERNATE FLOW: Tampilkan Peringatan Profil Belum Lengkap dengan dimensi py-8 & min-h agar proporsional dengan kolom identitas --}}
+                            @if($isProfileIncomplete)
+                                <div class="p-8 border rounded-lg bg-yellow-50 border-yellow-200 text-yellow-800 text-sm min-h-[250px] flex items-center">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-exclamation-triangle mt-1 mr-4 text-2xl text-yellow-600 animate-pulse"></i>
+                                        <div>
+                                            <h4 class="font-semibold text-yellow-900 mb-2 text-base">Profil Belum Lengkap</h4>
+                                            <p class="text-yellow-700 leading-relaxed">
+                                                Data profil Anda belum lengkap di sistem. Untuk dapat mengajukan DUPAK baru, Anda wajib memiliki data di bawah ini:
+                                            </p>
+                                            <ul class="list-disc list-inside mt-3 text-yellow-700 space-y-1.5 font-medium">
+                                                <li>NIK / NIP pada akun Anda.</li>
+                                                <li>NIDN atau NIDK pada data Dosen.</li>
+                                                <li>Data Riwayat JFA yang aktif.</li>
+                                            </ul>
+                                            <p class="mt-4 text-yellow-700 text-xs italic">
+                                                *Silakan hubungi Admin SDM / Kepegawaian untuk melengkapi data tersebut.
+                                            </p>
                                         </div>
-                                    @else
-                                        <a href="{{ route('dupak.pengajuan.create', ['userId' => $user->id]) }}" class="mt-4 inline-block bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-950">Buat Pengajuan Baru</a>
-                                    @endif
+                                    </div>
                                 </div>
-                            @endif
-                        </div>
-
-                        {{-- Kolom Kanan: Identitas & Aksi --}}
-                        <div id="containerRightSide" class="space-y-6">
-                            @if (isset($user) && isset($dosen))
-                            <div class="p-6 border rounded-lg bg-white shadow-sm">
-                                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                                    <i class="fas fa-user-circle mr-2 text-blue-900"></i> Identitas Pengaju
-                                </h3>
-                                <div class="space-y-2 text-sm text-gray-700">
-                                    <div class="flex justify-between border-b border-gray-50 pb-1"><span class="text-gray-500">Nama:</span> <span class="font-medium">{{ $user->nama_lengkap ?? 'N/A' }}</span></div>
-                                    <div class="flex justify-between border-b border-gray-50 pb-1"><span class="text-gray-500">NIDN:</span> <span class="font-medium">{{ $dosen->nidn ?? 'N/A' }}</span></div>
-                                    <div class="flex justify-between border-b border-gray-50 pb-1"><span class="text-gray-500">Jabatan:</span> <span class="font-medium">{{ $jfa['current'] ?? 'Belum diisi' }}</span></div>
-                                    <div class="flex justify-between"><span class="text-gray-500">NIK:</span> <span class="font-medium">{{ $user->nik ?? 'N/A' }}</span></div>
-                                </div>
-                            </div>
-                            @endif
-
-                            @if (auth()->user()->is_admin)
-                            <div class="p-6 border rounded-lg bg-white shadow-sm border-l-4 border-l-blue-900">
-                                <h3 class="text-lg font-semibold text-gray-900 mb-2">Validasi DUPAK</h3>
-                                <p class="text-sm text-gray-600 mb-4">Menu untuk melakukan verifikasi dan validasi butir kegiatan yang diajukan dosen.</p>
-                                <a href="{{ route('dupak.validasi.index') }}" class="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-950 text-sm inline-block">
-                                    Validasi Pengajuan
-                                </a>
-                            </div>
-
-                            <div class="p-6 border rounded-lg bg-white shadow-sm border-l-4 border-l-blue-900">
-                                <h3 class="text-lg font-medium">Pengelolaan TPAK</h3>
-                                <p class="text-gray-600 mb-4 text-sm">Kelola penunjukan TPAK</p>
-                                <a href="{{ route('dupak.penunjukan_tpak.index') }}" class="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-950 text-sm inline-block">
-                                    Kelola TPAK
-                                </a>
-                            </div>
-                            @endif
-                        </div>
-                    </div>
-
-                    {{-- Daftar Pengajuan (Hanya tampil jika lolos validasi kelengkapan profil) --}}
-                    <div class="mt-10">
-                        <div class="flex justify-between items-center mb-6 ">
-                            <h3 class="text-xl font-semibold">Daftar Pengajuan DUPAK</h3>
-                        </div>
-
-                        @if(!$user->is_admin && $submissions['has_pending'])
-                            @php
-                                $latestSub = $submissions['latest'];
-                                $isEditable = $latestSub && in_array($latestSub->status, ['Draft', 'Pending', 'Revisi']);
-                            @endphp
-                            @if($isEditable)
-                            <div class="mb-4 p-3 bg-yellow-50 border border-yellow-300 text-yellow-700 rounded flex items-center gap-2">
-                                <i class="fas fa-edit text-yellow-600"></i>
-                                <span>Lengkapi detail kegiatan pada pengajuan aktif Anda (Draft), lalu kirimkan untuk dinilai TPAK.</span>
-                            </div>
                             @else
-                            <div class="mb-4 p-3 bg-blue-50 border border-blue-200 text-blue-700 rounded flex items-center gap-2">
-                                <i class="fas fa-info-circle text-blue-600"></i>
-                                <span>Pengajuan DUPAK Anda saat ini sedang dinilai oleh TPAK. Pembuatan pengajuan baru akan terbuka setelah penilaian selesai.</span>
-                            </div>
+                                {{-- MAIN FLOW: Dosen dengan profil lengkap --}}
+                                @if($submissions['latest'])
+                                    @include('partials.dupak.info-kum')
+                                @else
+                                    <div class="p-10 border-2 border-dashed border-gray-300 text-center rounded-lg">
+                                        <p class="text-gray-500">Belum ada pengajuan aktif.</p>
+                                        @if($isMaxJfa)
+                                            <div class="mt-4 p-3 bg-green-50 border border-green-300 text-green-800 rounded-md text-sm">
+                                                <i class="fas fa-check-circle mr-1"></i>
+                                                Anda telah mencapai jabatan tertinggi (Guru Besar). Tidak perlu pengajuan kenaikan jabatan lagi.
+                                            </div>
+                                        @else
+                                            <a href="{{ route('dupak.pengajuan.create', ['userId' => $user->id]) }}" class="mt-4 inline-block bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-950">Buat Pengajuan Baru</a>
+                                        @endif
+                                    </div>
+                                @endif
                             @endif
                         @endif
+                    </div>
 
-                        @if(!$user->is_admin && $isMaxJfa)
-                        <div class="mb-4 p-3 bg-green-50 border border-green-300 text-green-800 rounded">
-                            <i class="fas fa-check-circle mr-1"></i>
-                            Anda sudah mencapai jabatan fungsional tertinggi (Guru Besar). Pengajuan kenaikan jabatan tidak tersedia.
+                    {{-- Kolom Kanan: Identitas & Aksi --}}
+                    <div id="containerRightSide" class="space-y-6">
+                        @if (isset($user) && isset($dosen))
+                        <div class="p-6 border rounded-lg bg-white shadow-sm">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <i class="fas fa-user-circle mr-2 text-blue-900"></i> Identitas Pengaju
+                            </h3>
+                            <div class="space-y-2 text-sm text-gray-700">
+                                <div class="flex justify-between border-b border-gray-50 pb-1"><span class="text-gray-500">Nama:</span> <span class="font-medium">{{ $user->nama_lengkap ?? 'N/A' }}</span></div>
+                                <div class="flex justify-between border-b border-gray-50 pb-1"><span class="text-gray-500">NIDN:</span> <span class="font-medium">{{ $dosen->nidn ?? 'N/A' }}</span></div>
+                                <div class="flex justify-between border-b border-gray-50 pb-1"><span class="text-gray-500">Jabatan:</span> <span class="font-medium">{{ $jfa['current'] ?? 'Belum diisi' }}</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">NIK:</span> <span class="font-medium">{{ $user->nik ?? 'N/A' }}</span></div>
+                            </div>
                         </div>
                         @endif
 
-                        @include('partials.dupak.table-pribadi')
+                        @if (auth()->user()->is_admin)
+                        <div class="p-6 border rounded-lg bg-white shadow-sm border-l-4 border-l-blue-900">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Validasi DUPAK</h3>
+                            <p class="text-sm text-gray-600 mb-4">Menu untuk melakukan verifikasi dan validasi butir kegiatan yang diajukan dosen.</p>
+                            <a href="{{ route('dupak.validasi.index') }}" class="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-950 text-sm inline-block">
+                                Validasi Pengajuan
+                            </a>
+                        </div>
+
+                        <div class="p-6 border rounded-lg bg-white shadow-sm border-l-4 border-l-blue-900">
+                            <h3 class="text-lg font-medium">Pengelolaan TPAK</h3>
+                            <p class="text-gray-600 mb-4 text-sm">Kelola penunjukan TPAK</p>
+                            <a href="{{ route('dupak.penunjukan_tpak.index') }}" class="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-950 text-sm inline-block">
+                                Kelola TPAK
+                            </a>
+                        </div>
+                        @endif
                     </div>
-                @endif
+                </div>
+
+                {{-- Daftar Pengajuan --}}
+                <div class="mt-10">
+                    <div class="flex justify-between items-center mb-6 ">
+                        <h3 class="text-xl font-semibold">Daftar Pengajuan DUPAK</h3>
+                    </div>
+
+                    @if(!$user->is_admin && $submissions['has_pending'])
+                        @php
+                            $latestSub = $submissions['latest'];
+                            $isEditable = $latestSub && in_array($latestSub->status, ['Draft', 'Pending', 'Revisi']);
+                        @endphp
+                        @if($isEditable)
+                        <div class="mb-4 p-3 bg-yellow-50 border border-yellow-300 text-yellow-700 rounded flex items-center gap-2">
+                            <i class="fas fa-edit text-yellow-600"></i>
+                            <span>Lengkapi detail kegiatan pada pengajuan aktif Anda (Draft), lalu kirimkan untuk dinilai TPAK.</span>
+                        </div>
+                        @else
+                        <div class="mb-4 p-3 bg-blue-50 border border-blue-200 text-blue-700 rounded flex items-center gap-2">
+                            <i class="fas fa-info-circle text-blue-600"></i>
+                            <span>Pengajuan DUPAK Anda saat ini sedang dinilai oleh TPAK. Pembuatan pengajuan baru akan terbuka setelah penilaian selesai.</span>
+                        </div>
+                        @endif
+                    @endif
+
+                    @if(!$user->is_admin && $isMaxJfa)
+                    <div class="mb-4 p-3 bg-green-50 border border-green-300 text-green-800 rounded">
+                        <i class="fas fa-check-circle mr-1"></i>
+                        Anda sudah mencapai jabatan fungsional tertinggi (Guru Besar). Pengajuan kenaikan jabatan tidak tersedia.
+                    </div>
+                    @endif
+
+                    @include('partials.dupak.table-pribadi')
+                </div>
             </div>
 
             {{-- TAB TPAK --}}
