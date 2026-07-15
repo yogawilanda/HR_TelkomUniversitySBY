@@ -170,6 +170,9 @@
 </div>
 
 @push('script-under-base')
+    <script src="jquery.js"></script>
+    <script src="bootstrap.bundle.min.js"></script>
+    <script src="bootstrap-table.min.js"></script>
     <script>
         window.indexFormatter = function(value, row, index) {
             const tableId = "{{ $id }}";
