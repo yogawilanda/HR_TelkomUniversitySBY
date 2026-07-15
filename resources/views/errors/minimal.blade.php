@@ -26,7 +26,7 @@
         </div>
 
         {{-- Tombol Kembali --}}
-        <a href="{{ route('dupak.dashboard') }}"
+        <a href="{{ route('dashboard') }}"
             class="mt-6 inline-block px-6 py-3 bg-blue-900 hover:bg-blue-950 rounded-lg text-white">
             Kembali ke Beranda
         </a>
