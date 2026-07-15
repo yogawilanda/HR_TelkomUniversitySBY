@@ -217,6 +217,11 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
+        \App\Models\Dosen::factory()->create([
+            'users_id' => $dosenonly->id,
+            // Jika butuh prodi_id dll, bisa disesuaikan atau biarkan factory yang handle
+        ]);
+
         $tpaonly = User::factory()->create([
             'id' => '1122-2211-11aa-aa13',
             'nama_lengkap' => 'Admin',

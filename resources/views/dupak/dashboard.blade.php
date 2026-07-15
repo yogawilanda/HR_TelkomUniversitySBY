@@ -67,7 +67,7 @@
                      <!-- Jika User adalah Dosen dan TPAK, Belum, tampilkan buat pengajuan, sudah, tampilkan info card kum -->
                       <!-- Jika User adalah Dosen/hanya TPAK, Anda tidak memiliki izin untuk mengakses halaman ini -->
                     <div class="lg:col-span-2">
-                        @if ($user->is_admin && !$dosen)
+                        @if (($user->is_admin || $isTpak) && !$dosen)
                             {{-- Skenario: Admin murni (Bukan Dosen) --}}
                             <div class="p-6 border rounded-lg bg-yellow-50 border-yellow-200 text-yellow-800 text-sm">
                                 <i class="fas fa-exclamation-triangle mr-2"></i>

@@ -627,10 +627,16 @@ Route::middleware(['auth',  \App\Http\Middleware\CekFlashUser::class])->group(fu
             ->name('leave-impersonate');
     });
 
-     Route::group([
+    Route::group([
         'prefix' => 'dupak',
         'as' => 'dupak.',
     ], function () {
+        // catatan:
+        // - pengajuan: hanya dosen/pemilik (di controller)
+        // - validasi/flagging: hanya TPAK yang ditunjuk (di ValidasiController via penunjukan_tpak)
+        // - penunjukan-tpak: dibatasi admin/SDM agar hanya TPAK tertentu yang bisa ditugaskan
+
+        
         // Dashboard
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
@@ -662,14 +668,16 @@ Route::middleware(['auth',  \App\Http\Middleware\CekFlashUser::class])->group(fu
         // Pengisian Detil Formulir Pengajuan (Resource ditaruh setelah rute spesifik)
         // Route::resource('detil_pengajuan', \App\Http\Controllers\Dupak\DetilPengajuanController::class);
 
-        // route penunjukan_tpak, tanpa id, karena sistemnya SDM akan menunjuk TPAK berdasarkan kebutuhan, bukan berdasarkan pengajuan tertentu
+            // route penunjukan_tpak, tanpa id, karena sistemnya SDM akan menunjuk TPAK berdasarkan kebutuhan, bukan berdasarkan pengajuan tertentu
         Route::group(['prefix' => 'penunjukan-tpak', 'as' => 'penunjukan_tpak.'], function () {
+            // Admin/SDM yang boleh mengelola penunjukan TPAK
             Route::get('/', [PenunjukanTPAKController::class, 'index'])->name('index');
             Route::post('/', [PenunjukanTPAKController::class, 'store'])->name('store');
             Route::delete('/{id}', [PenunjukanTPAKController::class, 'destroy'])->name('destroy');
             // Route::post('/store', [\App\Http\Controllers\Dupak\TPAKController::class, 'store'])->name('store');
             // Route::delete('/destroy/{id}', [\App\Http\Controllers\Dupak\PenunjukanTpakController::class, 'destroy'])->name('destroy');
         });
+        // ->middleware(['admin:{"is_admin":true|"bagian":"sumber daya manusia"|"range-level":[3|5]}']);
     });
 });
 
