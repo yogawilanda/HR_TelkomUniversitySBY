@@ -200,6 +200,24 @@ class DashboardController extends Controller
             abort(403, 'Akses ditolak. Anda bukan Dosen.');
         }
 
+        // =========================================================================
+        // VALIDAASI KELENGKAPAN DATA PROFIL DOSEN (NIDK/NIDN, Riwayat JFA, NIK/NIP)
+        // =========================================================================
+        $isProfileIncomplete = false;
+if ($dosen) {
+    $riwayatJfa = $this->getCurrentJFA($dosen);
+    
+    if (
+        empty($user->nik) || 
+        is_null($riwayatJfa) || 
+        (empty($dosen->nidn) && empty($dosen->nidk))
+    ) {
+        $isProfileIncomplete = true;
+    }
+}
+// dd($isProfileIncomplete, $dosen->nidn);
+        // =========================================================================
+
         $latestSubmission = $this->getLatestSubmission($user, $dosen);
 
         $kumPengajuan = 0;
@@ -362,6 +380,7 @@ class DashboardController extends Controller
         $viewData = [
             'user' => $user,
             'dosen' => $dosen,
+            'isProfileIncomplete' => $isProfileIncomplete,
             'userIsAdminButNotDosen' => $user->is_admin && is_null($dosen),
             'hasNoPengajuan' => $hasNoPengajuan,
             'totalPengajuanMandiri' => $totalPengajuanMandiri,
@@ -401,6 +420,8 @@ class DashboardController extends Controller
             'kegiatanUtama' => $kegiatanUtama,
             'statistik' => $statistik,
         ];
+
+        
 
         return view('dupak.dashboard', $viewData);
     }
