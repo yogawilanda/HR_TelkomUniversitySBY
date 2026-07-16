@@ -19,7 +19,38 @@ class DupakUserSeeder extends Seeder
         $refJFA = RefJabatanFungsionalAkademik::all();
 
         $seedUsers = [
-            // 1. Admin DUPAK sekaligus TPA
+            // a. Role: Dosen Yang Memiliki Data Absah
+            [
+                'id' => 'dup-uid-dosen-0005',
+                'nama_lengkap' => 'Dosen Utama DUPAK (Valid)',
+                'email_institusi' => 'dosen.valid@telkomuniversity.ac.id',
+                'email_pribadi' => 'dosen.valid@local.test',
+                'is_admin' => 0,
+                'tipe_pegawai' => 'Dosen',
+                'telepon' => '081234567895',
+                'password' => '321',
+                'make_role_models' => [
+                    'dosen' => true,
+                    'has_complete_profile' => true,
+                ],
+            ],
+
+            // b. Role: Dosen Yang Belum Lengkap Datanya
+            [
+                'id' => 'dup-uid-dosen-0003',
+                'nama_lengkap' => 'Dosen DUPAK (Profil Kosong)',
+                'email_institusi' => 'datadosenkosong@telkomuniversity.ac.id',
+                'email_pribadi' => 'dosen.dupak@local.test',
+                'is_admin' => 0,
+                'tipe_pegawai' => 'Dosen',
+                'telepon' => '081234567893',
+                'password' => '321',
+                'make_role_models' => [
+                    'dosen' => true,
+                ],
+            ],
+
+            // c. Role: TPA yang merangkap sebagai Admin di sistem
             [
                 'id' => 'dup-uid-admin-tpak-0001',
                 'nama_lengkap' => 'Admin DUPAK (TPA)',
@@ -32,36 +63,7 @@ class DupakUserSeeder extends Seeder
                 'make_role_models' => ['tpa' => true],
             ],
 
-            // 2. Admin SDM / Kepegawaian
-            [
-                'id' => 'dup-uid-admin-0002',
-                'nama_lengkap' => 'Admin DUPAK (SDM)',
-                'email_institusi' => 'admin.sdm@telkomuniversity.ac.id',
-                'email_pribadi' => 'admin.sdm.dup@local.test',
-                'is_admin' => 1,
-                'tipe_pegawai' => 'Tpa',
-                'telepon' => '081234567892',
-                'password' => '321',
-                'make_role_models' => [],
-            ],
-
-            // 3. Case Negatif: Dosen Baru (Tanpa NIDN, NIK, JFA)
-            [
-                'id' => 'dup-uid-dosen-0003',
-                'nama_lengkap' => 'Dosen DUPAK (Profil Kosong)',
-                'email_institusi' => 'datadosenkosong@telkomuniversity.ac.id',
-                'email_pribadi' => 'dosen.dupak@local.test',
-                'is_admin' => 0,
-                'tipe_pegawai' => 'Dosen',
-                'telepon' => '081234567893',
-                'password' => '321',
-                'make_role_models' => [
-                    'dosen' => true,
-                    // Kosongkan flag JFA biar memicu alert "Profile Incomplete"
-                ],
-            ],
-
-            // 4. Case: TPA non-admin
+            // d. Role: TPA Non Admin
             [
                 'id' => 'dup-uid-tpa-0004',
                 'nama_lengkap' => 'TPA (non-admin)',
@@ -74,23 +76,7 @@ class DupakUserSeeder extends Seeder
                 'make_role_models' => ['tpa' => true],
             ],
 
-            // 5. Case Positif: Dosen dengan berkas JFA lengkap (Asisten Ahli / Lektor)
-            [
-                'id' => 'dup-uid-dosen-0005',
-                'nama_lengkap' => 'Dosen Utama DUPAK (Valid)',
-                'email_institusi' => 'dosen.valid@telkomuniversity.ac.id',
-                'email_pribadi' => 'dosen.valid@local.test',
-                'is_admin' => 0,
-                'tipe_pegawai' => 'Dosen',
-                'telepon' => '081234567895',
-                'password' => '321',
-                'make_role_models' => [
-                    'dosen' => true,
-                    'has_complete_profile' => true, // Menandakan dia butuh JFA Lektor/Asisten Ahli
-                ],
-            ],
-
-            // 6. Case Limitatif: Dosen Guru Besar (JFA Tertinggi)
+            // e. Role: Dosen dengan Jabatan Fungsional Akademik Tertinggi
             [
                 'id' => 'dup-uid-dosen-0006',
                 'nama_lengkap' => 'Prof. Dr. Dosen Senior',
@@ -102,25 +88,37 @@ class DupakUserSeeder extends Seeder
                 'password' => '321',
                 'make_role_models' => [
                     'dosen' => true,
-                    'jfa_level' => 'Guru Besar', // Menandakan wajib dapat JFA Guru Besar
+                    'jfa_level' => 'Guru Besar',
                 ],
             ],
 
-            // 7. Case Kompleks: Dosen Aktif + TPAK
+            // f. Role: Dosen yang memiliki role sebagai Admin
             [
-                'id' => 'dup-uid-dosen-tpak-0007',
-                'nama_lengkap' => 'Dr. Dosen Penilai TPAK',
-                'email_institusi' => 'dosen.tpak@telkomuniversity.ac.id',
-                'email_pribadi' => 'dosen.tpak@local.test',
-                'is_admin' => 0,
+                'id' => 'dup-uid-admin-dosen-0008',
+                'nama_lengkap' => 'Admin DUPAK (Dosen)',
+                'email_institusi' => 'admin.dosen@telkomuniversity.ac.id',
+                'email_pribadi' => 'admin.dosen.dup@local.test',
+                'is_admin' => 1,
                 'tipe_pegawai' => 'Dosen',
-                'telepon' => '081234567897',
-                'password' => '321',
+                'telepon' => '081234567898',
+                'password' => 'password123', // Password sesuai lampiran UAT
                 'make_role_models' => [
                     'dosen' => true,
-                    'has_complete_profile' => true, // Kasih JFA aktif biar bisa dinilai & menilai
-                    'tpak' => true, 
+                    'has_complete_profile' => true, // Opsional: Diberi profil lengkap agar bisa test ajukan data juga
                 ],
+            ],
+            
+            // Tambahan Tambahan (Admin SDM Asli tetap dipertahankan jika dibutuhkan)
+            [
+                'id' => 'dup-uid-admin-0002',
+                'nama_lengkap' => 'Admin DUPAK (SDM)',
+                'email_institusi' => 'admin.sdm@telkomuniversity.ac.id',
+                'email_pribadi' => 'admin.sdm.dup@local.test',
+                'is_admin' => 1,
+                'tipe_pegawai' => 'Tpa',
+                'telepon' => '081234567892',
+                'password' => '321',
+                'make_role_models' => [],
             ],
         ];
 
@@ -140,7 +138,7 @@ class DupakUserSeeder extends Seeder
                     'telepon' => $u['telepon'] ?? null,
                     'is_active' => true,
                     'email_verified_at' => now(),
-                    'password' => Hash::make($u['password'] ?? '321'),
+                    'password' => Hash::make($u['password']),
                 ]);
             } else {
                 $user->update([
@@ -152,7 +150,7 @@ class DupakUserSeeder extends Seeder
                     'telepon' => $u['telepon'],
                     'is_active' => true,
                     'email_verified_at' => now(),
-                    'password' => Hash::make($u['password'] ?? '321'),
+                    'password' => Hash::make($u['password']),
                 ]);
             }
 
@@ -160,22 +158,19 @@ class DupakUserSeeder extends Seeder
 
             // 3. Logika Pembuatan Model Dosen & Riwayat JFA
             if (($makeRole['dosen'] ?? false) === true) {
-                // Buat data dosen dasar (untuk memicu NIDN)
                 $dosen = Dosen::query()->firstOrCreate(
                     ['users_id' => $user->id],
                     [
                         'nidn' => (($makeRole['has_complete_profile'] ?? false) || isset($makeRole['jfa_level'])) 
-                                  ? fake()->unique()->numerify('##########') // Hanya isi NIDN jika profil diset lengkap
+                                  ? fake()->unique()->numerify('##########') 
                                   : null,
                     ]
                 );
 
-                // Update NIDN jika ternyata sebelumnya null tapi di seeder sekarang harus lengkap
                 if ((($makeRole['has_complete_profile'] ?? false) || isset($makeRole['jfa_level'])) && !$dosen->nidn) {
                     $dosen->update(['nidn' => fake()->unique()->numerify('##########')]);
                 }
 
-                // Tambahkan NIK pada User jika profil lengkap
                 if ((($makeRole['has_complete_profile'] ?? false) || isset($makeRole['jfa_level'])) && !$user->nik) {
                     $user->update(['nik' => fake()->unique()->numerify('################')]);
                 }
@@ -184,22 +179,18 @@ class DupakUserSeeder extends Seeder
                 $targetJfa = null;
 
                 if (isset($makeRole['jfa_level'])) {
-                    // Cari JFA Guru Besar sesuai flag
                     $targetJfa = $refJFA->first(function ($jfa) use ($makeRole) {
                         return str_contains(strtolower($jfa->nama_jabatan), strtolower($makeRole['jfa_level'])) 
                             || str_contains(strtolower($jfa->nama_jfa ?? ''), strtolower($makeRole['jfa_level']));
                     });
                 } elseif (($makeRole['has_complete_profile'] ?? false) === true) {
-                    // Cari JFA Lektor atau Asisten Ahli untuk dosen valid biasa
                     $targetJfa = $refJFA->first(function ($jfa) {
                         return str_contains(strtolower($jfa->nama_jabatan), 'lektor') 
                             || str_contains(strtolower($jfa->nama_jfa ?? ''), 'lektor');
-                    }) ?? $refJFA->first(); // fallback ke data JFA pertama jika tidak ada text "lektor"
+                    }) ?? $refJFA->first();
                 }
 
-                // Jika target JFA ditemukan, buatkan riwayatnya
                 if ($targetJfa) {
-                    // Buat SK penunjang (Meniru format SK tim)
                     $skLLDIKTI = SK::factory()->lldikti()->create([
                         'tipe_sk' => 'LLDIKTI',
                         'keterangan' => 'Penetapan JFA untuk keperluan simulasi DUPAK.',
@@ -209,14 +200,13 @@ class DupakUserSeeder extends Seeder
                         'keterangan' => 'Pengakuan internal SK YPT atas SK LLDIKTI.',
                     ]);
 
-                    // Gunakan updateOrCreate agar data riwayat tidak terduplikasi saat re-seed
                     RiwayatJabatanFungsionalAkademik::query()->updateOrCreate(
                         ['dosen_id' => $dosen->id],
                         [
                             'ref_jfa_id' => $targetJfa->id,
                             'sk_llkdikti_id' => $skLLDIKTI->id,
                             'sk_pengakuan_ypt_id' => $skYPT->id,
-                            'tmt_mulai' => now()->subYears(2), // diset 2 tahun lalu agar realistis untuk naik pangkat
+                            'tmt_mulai' => now()->subYears(2),
                         ]
                     );
                 }

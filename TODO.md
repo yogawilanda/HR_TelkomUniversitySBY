@@ -1,8 +1,7 @@
-# TODO - Seeder DUPAK
+# TODO
 
-- [ ] Buat folder `database/seeders/DupakSeeder/` atau penyesuaian nama folder sesuai kebutuhan (tetap pakai CapitalSentence)
-- [ ] Buat/port seeder: `PengajuanSeeder`, `DetailPengajuanSeeder`, `PenunjukanTpakSeeder`, `HasilEvaluasiSeeder` ke folder `database/seeders/Dupak/<nama_seeder>` (sesuai aturan pengguna)
-- [ ] Pastikan namespace sesuai PSR-4 terhadap folder: `Database\\Seeders\\Dupak`
-- [x] Update `database/seeders/DatabaseSeeder.php` agar memanggil seeder-seeder DUPAK yang baru setelah `DupakUserSeeder`
-- [ ] Jalankan `php artisan db:seed` untuk verifikasi
+- [ ] Perbaiki `resources/views/dupak/pengajuan/show.blade.php` agar nama dosen pengaju tidak “tidak dapat diketahui”.
+- [ ] Tambahkan/replicate logika pengambilan nama user yang sudah benar dari `Dupak/DashboardController.php` ke `Dupak/PengajuanController::show()`.
+- [ ] Kirim variabel nama ke blade dan ganti pemanggilan pada card identitas.
+- [ ] Jalankan pengecekan cepat (cek halaman show dupak untuk 1 data pengajuan) untuk memastikan nama tampil.
 

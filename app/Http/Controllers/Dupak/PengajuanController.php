@@ -364,6 +364,20 @@ class PengajuanController extends Controller
         $dosenPengaju = $pengajuan->dosen;
         $baseKum = (float) ($dosenPengaju?->pegawai?->kum ?? 0);
 
+        // Ambil nama dosen pengaju dengan pola yang konsisten (ambil via users_id)
+        // supaya tidak bergantung penuh pada relasi yang mungkin tidak lengkap.
+        $namaDosenPengaju = null;
+        if ($dosenPengaju) {
+            $userPengaju = User::where('id', $dosenPengaju->users_id)->first();
+            $namaDosenPengaju = $userPengaju?->nama_lengkap ?? $userPengaju?->nama ?? null;
+        }
+        if (! $namaDosenPengaju) {
+            // fallback: tetap coba dari relasi yang sudah ada
+            $namaDosenPengaju = $pengajuan->dosen->user->nama_lengkap ?? ($pengajuan->dosen->user->nama ?? 'Nama Tidak Diketahui');
+        }
+
+
+
         // Ambil ID detail yang sudah dinilai TPAK untuk pengajuan ini
         $evaluatedIds = HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
             ->where('detail_pengajuan.pengajuan_id', $pengajuan->id)
@@ -545,6 +559,7 @@ class PengajuanController extends Controller
 
         // Tahap Akhir jika status sudah Diterima
         if ($pengajuan->status === 'Diterima') {
+
             $timelineData[] = [
                 'id' => 3,
                 'title' => 'Pengajuan Disetujui & Selesai',
@@ -563,6 +578,7 @@ class PengajuanController extends Controller
 
         $kegiatanUtama = RefKegiatanUtama::with('komponens')->where('status', 1)->get();
 
-        return view('dupak.pengajuan.show', compact('pengajuan', 'timelineData', 'kumStats', 'kegiatanUtama', 'jfaAsalLabel', 'jfaTujuanLabel'));
+        return view('dupak.pengajuan.show', compact('pengajuan', 'timelineData', 'kumStats', 'kegiatanUtama', 'jfaAsalLabel', 'jfaTujuanLabel', 'namaDosenPengaju'));
+
     }
 }

@@ -61,9 +61,10 @@
 							<i class="fas fa-user-tie text-white text-sm"></i>
 						</div>
 						<div class="min-w-0">
-							<p class="text-sm font-bold text-gray-900 leading-tight truncate">{{ $pengajuan->dosen->user->nama_lengkap ?? ($pengajuan->dosen->user->nama ?? 'Nama Tidak Diketahui') }}</p>
+							<p class="text-sm font-bold text-gray-900 leading-tight truncate">{{ $namaDosenPengaju ?? ($pengajuan->dosen->user->nama_lengkap ?? ($pengajuan->dosen->user->nama ?? 'Nama Tidak Diketahui')) }}</p>
 							<p class="text-xs text-gray-500 mt-0.5">NIDN: {{ $pengajuan->dosen->nidn ?? '-' }}</p>
 							<p class="text-xs text-blue-800 font-semibold mt-0.5">{{ $jfaAsalLabel }}</p>
+
 						</div>
 					</div>
 				</div>
