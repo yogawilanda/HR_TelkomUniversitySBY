@@ -47,6 +47,10 @@ class DatabaseSeeder extends Seeder
             \Database\Seeders\AkumulasiKinerjaSeeder::class,
             \Database\Seeders\LeaderboardKinerjaSeeder::class,
             \Database\Seeders\Dupak\DupakUserSeeder::class,
+            \Database\Seeders\Dupak\PengajuanSeeder::class,
+            \Database\Seeders\Dupak\DetailPengajuanSeeder::class,
+            \Database\Seeders\Dupak\PenunjukanTpakSeeder::class,
+            \Database\Seeders\Dupak\HasilEvaluasiSeeder::class,
         ]);
     }
 }

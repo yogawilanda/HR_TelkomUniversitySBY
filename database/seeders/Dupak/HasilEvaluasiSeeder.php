@@ -14,7 +14,7 @@ class HasilEvaluasiSeeder extends Seeder
 
         // Ambil Admin pertama untuk simulasi verifikasi admin
         $adminId = $dbMain->table('users')->where('is_admin', 1)->value('id');
-        
+
         // Ambil detail pengajuan
         $details = $dbDupak->table('detail_pengajuan')->get();
 
@@ -49,3 +49,4 @@ class HasilEvaluasiSeeder extends Seeder
         }
     }
 }
+

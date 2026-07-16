@@ -14,11 +14,11 @@ class PengajuanSeeder extends Seeder
      */
     public function run(): void
     {
-        // TRICK: Cari ID Dosen secara dinamis berdasarkan Nama atau User ID dari database utama (sdm_tus)
+        // TRICK: Cari ID Dosen secara dinamis berdasarkan Nama atau User ID dari database tim
         // Gunakan koneksi default karena sdm_new.sql di-load ke sana di DatabaseSeeder
         // koneksi ke sdm_tus untuk mendapatkan id Dosen yang sudah di acak di dari database utama.
-        $DB = DB::connection(); 
-        
+        $DB = DB::connection();
+
         // koneksi ke db dupak untuk input kedalam pengajuan
         $DBDupak = DB::connection('dupak'); // Koneksi ke database dupak
 
@@ -79,3 +79,4 @@ class PengajuanSeeder extends Seeder
         ]);
     }
 }
+

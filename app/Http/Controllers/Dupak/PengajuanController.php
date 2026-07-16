@@ -362,7 +362,7 @@ class PengajuanController extends Controller
 
         // --- Hitung Data KUM untuk Visualisasi Grafis (berdasarkan Pengaju) ---
         $dosenPengaju = $pengajuan->dosen;
-        $baseKum = (float) ($dosenPengaju->user->kum ?? 0);
+        $baseKum = (float) ($dosenPengaju?->pegawai?->kum ?? 0);
 
         // Ambil ID detail yang sudah dinilai TPAK untuk pengajuan ini
         $evaluatedIds = HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
@@ -475,10 +475,10 @@ class PengajuanController extends Controller
 
             if ($tpakEvaluatorIds->isNotEmpty()) {
                 $namesFromDosens = Dosen::whereIn('id', $tpakEvaluatorIds)
-                    ->with('user') // Asumsi Dosen memiliki relasi ke User
+                    ->with('pegawai') // relasi dosen->User menggunakan nama pegawai
                     ->get()
                     ->mapWithKeys(fn ($dosen) => [
-                        $dosen->id => $dosen->user->nama_lengkap ?? $dosen->user->nama ?? 'Pemeriksa TPAK',
+                        $dosen->id => $dosen->pegawai?->nama_lengkap ?? $dosen->pegawai?->nama ?? 'Pemeriksa TPAK',
                     ])->toArray();
                 $evaluatorNames = $evaluatorNames + $namesFromDosens;
             }

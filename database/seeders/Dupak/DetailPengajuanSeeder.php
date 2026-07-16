@@ -41,3 +41,4 @@ class DetailPengajuanSeeder extends Seeder
         }
     }
 }
+
