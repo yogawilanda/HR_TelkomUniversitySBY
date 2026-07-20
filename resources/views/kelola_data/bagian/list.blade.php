@@ -66,7 +66,7 @@
                 <x-tb-td nama="type_pekerja" type="select" sorting=true>Tipe Pekerja</x-tb-td>
                 {{-- Header Singkatan Bagian juga diketengahkan --}}
                 <x-tb-td nama="singkatan" sorting=true type="select" class="text-center">Singkatan Bagian</x-tb-td>
-                <x-tb-td nama="action" sorting=false>Action</x-tb-td>
+                <x-tb-td nama="action" sorting=false type="hide">Action</x-tb-td>
             </x-slot:table_header>
 
             <x-slot:table_column>
