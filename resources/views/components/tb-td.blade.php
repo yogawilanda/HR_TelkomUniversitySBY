@@ -11,7 +11,7 @@
 
     {{-- visibilitas --}}
     @if ($type == null) data-filter-control="input"
-    @elseif($type == 'hide') style="visibility: hidden !important;"
+    @elseif($type == 'hide') data-filter-control="input" style="visibility: hidden !important;"
     @else data-filter-control="{{ $type }}" @endif
 
 
