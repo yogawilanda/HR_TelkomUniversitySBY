@@ -11,6 +11,7 @@ use App\Models\RiwayatNip;
 use App\Models\Tpa;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -41,7 +42,7 @@ class PegawaiController extends Controller
             return redirect(route('manage.pegawai.list', ['destination' => $target]));
         }
 
-        $query = \App\Models\User::query()
+        $query = User::query()
             ->select([
                 'users.*',
                 'rn.nip as nip_aktif',
@@ -115,6 +116,10 @@ class PegawaiController extends Controller
                 return $this->handleRedirectBack()->with('error_alert', 'User Tidak Ditemukan atau Tidak Terdaftar!');
             }
 
+            $user['is_SdmOrAdmin'] = $this->isAdminOrSdm();
+            if($user->tipe_pegawai=='Dosen'){
+                $user->data_dosen = Dosen::where('users_id',$user->id)->first();
+            }
             // dd($user);
             $this->MakeLog('User Mengakses halaman ubah data '.$this->aksi, ['data' => $user]);
 
@@ -135,19 +140,35 @@ class PegawaiController extends Controller
         $this->MakeLog('User Mencoba Mengubah Data Pegawai');
         if ($this->onlyOwnerAdminAndSdm($id_user) == true) {
             $rules = $this->getPegawaiRules($request, $id_user);
-            $validator = $request->validate($rules[0],$rules[1],$rules[2] );
+            $validator = $request->validate($rules[0], $rules[1], $rules[2]);
             try {
                 DB::beginTransaction();
                 $user = null;
                 try {
                     $user = User::findOrFail($id_user);
-                } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+                } catch (ModelNotFoundException $e) {
                     throw new \Exception('User ini tidak terdaftar!.');
                 }
                 $old = $user;
                 $is_own = $id_user == $user->id ? true : false;
 
                 $save = $user->update($validator);
+
+                if($save){
+                    if ($user->tipe_pegawai == 'Dosen') {
+                        $dosen = null;
+                        try {
+                            $dosen = Dosen::where('users_id', $user->id)->firstOrFail();
+                            if($dosen==null){
+                                throw new \Exception('Data Dosen ini tidak terdaftar!.');
+                            }
+                        } catch (ModelNotFoundException $e) {
+                            throw new \Exception('Data Dosen ini tidak terdaftar!.');
+                        }
+
+                        $save = $dosen->update($validator);
+                    }
+                }
                 if ($save) {
                     DB::commit();
                     $this->MakeLog('User Berhasil Mengubah Data Pegawai');
@@ -194,7 +215,8 @@ class PegawaiController extends Controller
         DB::beginTransaction();
         try {
             $rules = $this->getPegawaiRules($request);
-            $validator = $request->validate($rules[0],$rules[1],$rules[2] );
+            $validator = $request->validate($rules[0], $rules[1], $rules[2]);
+            // dd($validator);
             $response = $this->apiCreateCompleteAccount($request);
             $responseData = $response->getData(true);
 
@@ -222,16 +244,17 @@ class PegawaiController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             $rules = $this->getPegawaiRules($request);
-            $validator = $request->validate($rules[0],$rules[1],$rules[2] );
+            $validator = $request->validate($rules[0], $rules[1], $rules[2]);
             $this->MakeLog('User Gagal Menambah Data '.$this->aksi, ['alasam' => $e->getMessage()]);
             $allErrors = collect($e->errors())
                 ->flatten()
                 ->implode(', ');
-                return $this->handleRedirectBack()
+
+            return $this->handleRedirectBack()
                 ->withInput($request->all())
-                // ->withErrors([
-                //     'system_error' => $allErrors
-                // ]);
+            // ->withErrors([
+            //     'system_error' => $allErrors
+            // ]);
                 ->withErrors($validator);
         }
     }
@@ -250,38 +273,53 @@ class PegawaiController extends Controller
                 'string',
                 $isBatch ? 'distinct' : '',
                 $isBatch
-                    ? \Illuminate\Validation\Rule::unique('users', 'username')
-                    : \Illuminate\Validation\Rule::unique('users', 'username')->ignore($id),
+                    ? Rule::unique('users', 'username')
+                    : Rule::unique('users', 'username')->ignore($id),
             ],
             "email_pribadi$suffix" => ['required', 'email:filter',
-            $isBatch
-                    ? \Illuminate\Validation\Rule::unique('users', 'email_pribadi')
-                    : \Illuminate\Validation\Rule::unique('users', 'email_pribadi')->ignore($id),
+                $isBatch
+                        ? Rule::unique('users', 'email_pribadi')
+                        : Rule::unique('users', 'email_pribadi')->ignore($id),
             ],
             "email_institusi$suffix" => ['required', 'email:filter',
-            $isBatch
-                    ? \Illuminate\Validation\Rule::unique('users', 'email_institusi')
-                    : \Illuminate\Validation\Rule::unique('users', 'email_institusi')->ignore($id),
+                $isBatch
+                        ? Rule::unique('users', 'email_institusi')
+                        : Rule::unique('users', 'email_institusi')->ignore($id),
             ],
             "jenis_kelamin$suffix" => ['required', 'in:Perempuan,Laki-laki'],
             "tgl_lahir$suffix" => ['required', 'date'],
             "tempat_lahir$suffix" => ['required'],
             "alamat$suffix" => ['required'],
-            "tipe_pegawai$suffix" => [$id==null?'required':'nullable', 'in:Dosen,TPA'],
-            "status_kepegawaian$suffix" => [$id==null?'required':'nullable', 'string', 'exists:ref_status_pegawais,id'],
+            "status_kepegawaian$suffix" => [$id == null ? 'required' : 'nullable', 'string', 'exists:ref_status_pegawais,id'],
             "jabatan$suffix" => ['nullable', 'string'],
             "tmt_mulai$suffix" => ['nullable', 'date', 'after:tgl_lahir'.($isBatch ? $suffix : '')],
             "telepon$suffix" => ['required', 'string', 'regex:/^[0-9]+$/',
-                    $isBatch
-                    ? \Illuminate\Validation\Rule::unique('users', 'telepon')
-                    : \Illuminate\Validation\Rule::unique('users', 'telepon')->ignore($id),
+                $isBatch
+                ? Rule::unique('users', 'telepon')
+                : Rule::unique('users', 'telepon')->ignore($id),
             ],
             "nik$suffix" => ['required', 'string', 'max:20', 'regex:/^[0-9]+$/',
-                    $isBatch
-                    ? \Illuminate\Validation\Rule::unique('users', 'nik')
-                    : \Illuminate\Validation\Rule::unique('users', 'nik')->ignore($id),
-                    ],
+                $isBatch
+                ? Rule::unique('users', 'nik')
+                : Rule::unique('users', 'nik')->ignore($id),
+            ],
             "nip$suffix" => ['nullable', 'string', 'max:30', 'regex:/^[0-9]+$/'],
+            "tipe_pegawai$suffix" => [$id == null ? 'required' : 'nullable', 'in:Dosen,TPA'],
+            "nidn$suffix" => [
+                'nullable',
+                'string',
+                'max:30',
+                'regex:/^[0-9]+$/',
+                Rule::requiredIf(request("tipe_pegawai$suffix") === 'Dosen'),
+            ],
+
+            "nuptk$suffix" => [
+                'nullable',
+                'string',
+                'max:30',
+                'regex:/^[0-9]+$/',
+                Rule::requiredIf(request("tipe_pegawai$suffix") === 'Dosen'),
+            ],
         ];
 
         $messages = [
@@ -346,6 +384,8 @@ class PegawaiController extends Controller
                 'alamat' => 'Alamat',
                 'tmt_mulai' => 'TMT Mulai',
                 'nip' => 'NIP',
+                'nidn' => 'Nomor Induk Dosen Nasional (NIDN)',
+                'nuptk' => 'Nomor Unik Pendidik dan Tenaga Kependidikan (NUPTK)',
             ];
         }
 
@@ -358,12 +398,12 @@ class PegawaiController extends Controller
             // Validasi data (disini $request sudah berupa data tunggal, bukan array)
             [$rules, $messages, $attributes] = $this->getPegawaiRules($request);
             $validator = Validator::make($request->all(), $rules, $messages, $attributes);
-
             if ($validator->fails()) {
                 return response()->json(['success' => false, 'error' => $validator->errors()->first()], 422);
             }
 
             $validated = $validator->validated();
+            // dd($validated);
 
             $cek_exist = DB::table('users')
                 ->selectSub(function ($q) use ($validated) {
@@ -486,8 +526,8 @@ class PegawaiController extends Controller
 
     public function changePassword($idUser)
     {
-        $cek_user = User::where('id',$idUser)->first();
-        if(!$cek_user){
+        $cek_user = User::where('id', $idUser)->first();
+        if (! $cek_user) {
             return $this->handleRedirectBack()->with('error_alert', 'Data Pegawai Tidak Ditemukan!.');
         }
         $user = (new ProfileController)->based_user_data($idUser);
@@ -539,10 +579,9 @@ class PegawaiController extends Controller
     public function setNonactive(Request $request, $idUser)
     {
         $user = User::find($idUser);
-        if(!$user){
+        if (! $user) {
             return $this->handleRedirectBack()->with('error_alert', 'Pegawai Tidak Ditemukan!.');
-        }
-        else if($user->is_active==false){
+        } elseif ($user->is_active == false) {
             return $this->handleRedirectBack()->with('error_alert', 'Pegawai Ini Memang Sudah NonAktif!.');
         }
         // $user = User::find($idUser);
@@ -564,10 +603,9 @@ class PegawaiController extends Controller
     public function setActive(Request $request, $idUser)
     {
         $user = User::find($idUser);
-        if(!$user){
+        if (! $user) {
             return $this->handleRedirectBack()->with('error_alert', 'Pegawai Tidak Ditemukan!.');
-        }
-        else if($user->is_active==true){
+        } elseif ($user->is_active == true) {
             return $this->handleRedirectBack()->with('error_alert', 'Pegawai Ini Memang Sudah Aktif!.');
         }
         $user->flash = 'Selamat!. Akun anda sudah diaktifkan kembali!.';
@@ -577,16 +615,16 @@ class PegawaiController extends Controller
         $this->MakeLog('User Mengaktifkan data '.$this->aksi, ['milik user' => $user->nama_lengkap]);
 
         $route = $this->handleRedirectBack()->with('success', 'Akun pegawai berhasil diaktifkan!');
+
         return $this->CekReview($route, '1T8', 'MELIHAT PEGAWAI DENGAN AKSES SEBAGAI ADMIN');
     }
 
     public function setAdmin(Request $request, $idUser)
     {
         $user = User::find($idUser);
-        if(!$user){
+        if (! $user) {
             return $this->handleRedirectBack()->with('error_alert', 'Pegawai Tidak Ditemukan!.');
-        }
-        else if($user->is_admin==true){
+        } elseif ($user->is_admin == true) {
             return $this->handleRedirectBack()->with('error_alert', 'Pegawai Ini Memang Sudah Memiliki Hak Akses Sebagai Admin!.');
         }
         $user->flash = 'Selamat!. Anda diberikan hak akses sebagai Admin silahkan lakukan Login Ulang!.';
@@ -604,10 +642,9 @@ class PegawaiController extends Controller
     public function setNonAdmin(Request $request, $idUser)
     {
         $user = User::find($idUser);
-        if(!$user){
+        if (! $user) {
             return $this->handleRedirectBack()->with('error_alert', 'Pegawai Tidak Ditemukan!.');
-        }
-        else if($user->is_admin==false){
+        } elseif ($user->is_admin == false) {
             return $this->handleRedirectBack()->with('error_alert', 'Pegawai Ini Memang Sudah Tidak Memiliki Hak Akses Sebagai Admin!.');
         }
         $user->flash = 'Maaf!. Dengan berat hati kami memberitahukan bahwa akun anda sudah tidak memiliki hak akses admin!. ';
@@ -991,11 +1028,13 @@ class PegawaiController extends Controller
             $user->is_new = false;
             $user->save();
             // $this->MakeLog('User Mereset Password Data '.$this->aksi, ['pemilik data' => $user->nama_lengkap]);
-            Db::commit();
+            DB::commit();
+
             return redirect(route('login'))->with('message', 'Password berhasil diperbarui, silahkan Login!');
         } catch (\Exception $e) {
             // $this->MakeLog('User Gagal Mereset Password Data '.$this->aksi, ['alasam' => $e->getMessage()]);
             DB::rollBack();
+
             return $this->handleRedirectBack()->with('error_alert', $e->getMessage());
         }
     }
