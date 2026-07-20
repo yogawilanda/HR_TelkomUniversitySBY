@@ -1,4 +1,4 @@
-@props(['type' => null, 'nama' => null, 'sorting' => false])
+@props(['type' => null, 'nama' => null, 'sorting' => false, 'addClass' => null])
 {{-- {{ dd(request()->all()[$nama]) }} --}}
 @php
     $url_value_for_this_select = request()->all()[$nama] ?? null;
@@ -8,16 +8,15 @@
 @endphp
 
 <th data-field="{{ $nama }}"
-
     {{-- visibilitas --}}
     @if ($type == null) data-filter-control="input"
-    @elseif($type == 'hide') data-filter-control="input" style="visibility: hidden !important;"
+    @elseif($type == 'hide') data-filter-control="input"
     @else data-filter-control="{{ $type }}" @endif
 
 
     @if ($url_value_for_this_select) data-filter-default="{{ $url_value_for_this_select }}" @endif
     @if ($sorting) data-sortable="true" @endif
-    class="px-6 py-4 text-[13px] font-bold text-[#1d1d1f] uppercase tracking-tight @if ($sorting) sortable @endif">
+    class="px-6 py-4 text-[13px] font-bold text-[#1d1d1f] uppercase {{ $addClass }} tracking-tight @if ($sorting) sortable @endif">
     <div class="flex items-center justify-center gap-1">
         <span>{{ $slot }}</span>
         @if ($sorting)
