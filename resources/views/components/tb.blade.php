@@ -227,6 +227,11 @@
     .filter-control select.form-select option.placeholder-custom {
         color: #474747c5 !important;
     }
+
+    .form-control.visibility-off-custom{
+                visibility: hidden !important;
+
+    }
 </style>
 <div class="min-h-[50vh] h-[77vh] max-h-fit pb-4 sticky mb-10 top-0 z-10">
     @if ($search_status == true)
@@ -315,7 +320,7 @@
             document.querySelectorAll('.hide-select-header').forEach(select => {
                 const input = select.querySelector('input.form-control');
                 if (input) {
-                    input.style.setProperty('visibility', 'hidden', 'important');
+                    input.classList.add('visibility-off-custom');
                 }
             });
 
