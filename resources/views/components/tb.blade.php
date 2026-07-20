@@ -123,7 +123,9 @@
         /* Pengganti border agar tidak hilang saat sticky */
     }
 
-    thead tr, thead th, thead .th-inner{
+    thead tr,
+    thead th,
+    thead .th-inner {
         background: #0a1645 !important;
         color: whitesmoke !important;
     }
@@ -157,22 +159,24 @@
         color: black;
         box-sizing: border-box;
     }
-    .fixed-table-toolbar{
+
+    .fixed-table-toolbar {
         height: 0px !important;
         margin: 0px !important;
         padding: 0px !important;
     }
 
-    .fixed-table-loading{
-        display:none !important;
+    .fixed-table-loading {
+        display: none !important;
     }
 
     .filter-control .form-select {
         outline: none !important;
         box-shadow: none !important;
     }
-    .filter-control input.search-input{
-        background:  #f1f5f9 !important;
+
+    .filter-control input.search-input {
+        background: #f1f5f9 !important;
         color: black !important;
 
     }
@@ -220,7 +224,7 @@
         color: #474747c5 !important;
     }
 
-    .filter-control select.form-select option.placeholder-custom{
+    .filter-control select.form-select option.placeholder-custom {
         color: #474747c5 !important;
     }
 </style>
@@ -293,7 +297,7 @@
             }
         }
 
-setTimeout(() => {
+        setTimeout(() => {
             document.querySelectorAll('.form-control.search-input').forEach(input => {
                 console.log('masuk cek 1')
                 input.setAttribute('placeholder', 'Cari data...');
@@ -308,12 +312,19 @@ setTimeout(() => {
                 select.prepend(option);
             });
 
-}, 3000);
+            document.querySelectorAll('.hide-select-header').forEach(select => {
+                const input = select.querySelector('input.form-control');
+                if (input) {
+                    input.style.setProperty('visibility', 'hidden', 'important');
+                }
+            });
+
+        }, 3000);
 
 
 
-// setTimeout(() => {
-//     console.log(document.querySelectorAll('.form-control.search-input'));
-// }, 3000);
+        // setTimeout(() => {
+        //     console.log(document.querySelectorAll('.form-control.search-input'));
+        // }, 3000);
     </script>
 @endpush
