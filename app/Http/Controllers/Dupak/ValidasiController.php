@@ -205,7 +205,7 @@ class ValidasiController extends Controller
 
         $request->validate([
             'score' => 'required|numeric|min:0|max:100',
-            'flag' => 'required|in:OK,Doubt,Fake',
+            'flag' => 'required|in:OK,Doubt,Rejected',
             'note' => 'nullable|string|max:1000',
         ]);
 
@@ -229,7 +229,7 @@ class ValidasiController extends Controller
         $detailStatus = match ($request->flag) {
             'OK' => 'approved',
             'Doubt' => 'revision',
-            'Fake' => 'rejected',
+            'Rejected' => 'rejected',
             default => 'pending',
         };
         $detail->update(['status' => $detailStatus]);
@@ -258,7 +258,7 @@ class ValidasiController extends Controller
 
         $request->validate([
             'scores.*' => 'nullable|numeric|min:0|max:100',
-            'flags.*' => 'nullable|in:OK,Doubt,Fake',
+            'flags.*' => 'nullable|in:OK,Doubt,Rejected',
             'notes.*' => 'nullable|string',
             'overall_notes' => 'nullable|string',
         ]);
@@ -272,7 +272,9 @@ class ValidasiController extends Controller
 
         DB::transaction(function () use ($request, $pengajuan, &$savedCount, $tpakDosen) {
             foreach ($request->scores as $detailId => $score) {
-                if (empty($score) && empty($request->flags[$detailId])) continue;
+                // if (empty($score) && empty($request->flags[$detailId])) continue;
+                if (!isset($score) && empty($request->flags[$detailId])) continue;
+                $score = $score ?? 0;
 
                 $flag = $request->flags[$detailId] ?? 'OK';
                 $note = $request->notes[$detailId] ?? null;
@@ -301,7 +303,7 @@ class ValidasiController extends Controller
                 // Update detail status
                 $detailStatus = match ($flag) {
                     'OK' => 'approved',
-                    'Fake' => 'rejected',
+                    'Rejected' => 'rejected',
                     'Doubt' => 'revision',
                     default => 'pending',
                 };

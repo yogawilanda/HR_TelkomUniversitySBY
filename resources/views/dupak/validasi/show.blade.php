@@ -46,7 +46,7 @@
                             <i class="fas fa-chevron-up text-gray-400 transition-transform duration-300" id="profileChevron"></i>
                         </div>
 
-                        <div id="profileContent" class="transition-all duration-500 overflow-hidden">
+                        <div id="profileContent" class="block">
                             <div class="p-6">
                                 <div class="flex flex-col items-center text-center space-y-4">
                                     <div class="w-20 h-20 rounded-3xl bg-blue-900 flex items-center justify-center text-white text-3xl font-black shadow-inner">
@@ -112,7 +112,7 @@
                                     $flagClass = [
                                     'OK' => 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100',
                                     'Doubt' => 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100',
-                                    'Fake' => 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100',
+                                    'Rejected' => 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100',
                                     'Pending' => 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100',
                                     'Verified' => '',
                                     ][$currentFlag];
@@ -190,7 +190,7 @@
                         <select id="modalStatus" class="w-full p-4 border-2 border-gray-100 rounded-2xl bg-white text-sm font-black focus:border-blue-500 focus:ring-0 outline-none appearance-none transition-all">
                             <option value="OK">✅ OK (100%)</option>
                             <option value="Doubt">⚠️ REVISI (50%)</option>
-                            <option value="Fake">❌ TOLAK (0%)</option>
+                            <option value="Rejected">❌ TOLAK (0%)</option>
                         </select>
                     </div>
                     <div>
@@ -302,15 +302,23 @@
             const scoreMap = {
                 'OK': 100,
                 'Doubt': 50,
-                'Fake': 0,
+                'Rejected': 0,
                 'Pending': 100
             };
             const score = scoreMap[status] ?? 100;
-            const pengajuanId = "{{ $pengajuan->id }}"; // Fixed missing syntax
-            // BUG HOSTING : url diubah menjadi dinamis karena di hosting masih menggunakan dupak/public/dupak, jadi absolute route akan tidak terdeteksi errornya di log.
-            const baseUrl = "{{ url('/') }}";
-            const url = `${baseUrl}/dupak/validasi/${pengajuanId}/detail/${did}/save`;
-            const localurl = `/dupak/validasi/${pengajuanId}/detail/${did}/save`;
+            const pengajuanId = "{{ $pengajuan->id }}";
+            
+            const url = "{{ route('dupak.validasi.detail.save', ['pengajuan' => ':pengajuanId', 'detail' => ':did']) }}"
+                .replace(':pengajuanId', pengajuanId)
+                .replace(':did', did);
+            
+            // Ambil tombol simpan modal untuk disable sementara
+            const saveBtn = document.querySelector('#statusModal button:last-child');
+            if (saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.textContent = 'Menyimpan...';
+            }
+
             try {
                 const response = await fetch(url, {
                     method: 'POST',
@@ -328,15 +336,22 @@
                 const data = await response.json();
                 if (data.success) {
                     updateRowUI(did, score, status, notes);
-                    if (typeof showToast === 'function') showToast('success', data.message);
+                    if (typeof showToast === 'function') {
+                        showToast('success', data.message);
+                    }
                 } else {
                     alert('Gagal menyimpan: ' + (data.error || 'Unknown error'));
                 }
             } catch (error) {
                 console.error('Save error:', error);
                 alert('Terjadi kesalahan jaringan.');
+            } finally {
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Simpan';
+                }
+                hideStatusModal();
             }
-            hideStatusModal();
         };
 
         function updateRowUI(did, score, flag, notes) {
@@ -357,7 +372,7 @@
                 const flagClasses = {
                     'OK': 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100',
                     'Doubt': 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100',
-                    'Fake': 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100',
+                    'Rejected': 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100',
                     'Pending': 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100',
                 };
 
@@ -370,19 +385,18 @@
         }
     });
 
-    // Sidebar Toggle
     function toggleProfile() {
         const content = document.getElementById('profileContent');
         const chevron = document.getElementById('profileChevron');
 
-        // Cek apakah sedang tertutup (maxHeight kosong atau 0px)
-        if (!content.style.maxHeight || content.style.maxHeight === '0px') {
-            // Ambil tinggi asli konten secara dinamis
-            content.style.maxHeight = content.scrollHeight + "px";
-            chevron.style.transform = 'rotate(0deg)';
-        } else {
-            content.style.maxHeight = '0px';
+        // Toggle class hidden milik Tailwind
+        content.classList.toggle('hidden');
+        
+        // Putar ikon panah
+        if (content.classList.contains('hidden')) {
             chevron.style.transform = 'rotate(180deg)';
+        } else {
+            chevron.style.transform = 'rotate(0deg)';
         }
     }
 </script>
