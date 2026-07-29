@@ -290,7 +290,7 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                                 <div class="flex justify-center space-x-2">
-                                                    <a href="{{ route('dupak.validasi.show', $item->pengajuan_id) }}"
+                                                    <a href="{{ route('dupak.pengajuan.show', $item->pengajuan_id) }}"
                                                         class="text-blue-600 hover:text-blue-900 bg-blue-50 p-2 rounded-lg"
                                                         title="Lihat Detail Pengajuan">
                                                         <i class="fas fa-eye"></i>
