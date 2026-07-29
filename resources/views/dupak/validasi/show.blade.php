@@ -307,9 +307,12 @@
             };
             const score = scoreMap[status] ?? 100;
             const pengajuanId = "{{ $pengajuan->id }}"; // Fixed missing syntax
-
+            // BUG HOSTING : url diubah menjadi dinamis karena di hosting masih menggunakan dupak/public/dupak, jadi absolute route akan tidak terdeteksi errornya di log.
+            const baseUrl = "{{ url('/') }}";
+            const url = `${baseUrl}/dupak/validasi/${pengajuanId}/detail/${did}/save`;
+            const localurl = `/dupak/validasi/${pengajuanId}/detail/${did}/save`;
             try {
-                const response = await fetch(`/dupak/validasi/${pengajuanId}/detail/${did}/save`, {
+                const response = await fetch(url, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
