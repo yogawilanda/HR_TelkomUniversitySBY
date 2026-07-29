@@ -4,13 +4,7 @@
 
 <x-dupak.popup-tambah-kegiatan :kegiatanUtama="$kegiatanUtama" :pengajuanId="$submissions['latest']->id ?? null" />
 
-{{-- Tambahkan style override lokal untuk mencegah layout shift akibat x-cloak --}}
-<style>
-    [x-cloak] { display: none !important; }
-    .smooth-scroll-container { will-change: transform; }
-</style>
-
-<div class="py-6 smooth-scroll-container" x-data="{ tab: 'personal' }">
+<div class="py-6" x-data="{ tab: 'personal' }"></div>
     <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
         <a href="{{ route('dashboard') }}" class="inline-flex items-center text-gray-500 hover:text-gray-700 mb-2">
             <i class="fas fa-arrow-left mr-2"></i> Kembali

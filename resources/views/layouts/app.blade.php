@@ -71,7 +71,7 @@
             </header>
         @endisset
 
-        <main class="flex-shrink-0 pattern-batik-kawung my-2 h-screen">
+        <main class="flex-shrink-0 pattern-batik-kawung my-2 min-h-screen">
             @yield('content')
         </main>
 
