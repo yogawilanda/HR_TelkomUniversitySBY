@@ -103,19 +103,20 @@
                                 <tbody class="divide-y divide-gray-100">
                                     @forelse($pengajuan->details as $index => $detail)
                                     @php
-                                    $eval = $myEvaluations[$detail->id] ?? null;
-                                    $scoreVal = $eval ? round(($eval->nilai_angka_kredit / max(0.01, $detail->angka_kredit_total)) * 100) : 100;
-                                    $did = $detail->id;
-                                    $currentFlag = $eval->status_evaluasi ?? 'Pending';
+                                        $eval = $myEvaluations[$detail->id] ?? null;
+                                        $scoreVal = $eval ? round(($eval->nilai_angka_kredit / max(0.01, $detail->angka_kredit_total)) * 100) : 100;
+                                        $did = $detail->id;
+                                        $currentFlag = $eval->status_evaluasi ?? 'Pending';
 
-                                    // Dynamic Classes Logic (tetap gunakan logic PHP Anda)
-                                    $flagClass = [
-                                    'OK' => 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100',
-                                    'Doubt' => 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100',
-                                    'Rejected' => 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100',
-                                    'Pending' => 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100',
-                                    'Verified' => '',
-                                    ][$currentFlag];
+                                        // Dynamic Classes Logic (Struktur asli Anda dipertahankan)
+                                        $flagClass = [
+                                            'OK' => 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100',
+                                            'Doubt' => 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100',
+                                            'Rejected' => 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100',
+                                            'Pending' => 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100',
+                                            'Verified' => '',
+                                        ][$currentFlag] ?? 'bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100'; 
+                                        // Fallback jika value di luar list
                                     @endphp
                                     <tr class="hover:bg-blue-50/30 transition-colors group">
                                         <td class="px-4 py-6 text-center text-gray-400 font-bold">{{ $index + 1 }}</td>
