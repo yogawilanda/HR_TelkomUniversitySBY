@@ -120,7 +120,21 @@ class DupakUserSeeder extends Seeder
                 'password' => '321',
                 'make_role_models' => [],
             ],
-            // Tambahan
+            // g. Role: System Master Dummy (Khusus Penunjukan TPAK Mandiri ID 9999)
+            [
+                'id' => 'dup-uid-system-master-0000',
+                'nama_lengkap' => 'SYSTEM_MASTER',
+                'email_institusi' => 'system.master@telkomuniversity.ac.id',
+                'email_pribadi' => 'system.master@local.test',
+                'is_admin' => 0,
+                'tipe_pegawai' => 'Dosen',
+                'telepon' => '080000000000',
+                'password' => '321',
+                'make_role_models' => [
+                    'dosen' => true,
+                    'has_complete_profile' => true,
+                ],
+            ],
         ];
 
         foreach ($seedUsers as $u) {
