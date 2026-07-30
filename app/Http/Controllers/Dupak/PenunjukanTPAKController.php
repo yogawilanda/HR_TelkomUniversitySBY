@@ -30,8 +30,9 @@ class PenunjukanTPAKController extends Controller
             ->whereIn('dosens.id', function ($query) {
                 $query->select('dosen_id')
                     ->from('riwayat_jabatan_fungsional_akademiks')
-                    ->whereNull('tmt_selesai'); // Mengambil semua dosen yang JFA-nya masih aktif
+                    ->whereNull('tmt_selesai'); 
             })
+            ->where('users.nama_lengkap', '!=', 'SYSTEM_MASTER') 
             ->select('dosens.id', 'users.nama_lengkap')
             ->orderBy('users.nama_lengkap', 'asc')
             ->get();
@@ -94,7 +95,6 @@ class PenunjukanTPAKController extends Controller
             ->pluck('total', 'pengajuan_id')
             ->toArray();
 
-        // Hitung beban kerja TPAK (Abaikan penunjukan dari master 9999)
         // Hitung beban kerja TPAK (Penunjukan ID 9999 dihitung sebagai 0)
         $dosenWorkload = PenunjukanTPAKModel::select(
             'idDosenTpak',
@@ -115,7 +115,6 @@ class PenunjukanTPAKController extends Controller
             ->map(fn ($items) => $items->pluck('idDosenTpak')->toArray())
             ->toArray();
 
-        // 3. Ambil Riwayat Penunjukan TPAK (Tampilkan Semua Termasuk Mandiri / ID 9999)
         // 3. Ambil Riwayat Penunjukan TPAK
         $penunjukanQuery = PenunjukanTPAKModel::with('creator')
             ->orderBy('created_at', 'desc');
@@ -125,7 +124,6 @@ class PenunjukanTPAKController extends Controller
                 ->where('users.nama_lengkap', 'like', "%{$search}%")
                 ->pluck('dosens.id');
 
-            // Asumsi field nama_dosen ada, sesuaikan jika beda
             $matchedPengajuanIds = Pengajuan::where('nama_dosen', 'like', "%{$search}%")->pluck('id');
 
             $penunjukanQuery->where(function ($q) use ($matchedDosenIds, $matchedPengajuanIds) {
@@ -173,7 +171,6 @@ class PenunjukanTPAKController extends Controller
             ->toArray();
 
         $penunjukanTpak->getCollection()->transform(function ($item) use ($pengajuansData, $tpakDosensData, $detailCounts, $evaluatedCounts, $jfaGlobalNames, $allUserNames) {
-            // Penanganan Khusus Penunjukan Mandiri (Master ID 9999)
             if ($item->pengajuan_id == 9999) {
                 $item->pengaju_nama = 'PENUNJUKAN MANDIRI';
                 $item->pengaju_jabatan_asal = '-';
@@ -216,20 +213,22 @@ class PenunjukanTPAKController extends Controller
 
     private function getJfaLevel($namaJfa)
     {
-        $map = [
-            'asisten ahli' => 1,
-            'asisten_ahli' => 1,
-            'lektor' => 2,
-            'lektor kepala' => 3,
-            'lektor_kepala' => 3,
-            'guru besar' => 4,
-            'guru_besar' => 4,
-            'profesor' => 4,
-            'professor' => 4,
-        ];
         $nama = strtolower(trim($namaJfa ?? ''));
 
-        return $map[$nama] ?? 0;
+        if (str_contains($nama, 'guru besar') || str_contains($nama, 'profesor') || str_contains($nama, 'professor')) {
+            return 4;
+        }
+        if (str_contains($nama, 'lektor kepala')) {
+            return 3;
+        }
+        if (str_contains($nama, 'lektor')) {
+            return 2;
+        }
+        if (str_contains($nama, 'asisten ahli') || str_contains($nama, 'asisten_ahli')) {
+            return 1;
+        }
+
+        return 0; // Return 0 untuk Non-JAD, Pengajar, atau nama tak dikenal
     }
 
     public function createNewTPAK()
@@ -243,7 +242,6 @@ class PenunjukanTPAKController extends Controller
         $isMandiri = ! $request->filled('pengajuan_id');
 
         if ($isMandiri) {
-            // Ambil ID Dosen dari User SYSTEM_MASTER yang absah dari Seeder
             $systemUser = DB::connection('mysql')
                 ->table('users')
                 ->where('nama_lengkap', 'SYSTEM_MASTER')
@@ -253,12 +251,10 @@ class PenunjukanTPAKController extends Controller
                 ? DB::connection('mysql')->table('dosens')->where('users_id', $systemUser->id)->value('id')
                 : DB::connection('mysql')->table('dosens')->value('id');
 
-            // Ambil 1 ID JFA valid agar tidak error NOT NULL constraint
             $defaultJFAId = DB::connection('mysql')
                 ->table('ref_jabatan_fungsional_akademiks')
                 ->value('id');
 
-            // AUTO-CREATE: Buat pengajuan dummy ID 9999 otomatis jika belum ada di DB
             $masterPengajuan = Pengajuan::firstOrCreate(
                 ['id' => 9999],
                 [
@@ -327,10 +323,20 @@ class PenunjukanTPAKController extends Controller
                 ->first();
 
             if (! $tpakJfa || empty($tpakJfa->nama_jabatan)) {
-                return redirect()->back()->with('error', 'Dosen yang dipilih tidak memiliki Jabatan Fungsional Akademik (JFA) aktif. Penunjukan dibatalkan.');
+                return redirect()->back()->with('error', 'Dosen yang dipilih tidak memiliki Jabatan Fungsional Akademik (JFA) aktif.');
             }
 
-            // Pengecekan Level JFA (Hanya jika BUKAN Mandiri)
+            $levelTpak = $this->getJfaLevel($tpakJfa->nama_jabatan);
+
+            // VALIDASI MANDATORI: TPAK Wajib punya JFA Minimal Asisten Ahli (Level > 0)
+            if ($levelTpak === 0) {
+                return redirect()->back()->with(
+                    'error',
+                    "Dosen yang dipilih ({$tpakJfa->nama_jabatan}) belum memiliki Jabatan Fungsional Akademik (JFA) minimal Asisten Ahli untuk menjadi penilai TPAK."
+                );
+            }
+
+            // Pengecekan Level JFA terhadap Pengajuan (Hanya jika BUKAN Mandiri)
             if (! $isMandiri && isset($pengajuan) && $pengajuan->jfaTujuan) {
                 $jfaTujuanPengajuNama = DB::connection('mysql')
                     ->table('ref_jabatan_fungsional_akademiks')
@@ -338,10 +344,10 @@ class PenunjukanTPAKController extends Controller
                     ->value('nama_jabatan');
 
                 if ($jfaTujuanPengajuNama) {
-                    $levelTpak = $this->getJfaLevel($tpakJfa->nama_jabatan);
                     $levelPengaju = $this->getJfaLevel($jfaTujuanPengajuNama);
 
-                    if ($levelTpak > 0 && $levelPengaju > 0 && $levelTpak < $levelPengaju) {
+                    // Level TPAK HARUS >= Level JFA Tujuan Pengaju
+                    if ($levelPengaju > 0 && $levelTpak < $levelPengaju) {
                         return redirect()->back()->with(
                             'error',
                             "JFA TPAK ({$tpakJfa->nama_jabatan}) lebih rendah dari JFA Tujuan Pengaju ({$jfaTujuanPengajuNama}). Penunjukan dibatalkan demi keadilan penilaian."
