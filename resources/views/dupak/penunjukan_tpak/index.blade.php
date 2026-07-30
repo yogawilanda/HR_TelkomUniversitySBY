@@ -98,11 +98,13 @@
                     </div>
 
                     <!-- Widget ringkasan beban kerja TPAK (top 5) -->
+                     <div class="flex items-center">
+                                <div class="p-2 bg-blue-600 rounded-lg mr-3"><i class="fas fa-clock text-white"></i></div>
+                                <h2 class="text-xl font-bold dark:text-white">Beban Kerja TPAK</h2>
+                            </div>
                     <div
                         class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                         <div class="p-4 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-                            <h2 class="text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Beban
-                                Kerja TPAK</h2>
                         </div>
                         <div class="p-4 space-y-3 max-h-64 overflow-y-auto">
                             @php
