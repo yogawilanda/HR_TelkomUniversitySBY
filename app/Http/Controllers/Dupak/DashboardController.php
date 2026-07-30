@@ -100,6 +100,7 @@ class DashboardController extends Controller
     private function submissions(User $user, ?string $dosenId)
     {
         $q = Pengajuan::with(['dosen.pegawai'])
+            ->where('id', '!=', 9999)
             ->orderByDesc('created_at')
             ->orderByDesc('id');
 
@@ -204,18 +205,18 @@ class DashboardController extends Controller
         // VALIDAASI KELENGKAPAN DATA PROFIL DOSEN (NIDK/NIDN, Riwayat JFA, NIK/NIP)
         // =========================================================================
         $isProfileIncomplete = false;
-if ($dosen) {
-    $riwayatJfa = $this->getCurrentJFA($dosen);
-    
-    if (
-        empty($user->nik) || 
-        is_null($riwayatJfa) || 
-        (empty($dosen->nidn) && empty($dosen->nidk))
-    ) {
-        $isProfileIncomplete = true;
-    }
-}
-// dd($isProfileIncomplete, $dosen->nidn);
+        if ($dosen) {
+            $riwayatJfa = $this->getCurrentJFA($dosen);
+            
+            if (
+                empty($user->nik) || 
+                is_null($riwayatJfa) || 
+                (empty($dosen->nidn) && empty($dosen->nidk))
+            ) {
+                $isProfileIncomplete = true;
+            }
+        }
+        // dd($isProfileIncomplete, $dosen->nidn);
         // =========================================================================
 
         $latestSubmission = $this->getLatestSubmission($user, $dosen);
@@ -256,11 +257,15 @@ if ($dosen) {
 
         $hasNoPengajuan = $dosen ? ! Pengajuan::where('idDosen', $dosen->id)->exists() : true;
         $totalPengajuanMandiri = $dosen ? Pengajuan::where('idDosen', $dosen->id)->count() : 0;
-        $totalSeluruhPengajuan = Pengajuan::count();
+        // id 9999 tidak perlu dihitung, jadi -1 dari total record pengajuan table di db.
+        $totalSeluruhPengajuan = Pengajuan::where('id', '!=', 9999)->count();
 
         $tugasTpak = collect([]);
         if ($dosen) {
             $tugasTpak = PenunjukanTPAKModel::where('idDosenTpak', $dosen->id)
+                ->whereHas('pengajuan', function ($query) {
+                    $query->where('id', '!=', 9999); // <--- Filter ID Pengajuan 9999 di sini
+                })
                 ->with(['pengajuan.dosen.pegawai'])
                 ->latest()
                 ->get();

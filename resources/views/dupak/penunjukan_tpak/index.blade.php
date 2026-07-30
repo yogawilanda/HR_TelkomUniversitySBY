@@ -254,25 +254,31 @@
                         <div class="p-4 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                         </div>
                         <div class="p-4 space-y-3 max-h-64 overflow-y-auto">
-                            @php
-                                $sortedDosens = $dosens->sortByDesc(fn($d) => $dosenWorkload[$d->id] ?? 0)->take(8);
-                            @endphp
-                            @forelse($sortedDosens as $d)
-                                @php $wl = $dosenWorkload[$d->id] ?? 0; @endphp
-                                <div class="flex items-center justify-between">
-                                    <span
-                                        class="text-xs text-gray-700 dark:text-gray-300 truncate w-32">{{ $d->nama_lengkap }}</span>
-                                    <div class="flex-1 mx-3 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                        <div class="h-full bg-blue-600 rounded-full"
-                                            style="width: {{ min(100, ($wl / 5) * 100) }}%"></div>
-                                    </div>
-                                    <span
-                                        class="text-[10px] font-bold text-blue-700 dark:text-blue-300 w-6 text-right">{{ $wl }}</span>
-                                </div>
-                            @empty
-                                <p class="text-xs text-gray-400 italic">Belum ada data penugasan.</p>
-                            @endforelse
-                        </div>
+    @php
+        // Cek apakah dosen ada di array $dosenWorkload (termasuk jika nilainya 0)
+        $sortedDosens = $dosens->sortByDesc(function($d) use ($dosenWorkload) {
+            $hasAssignment = array_key_exists($d->id, $dosenWorkload);
+            $count = $dosenWorkload[$d->id] ?? 0;
+            
+            // Memberi bobot agar dosen yang pernah ditunjuk (meski nilainya 0) tetap di atas dosen tanpa penunjukan
+            return ($hasAssignment ? 1000 : 0) + $count;
+        })->take(8); // Hapus ->take(8) jika ingin menampilkan seluruh daftar tanpa limit
+    @endphp
+
+    @forelse($sortedDosens as $d)
+        @php $wl = $dosenWorkload[$d->id] ?? 0; @endphp
+        <div class="flex items-center justify-between">
+            <span class="text-xs text-gray-700 dark:text-gray-300 truncate w-32">{{ $d->nama_lengkap }}</span>
+            <div class="flex-1 mx-3 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-blue-600 rounded-full"
+                    style="width: {{ min(100, ($wl / 5) * 100) }}%"></div>
+            </div>
+            <span class="text-[10px] font-bold text-blue-700 dark:text-blue-300 w-6 text-right">{{ $wl }}</span>
+        </div>
+    @empty
+        <p class="text-xs text-gray-400 italic">Belum ada data penugasan.</p>
+    @endforelse
+</div>
                     </div>
                 </div>
 
@@ -534,6 +540,13 @@
                             </select>
                             <p class="text-[10px] text-gray-500 mt-1 italic">* Pastikan JFA Penilai ≥ JFA Pengaju</p>
                             <p id="modal-tpak-filter-info" class="text-[10px] text-yellow-600 mt-1 italic hidden"></p>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Bukti Penunjukan</label>
+                            <textarea name="bukti_penunjukan" rows="3"
+                                class="w-full rounded-lg border-gray-300 text-sm dark:bg-gray-700 dark:text-white"
+                                placeholder="Isi tautan hanya /<nama_link> contoh: tautan_bukti_penunjukan tanpa https://www.drive.google.com"></textarea>
                         </div>
 
                         <div>

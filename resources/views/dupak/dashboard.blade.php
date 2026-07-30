@@ -4,7 +4,7 @@
 
 <x-dupak.popup-tambah-kegiatan :kegiatanUtama="$kegiatanUtama" :pengajuanId="$submissions['latest']->id ?? null" />
 
-<div class="py-6" x-data="{ tab: 'personal' }"></div>
+<div class="py-6" x-data="{ tab: 'personal' }">
     <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
         <a href="{{ route('dashboard') }}" class="inline-flex items-center text-gray-500 hover:text-gray-700 mb-2">
             <i class="fas fa-arrow-left mr-2"></i> Kembali
@@ -75,7 +75,7 @@
                                 <i class="fas fa-ban mr-2"></i> Anda tidak memiliki izin untuk mengakses halaman ini.
                             </div>
                         @else
-                            {{-- ALTERNATE FLOW: Tampilkan Peringatan Profil Belum Lengkap dengan dimensi py-8 & min-h agar proporsional dengan kolom identitas --}}
+                            {{-- ALTERNATE FLOW: Tampilkan Peringatan Profil Belum Lengkap --}}
                             @if($isProfileIncomplete)
                                 <div class="p-8 border rounded-lg bg-yellow-50 border-yellow-200 text-yellow-800 text-sm min-h-[250px] flex items-center">
                                     <div class="flex items-start">
@@ -240,7 +240,6 @@
     document.addEventListener('DOMContentLoaded', function() {
         const progressBar = document.getElementById('progress-bar');
         if (progressBar) {
-            // Menggunakan requestAnimationFrame untuk mencegah layout thrashing saat mengisi lebar bar
             requestAnimationFrame(() => {
                 const percent = progressBar.getAttribute('data-percent');
                 progressBar.style.width = percent + '%';
