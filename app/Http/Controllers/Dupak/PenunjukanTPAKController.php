@@ -27,6 +27,11 @@ class PenunjukanTPAKController extends Controller
 
         // 1. Ambil data Dosen (Calon TPAK) dari database sdm_tus
         $dosens = Dosen::join('users', 'dosens.users_id', '=', 'users.id')
+            ->whereIn('dosens.id', function ($query) {
+                $query->select('dosen_id')
+                    ->from('riwayat_jabatan_fungsional_akademiks')
+                    ->whereNull('tmt_selesai'); // Mengambil semua dosen yang JFA-nya masih aktif
+            })
             ->select('dosens.id', 'users.nama_lengkap')
             ->orderBy('users.nama_lengkap', 'asc')
             ->get();
@@ -61,7 +66,7 @@ class PenunjukanTPAKController extends Controller
                     ->from('penunjukan_tpak')
                     ->whereColumn('penunjukan_tpak.pengajuan_id', 'pengajuan.id');
             }, '<', 5);
-            
+
         if ($antreanSearch) {
             $pengajuanQuery->whereHas('dosen', function ($query) use ($antreanSearch) {
                 $query->whereIn('users_id', function ($sub) use ($antreanSearch) {
@@ -91,13 +96,13 @@ class PenunjukanTPAKController extends Controller
 
         // Hitung beban kerja TPAK (Abaikan penunjukan dari master 9999)
         // Hitung beban kerja TPAK (Penunjukan ID 9999 dihitung sebagai 0)
-$dosenWorkload = PenunjukanTPAKModel::select(
-        'idDosenTpak', 
-        DB::raw('SUM(CASE WHEN pengajuan_id != 9999 THEN 1 ELSE 0 END) as total')
-    )
-    ->groupBy('idDosenTpak')
-    ->pluck('total', 'idDosenTpak')
-    ->toArray();
+        $dosenWorkload = PenunjukanTPAKModel::select(
+            'idDosenTpak',
+            DB::raw('SUM(CASE WHEN pengajuan_id != 9999 THEN 1 ELSE 0 END) as total')
+        )
+            ->groupBy('idDosenTpak')
+            ->pluck('total', 'idDosenTpak')
+            ->toArray();
 
         // Mapping pengajuan_id -> idDosen pengaju
         $pengajuMap = $pengajuan->pluck('idDosen', 'id')->toArray();
@@ -111,7 +116,7 @@ $dosenWorkload = PenunjukanTPAKModel::select(
             ->toArray();
 
         // 3. Ambil Riwayat Penunjukan TPAK (Tampilkan Semua Termasuk Mandiri / ID 9999)
-       // 3. Ambil Riwayat Penunjukan TPAK
+        // 3. Ambil Riwayat Penunjukan TPAK
         $penunjukanQuery = PenunjukanTPAKModel::with('creator')
             ->orderBy('created_at', 'desc');
 
@@ -139,7 +144,7 @@ $dosenWorkload = PenunjukanTPAKModel::select(
 
         // Tarik pengajuan data dengan model 'dosen' saja
         $pengajuansData = Pengajuan::with(['dosen'])->whereIn('id', $pengajuanIds)->get();
-        
+
         // Gabungkan list users_id dari riwayat penunjukan ke pencarian nama lengkap
         $riwayatUserIds = $pengajuansData->pluck('dosen.users_id')->filter()->unique()->toArray();
         $allUserNames = DB::connection('mysql')
@@ -170,41 +175,41 @@ $dosenWorkload = PenunjukanTPAKModel::select(
         $penunjukanTpak->getCollection()->transform(function ($item) use ($pengajuansData, $tpakDosensData, $detailCounts, $evaluatedCounts, $jfaGlobalNames, $allUserNames) {
             // Penanganan Khusus Penunjukan Mandiri (Master ID 9999)
             if ($item->pengajuan_id == 9999) {
-                $item->pengaju_nama           = 'PENUNJUKAN MANDIRI';
-                $item->pengaju_jabatan_asal   = '-';
+                $item->pengaju_nama = 'PENUNJUKAN MANDIRI';
+                $item->pengaju_jabatan_asal = '-';
                 $item->pengaju_jabatan_tujuan = '-';
             } else {
                 $p = $pengajuansData->firstWhere('id', $item->pengajuan_id);
-                
+
                 $userId = $p->dosen->users_id ?? null;
-                $item->pengaju_nama           = $userId ? ($allUserNames[$userId] ?? 'N/A') : 'N/A';
-                $item->pengaju_jabatan_asal   = $jfaGlobalNames[$p->jfaAsal ?? null] ?? 'N/A';
+                $item->pengaju_nama = $userId ? ($allUserNames[$userId] ?? 'N/A') : 'N/A';
+                $item->pengaju_jabatan_asal = $jfaGlobalNames[$p->jfaAsal ?? null] ?? 'N/A';
                 $item->pengaju_jabatan_tujuan = $jfaGlobalNames[$p->jfaTujuan ?? null] ?? 'Tidak Diketahui';
             }
 
             $item->tpak_nama_lengkap = $tpakDosensData[$item->idDosenTpak] ?? 'N/A';
-            $item->created_at        = Carbon::parse($item->created_at);
+            $item->created_at = Carbon::parse($item->created_at);
 
             $totalDetail = $detailCounts[$item->pengajuan_id] ?? 0;
-            $evaluated   = $evaluatedCounts[$item->pengajuan_id] ?? 0;
-            
-            $item->progress_total     = $totalDetail;
+            $evaluated = $evaluatedCounts[$item->pengajuan_id] ?? 0;
+
+            $item->progress_total = $totalDetail;
             $item->progress_evaluated = $evaluated;
-            $item->progress_percent   = $totalDetail > 0 ? round(($evaluated / $totalDetail) * 100) : 0;
+            $item->progress_percent = $totalDetail > 0 ? round(($evaluated / $totalDetail) * 100) : 0;
 
             return $item;
         });
 
         return view('dupak.penunjukan_tpak.index', compact(
-            'dosens', 
-            'pengajuan', 
-            'penunjukanTpak', 
-            'tpakCounts', 
-            'dosenWorkload', 
-            'pengajuMap', 
-            'assignedMap', 
-            'tpakJfaNama', 
-            'jfaGlobalNames', 
+            'dosens',
+            'pengajuan',
+            'penunjukanTpak',
+            'tpakCounts',
+            'dosenWorkload',
+            'pengajuMap',
+            'assignedMap',
+            'tpakJfaNama',
+            'jfaGlobalNames',
             'pengajuNames'
         ));
     }
@@ -212,15 +217,15 @@ $dosenWorkload = PenunjukanTPAKModel::select(
     private function getJfaLevel($namaJfa)
     {
         $map = [
-            'asisten ahli'  => 1,
-            'asisten_ahli'  => 1,
-            'lektor'        => 2,
+            'asisten ahli' => 1,
+            'asisten_ahli' => 1,
+            'lektor' => 2,
             'lektor kepala' => 3,
             'lektor_kepala' => 3,
-            'guru besar'    => 4,
-            'guru_besar'    => 4,
-            'profesor'      => 4,
-            'professor'     => 4,
+            'guru besar' => 4,
+            'guru_besar' => 4,
+            'profesor' => 4,
+            'professor' => 4,
         ];
         $nama = strtolower(trim($namaJfa ?? ''));
 
@@ -244,7 +249,7 @@ $dosenWorkload = PenunjukanTPAKModel::select(
                 ->where('nama_lengkap', 'SYSTEM_MASTER')
                 ->first();
 
-            $defaultDosenId = $systemUser 
+            $defaultDosenId = $systemUser
                 ? DB::connection('mysql')->table('dosens')->where('users_id', $systemUser->id)->value('id')
                 : DB::connection('mysql')->table('dosens')->value('id');
 
@@ -257,15 +262,15 @@ $dosenWorkload = PenunjukanTPAKModel::select(
             $masterPengajuan = Pengajuan::firstOrCreate(
                 ['id' => 9999],
                 [
-                    'idDosen'               => $defaultDosenId,
-                    'start'                 => '2020-01-01',
-                    'end'                   => '2099-12-31',
-                    'TahunAjaranAjuanAwal'  => 'MASTER',
+                    'idDosen' => $defaultDosenId,
+                    'start' => '2020-01-01',
+                    'end' => '2099-12-31',
+                    'TahunAjaranAjuanAwal' => 'MASTER',
                     'TahunAjaranAjuanAkhir' => 'MASTER',
-                    'semesterAjuan'         => 'Ganjil',
-                    'jfaAsal'                => $defaultJFAId,
-                    'jfaTujuan'              => $defaultJFAId,
-                    'status'                => 'MASTER_TPAK',
+                    'semesterAjuan' => 'Ganjil',
+                    'jfaAsal' => $defaultJFAId,
+                    'jfaTujuan' => $defaultJFAId,
+                    'status' => 'MASTER_TPAK',
                 ]
             );
 
@@ -276,10 +281,10 @@ $dosenWorkload = PenunjukanTPAKModel::select(
 
         // 2. Adjust Validation
         $request->validate([
-            'pengajuan_id'     => $isMandiri ? 'nullable' : 'required|exists:dupak.pengajuan,id',
-            'idDosenTpak'      => 'required|exists:dosens,id',
+            'pengajuan_id' => $isMandiri ? 'nullable' : 'required|exists:dupak.pengajuan,id',
+            'idDosenTpak' => 'required|exists:dosens,id',
             'bukti_penunjukan' => 'nullable|string',
-            'catatan'          => 'nullable|string',
+            'catatan' => 'nullable|string',
         ]);
 
         try {
@@ -347,11 +352,11 @@ $dosenWorkload = PenunjukanTPAKModel::select(
 
             // Simpan
             PenunjukanTPAKModel::create([
-                'pengajuan_id'     => $pengajuanId,
-                'idDosenTpak'      => $request->idDosenTpak,
+                'pengajuan_id' => $pengajuanId,
+                'idDosenTpak' => $request->idDosenTpak,
                 'bukti_penunjukan' => $request->bukti_penunjukan,
-                'catatan'          => $request->catatan,
-                'created_by'       => Auth::id(),
+                'catatan' => $request->catatan,
+                'created_by' => Auth::id(),
             ]);
 
             return redirect()->route('dupak.penunjukan_tpak.index')->with('success', 'TPAK berhasil ditunjuk.');
@@ -359,8 +364,8 @@ $dosenWorkload = PenunjukanTPAKModel::select(
         } catch (\Exception $e) {
             Log::error('Gagal menyimpan penunjukan TPAK', [
                 'message' => $e->getMessage(),
-                'file'    => $e->getFile().':'.$e->getLine(),
-                'trace'   => $e->getTraceAsString(),
+                'file' => $e->getFile().':'.$e->getLine(),
+                'trace' => $e->getTraceAsString(),
                 'request' => $request->only(['pengajuan_id', 'idDosenTpak']),
             ]);
 
@@ -383,7 +388,7 @@ $dosenWorkload = PenunjukanTPAKModel::select(
             return redirect()->route('dupak.penunjukan_tpak.index')->with('success', 'Penugasan TPAK telah dibatalkan!');
         } catch (\Exception $e) {
             Log::error('Gagal membatalkan penunjukan TPAK', [
-                'message'       => $e->getMessage(),
+                'message' => $e->getMessage(),
                 'penunjukan_id' => $id,
             ]);
 

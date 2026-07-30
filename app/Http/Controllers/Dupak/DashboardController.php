@@ -39,7 +39,7 @@ class DashboardController extends Controller
                 ->latest()
                 ->first()
             : null;
-            // local save before merging. this comment is useless ill delete later.
+        // local save before merging. this comment is useless ill delete later.
     }
 
     private function getJfaTujuan(?string $jfaId)
@@ -207,10 +207,10 @@ class DashboardController extends Controller
         $isProfileIncomplete = false;
         if ($dosen) {
             $riwayatJfa = $this->getCurrentJFA($dosen);
-            
+
             if (
-                empty($user->nik) || 
-                is_null($riwayatJfa) || 
+                empty($user->nik) ||
+                is_null($riwayatJfa) ||
                 (empty($dosen->nidn) && empty($dosen->nidk))
             ) {
                 $isProfileIncomplete = true;
@@ -281,8 +281,8 @@ class DashboardController extends Controller
             ->get();
 
         $statistik = [
-            'selesai' => Pengajuan::where('status', 'Diterima')->count(),
-            'pending' => Pengajuan::whereIn('status', ['Draft', 'Pending', 'Diajukan', 'Revisi', 'Menunggu'])->count(),
+            'selesai' => Pengajuan::where('id', '!=', 9999)->where('status', 'Diterima')->count(),
+            'pending' => Pengajuan::where('id', '!=', 9999)->whereIn('status', ['Draft', 'Pending', 'Diajukan', 'Revisi', 'Menunggu'])->count(),
         ];
 
         $kumBreakdown = [
@@ -425,8 +425,6 @@ class DashboardController extends Controller
             'kegiatanUtama' => $kegiatanUtama,
             'statistik' => $statistik,
         ];
-
-        
 
         return view('dupak.dashboard', $viewData);
     }
