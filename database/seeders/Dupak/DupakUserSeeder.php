@@ -79,7 +79,7 @@ class DupakUserSeeder extends Seeder
             // e. Role: Dosen dengan Jabatan Fungsional Akademik Tertinggi
             [
                 'id' => 'dup-uid-dosen-0006',
-                'nama_lengkap' => 'Prof. Dr. Dosen Senior',
+                'nama_lengkap' => 'Dosen Guru Besar',
                 'email_institusi' => 'dosen.gurubesar@telkomuniversity.ac.id',
                 'email_pribadi' => 'dosen.gurubesar@local.test',
                 'is_admin' => 0,
@@ -120,6 +120,7 @@ class DupakUserSeeder extends Seeder
                 'password' => '321',
                 'make_role_models' => [],
             ],
+            // Tambahan
         ];
 
         foreach ($seedUsers as $u) {

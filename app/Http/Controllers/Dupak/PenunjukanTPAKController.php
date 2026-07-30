@@ -199,6 +199,11 @@ class PenunjukanTPAKController extends Controller
         return $map[$nama] ?? 0;
     }
 
+    // update revisi sidang: Menambah Controller untuk membuat Tim PAK baru
+    public function createNewTPAK(){
+    
+    }
+
     public function store(Request $request)
     {
         $request->validate([

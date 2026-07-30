@@ -674,6 +674,7 @@ Route::middleware(['auth',  \App\Http\Middleware\CekFlashUser::class])->group(fu
             Route::get('/', [PenunjukanTPAKController::class, 'index'])->name('index');
             Route::post('/', [PenunjukanTPAKController::class, 'store'])->name('store');
             Route::delete('/{id}', [PenunjukanTPAKController::class, 'destroy'])->name('destroy');
+            Route::get('/tambah_tpak_baru', [PenunjukanTPAKController::class, 'create_new_tpak'])->name('create_new_tpak');
             // Route::post('/store', [\App\Http\Controllers\Dupak\TPAKController::class, 'store'])->name('store');
             // Route::delete('/destroy/{id}', [\App\Http\Controllers\Dupak\PenunjukanTpakController::class, 'destroy'])->name('destroy');
         });
