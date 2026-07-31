@@ -42,14 +42,20 @@ class DashboardController extends Controller
             : null;
     }
 
-    private function getJfaTujuan(?string $jfaId)
+    private function getJfaTujuan(?string $jfaAsal, ?Pengajuan $personalSubmission = null)
     {
-        if (! $jfaId) {
+        if (! $jfaAsal) {
             return null;
         }
 
+        // Prioritas 1: Jika ada pengajuan aktif/terbaru, ambil jfaTujuan langsung dari DB
+        if ($personalSubmission && $personalSubmission->jfaTujuan) {
+            return $personalSubmission->jfaTujuan;
+        }
+
+        // Prioritas 2: Fallback ke Kenaikan Reguler (+1 tingkat)
         $keys = array_keys($this->aturanPengajuanJFA);
-        $i = array_search($jfaId, $keys);
+        $i = array_search($jfaAsal, $keys);
 
         return ($i !== false && isset($keys[$i + 1])) ? $keys[$i + 1] : null;
     }
@@ -148,7 +154,7 @@ class DashboardController extends Controller
         return $query->where('idDosen', $dosen?->id)->latest()->first();
     }
 
-    private function getJfaAndKumData(?Dosen $dosen, float $currentKum)
+    private function getJfaAndKumData(?Dosen $dosen, float $currentKum, ?Pengajuan $personalSubmission = null)
     {
         $riwayat = $this->getCurrentJFA($dosen);
         $jfaAsal = $riwayat?->ref_jfa_id;
@@ -157,7 +163,8 @@ class DashboardController extends Controller
         $minimalKum = $refJfa?->kum ?? 0;
         $namaJabatanSaatIni = $refJfa?->nama_jabatan ?? 'Belum memiliki JFA';
 
-        $jfaTujuan = $this->getJfaTujuan($jfaAsal);
+        // Passing $personalSubmission ke helper
+        $jfaTujuan = $this->getJfaTujuan($jfaAsal, $personalSubmission);
         $jfaTujuanNama = $jfaTujuan ? ($this->aturanPengajuanJFA[$jfaTujuan] ?? 'Tidak Diketahui') : 'Jabatan Tertinggi';
 
         $targetKum = $this->getTargetKum($jfaAsal, $jfaTujuan, $minimalKum);
@@ -167,6 +174,7 @@ class DashboardController extends Controller
             'namaJabatanSaatIni' => $namaJabatanSaatIni,
             'jfaTujuanNama' => $jfaTujuanNama,
             'progress' => $progress,
+            'jfaTujuan' => $jfaTujuan, // Tambahkan ini agar bisa dipakai di breakdown limit lampiran
         ];
     }
 
@@ -198,6 +206,7 @@ class DashboardController extends Controller
         $kumDisetujui = 0;
         $personalSubmission = null;
 
+        // 1. Dapatkan $personalSubmission & Hitung KUM dulu
         if ($dosen) {
             $personalSubmission = Pengajuan::where('idDosen', $dosen->id)->latest()->first();
 
@@ -221,8 +230,9 @@ class DashboardController extends Controller
             }
         }
 
+        // 2. Eksekusi $jfaData SETELAH $personalSubmission didapatkan
         $baseKum = (float) ($user->kum ?? 0);
-        $jfaData = $this->getJfaAndKumData($dosen, $baseKum + $kumDisetujui);
+        $jfaData = $this->getJfaAndKumData($dosen, $baseKum + $kumDisetujui, $personalSubmission);
         $progress = $jfaData['progress'];
 
         $hasNoPengajuan = $dosen ? ! Pengajuan::where('idDosen', $dosen->id)->exists() : true;
@@ -283,7 +293,9 @@ class DashboardController extends Controller
 
             $riwayat = $this->getCurrentJFA($dosen);
             $jfaAsal = $riwayat?->ref_jfa_id;
-            $jfaTujuan = $this->getJfaTujuan($jfaAsal);
+
+            // 3. Ambil jfaTujuan yang sudah dinamis dari $jfaData
+            $jfaTujuan = $jfaData['jfaTujuan'];
 
             $targetJabatan = null;
             if ($jfaAsal && $jfaTujuan) {
@@ -397,8 +409,8 @@ class DashboardController extends Controller
             ],
             'kegiatanUtama' => $kegiatanUtama,
             'statistik' => $statistik,
-            'notifications' => $notifications, // <-- Sudah diteruskan
-            'unreadCount' => $unreadCount,     // <-- Sudah diteruskan
+            'notifications' => $notifications,
+            'unreadCount' => $unreadCount,
         ];
 
         return view('dupak.dashboard', $viewData);

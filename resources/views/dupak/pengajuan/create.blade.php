@@ -34,10 +34,8 @@
                             <label for="nidn" class="block text-sm font-medium text-gray-700 mb-1.5">NIDN</label>
                             <div class="relative rounded-lg shadow-sm">
                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                    <!-- FontAwesome Lock Icon matching dashboard style -->
                                     <i class="fas fa-lock text-gray-400"></i>
                                 </div>
-                                <!-- Menggunakan pl-10 agar teks bergeser aman kanan dari posisi ikon -->
                                 <input type="text" name="nidn" id="nidn" value="{{ $nidn ?? 'NIDN Tidak Ditemukan' }}"
                                     class="block w-full rounded-lg border border-gray-200 bg-gray-50/70 pl-10 pr-3 py-2.5 text-sm text-gray-500 focus:outline-none cursor-not-allowed"
                                     readonly>
@@ -71,18 +69,32 @@
                             <p class="mt-1.5 text-xs text-gray-400 italic">Otomatis diambil dari data Anda terkini.</p>
                         </div>
 
-                        <!-- Target Position -->
+                        <!-- Target Position (Dropdown Kenaikan Reguler / Loncat Jabatan) -->
                         <div>
-                            <label for="target_position" class="block text-sm font-medium text-gray-700 mb-1.5">Jabatan Fungsional Yang Dituju</label>
+                            <label for="jfaTujuan" class="block text-sm font-medium text-gray-700 mb-1.5">Jabatan Fungsional Yang Dituju</label>
                             <div class="relative rounded-lg shadow-sm">
                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                    <!-- Aksen panah/target menggunakan warna Biru sesuai ekosistem -->
                                     <i class="fas fa-arrow-right text-blue-600"></i>
                                 </div>
-                                <input type="text" name="target_position" id="target_position" value="{{ $jfa_tujuan ?? 'Belum ada' }}"
-                                    class="block w-full rounded-lg border border-blue-100 bg-blue-50/20 pl-10 pr-3 py-2.5 text-sm text-blue-900 font-semibold focus:outline-none cursor-not-allowed"
-                                    readonly>
+                                
+                                <select name="jfaTujuan" id="jfaTujuan" required
+                                    class="block w-full rounded-lg border border-blue-200 bg-blue-50/20 pl-10 pr-8 py-2.5 text-sm text-blue-900 font-semibold focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none cursor-pointer @error('jfaTujuan') border-red-500 @enderror">
+                                    <option value="" disabled selected>-- Pilih Target Jabatan --</option>
+                                    @if(isset($opsiJfaTujuan) && count($opsiJfaTujuan) > 0)
+                                        @foreach($opsiJfaTujuan as $id => $label)
+                                            <option value="{{ $id }}" {{ old('jfaTujuan') == $id ? 'selected' : '' }}>
+                                                {{ $label }}
+                                            </option>
+                                        @endforeach
+                                    @endif
+                                </select>
                             </div>
+
+                            @error('jfaTujuan')
+                                <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                            @else
+                                <p class="mt-1.5 text-xs text-gray-400 italic">Pilih kenaikan Reguler atau Loncat Jabatan sesuai aturan PO PAK 2019.</p>
+                            @enderror
                         </div>
                     </div>
                 </div>
