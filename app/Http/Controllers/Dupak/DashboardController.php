@@ -15,6 +15,7 @@ use App\Models\RiwayatJabatanFungsionalAkademik;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Dupak\NotifikasiDupakModel; // <-- Tambahkan ini
 
 class DashboardController extends Controller
 {
@@ -35,11 +36,10 @@ class DashboardController extends Controller
     {
         return $dosen
             ? RiwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
-                ->whereNull('tmt_selesai')
-                ->latest()
-                ->first()
+            ->whereNull('tmt_selesai')
+            ->latest()
+            ->first()
             : null;
-        // local save before merging. this comment is useless ill delete later.
     }
 
     private function getJfaTujuan(?string $jfaId)
@@ -69,7 +69,6 @@ class DashboardController extends Controller
 
     private function buildProgress($current, $goal)
     {
-        // Pastikan goal tidak nol untuk menghindari division by zero error
         $goal = (float) $goal;
         $current = (float) $current;
         $percent = $goal > 0 ? min(100, ($current / $goal) * 100) : 0;
@@ -83,20 +82,6 @@ class DashboardController extends Controller
         ];
     }
 
-    // private function submissions(User $user, ?string $dosenId)
-    // {
-    //     // fixing sorting algorithm for 2 layered sorts.
-    //     $q = Pengajuan::with(['dosen.pegawai'])
-    //         ->orderByDesc('created_at')
-    //         ->orderByDesc('id');
-
-    //     if (!$user->is_admin) {
-    //         $q->where('idDosen', $dosenId ?? '___INVALID___');
-    //     }
-
-    //     return $q;
-    // }
-
     private function submissions(User $user, ?string $dosenId)
     {
         $q = Pengajuan::with(['dosen.pegawai'])
@@ -105,15 +90,13 @@ class DashboardController extends Controller
             ->orderByDesc('id');
 
         if (! $user->is_admin) {
-            // Ambil semua ID pengajuan yang ditugaskan ke dosen ini sebagai TPAK
             $assignedPengajuanIds = [];
             if ($dosenId) {
                 $assignedPengajuanIds = PenunjukanTPAKModel::where('idDosenTpak', $dosenId)
-                    ->pluck('pengajuan_id') // Sesuaikan nama kolom ID pengajuan di tabel penunjukan_tpak kamu jika berbeda
+                    ->pluck('pengajuan_id')
                     ->toArray();
             }
 
-            // Tampilkan pengajuan miliknya SENDIRI ATAU pengajuan orang lain yang DITUGASKAN kepadanya
             $q->where(function ($query) use ($dosenId, $assignedPengajuanIds) {
                 $query->where('idDosen', $dosenId ?? '___INVALID___');
 
@@ -139,10 +122,6 @@ class DashboardController extends Controller
             ->exists();
     }
 
-    /**
-     * Cek apakah dosen sudah mencapai jabatan fungsional tertinggi (Guru Besar).
-     * UUID "d6418a5e-b76f-4d67-9990-056e1acabe66" = Guru Besar (Profesor)
-     */
     private function isMaxJfa(?Dosen $dosen): bool
     {
         if (! $dosen) {
@@ -152,7 +131,6 @@ class DashboardController extends Controller
         $riwayat = $this->getCurrentJFA($dosen);
         $jfaId = $riwayat?->ref_jfa_id;
 
-        // Guru Besar adalah elemen terakhir pada map urutan JFA
         $jfaKeys = array_keys($this->aturanPengajuanJFA);
         $lastJfaId = end($jfaKeys);
 
@@ -201,9 +179,6 @@ class DashboardController extends Controller
             abort(403, 'Akses ditolak. Anda bukan Dosen.');
         }
 
-        // =========================================================================
-        // VALIDAASI KELENGKAPAN DATA PROFIL DOSEN (NIDK/NIDN, Riwayat JFA, NIK/NIP)
-        // =========================================================================
         $isProfileIncomplete = false;
         if ($dosen) {
             $riwayatJfa = $this->getCurrentJFA($dosen);
@@ -216,8 +191,6 @@ class DashboardController extends Controller
                 $isProfileIncomplete = true;
             }
         }
-        // dd($isProfileIncomplete, $dosen->nidn);
-        // =========================================================================
 
         $latestSubmission = $this->getLatestSubmission($user, $dosen);
 
@@ -229,18 +202,15 @@ class DashboardController extends Controller
             $personalSubmission = Pengajuan::where('idDosen', $dosen->id)->latest()->first();
 
             if ($personalSubmission) {
-                // Ambil ID detail kegiatan yang sudah memiliki penilaian dari TPAK
                 $evaluatedIds = HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
                     ->where('detail_pengajuan.pengajuan_id', $personalSubmission->id)
                     ->where('hasil_evaluasi.peran_pemeriksa', 'TPAK')
                     ->pluck('detail_pengajuan.id');
 
-                // KUM Pending: Butir kegiatan yang BELUM dinilai sama sekali oleh TPAK
                 $kumPengajuan = (float) $personalSubmission->details()
                     ->whereNotIn('id', $evaluatedIds)
                     ->sum('angka_kredit_total');
 
-                // KUM Disetujui: Akumulasi nilai yang sudah diberikan TPAK (rata-rata jika penilai > 1)
                 $kumDisetujui = (float) HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
                     ->where('detail_pengajuan.pengajuan_id', $personalSubmission->id)
                     ->where('hasil_evaluasi.peran_pemeriksa', 'TPAK')
@@ -257,14 +227,13 @@ class DashboardController extends Controller
 
         $hasNoPengajuan = $dosen ? ! Pengajuan::where('idDosen', $dosen->id)->exists() : true;
         $totalPengajuanMandiri = $dosen ? Pengajuan::where('idDosen', $dosen->id)->count() : 0;
-        // id 9999 tidak perlu dihitung, jadi -1 dari total record pengajuan table di db.
         $totalSeluruhPengajuan = Pengajuan::where('id', '!=', 9999)->count();
 
         $tugasTpak = collect([]);
         if ($dosen) {
             $tugasTpak = PenunjukanTPAKModel::where('idDosenTpak', $dosen->id)
                 ->whereHas('pengajuan', function ($query) {
-                    $query->where('id', '!=', 9999); // <--- Filter ID Pengajuan 9999 di sini
+                    $query->where('id', '!=', 9999);
                 })
                 ->with(['pengajuan.dosen.pegawai'])
                 ->latest()
@@ -312,9 +281,6 @@ class DashboardController extends Controller
                 ->get()
                 ->groupBy('detail_pengajuan_id');
 
-            // =========================================================================
-            // AMBIL DATA TARGET DARI DATABASE SEBELUM LOOPING (BIAR GAK BINGUNG)
-            // =========================================================================
             $riwayat = $this->getCurrentJFA($dosen);
             $jfaAsal = $riwayat?->ref_jfa_id;
             $jfaTujuan = $this->getJfaTujuan($jfaAsal);
@@ -325,7 +291,6 @@ class DashboardController extends Controller
                     ->where('jfaTujuan', $jfaTujuan)
                     ->first();
             }
-            // =========================================================================
 
             foreach ($details as $det) {
                 $lowerCat = strtolower($det->kategori);
@@ -343,8 +308,6 @@ class DashboardController extends Controller
                 } elseif (str_contains($lowerCat, 'penunjang')) {
                     $key = 'penunjang';
                 }
-
-                // dd($targetJabatan);
 
                 if ($targetJabatan) {
                     if ($key === 'pendidikan') {
@@ -372,15 +335,25 @@ class DashboardController extends Controller
             }
         }
 
-        // Bagian mapping data number_format dan return view tetap sama seperti kodemu
         foreach ($kumBreakdown as $key => $values) {
             $kumBreakdown[$key]['approved'] = number_format($values['approved'], 2);
             $kumBreakdown[$key]['pending'] = number_format($values['pending'], 2);
-            // Pastikan target juga ikut terformat atau dibiarkan float tergantung kebutuhan di blade
             $kumBreakdown[$key]['target'] = number_format($values['target'], 2);
         }
 
         $isMaxJfa = $this->isMaxJfa($dosen);
+
+        // Fetch Notifikasi DB DUPAK
+        $notifications = NotifikasiDupakModel::where('notifiable_id', $user->id)
+            ->where('notifiable_type', get_class($user))
+            ->latest()
+            ->take(10)
+            ->get();
+
+        $unreadCount = NotifikasiDupakModel::where('notifiable_id', $user->id)
+            ->where('notifiable_type', get_class($user))
+            ->whereNull('read_at')
+            ->count();
 
         $viewData = [
             'user' => $user,
@@ -424,6 +397,8 @@ class DashboardController extends Controller
             ],
             'kegiatanUtama' => $kegiatanUtama,
             'statistik' => $statistik,
+            'notifications' => $notifications, // <-- Sudah diteruskan
+            'unreadCount' => $unreadCount,     // <-- Sudah diteruskan
         ];
 
         return view('dupak.dashboard', $viewData);

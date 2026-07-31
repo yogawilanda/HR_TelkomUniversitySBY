@@ -36,16 +36,16 @@
                 @endif
             </h1>
 
-            <div class="flex space-x-4">
+            <div class="flex space-x-4 border-b border-gray-200">
                 <button @click="tab = 'personal'"
-                    :class="tab === 'personal' ? 'border-blue-900 text-blue-900' : 'border-transparent text-gray-500'"
+                    :class="tab === 'personal' ? 'border-blue-900 text-blue-900' : 'border-transparent text-gray-500 hover:text-gray-700'"
                     class="px-4 py-2 font-semibold border-b-2 transition-colors">
                     DUPAK Pribadi
                 </button>
 
                 @if($isTpak)
                 <button @click="tab = 'tpak'"
-                    :class="tab === 'tpak' ? 'border-blue-900 text-blue-900' : 'border-transparent text-gray-500'"
+                    :class="tab === 'tpak' ? 'border-blue-900 text-blue-900' : 'border-transparent text-gray-500 hover:text-gray-700'"
                     class="px-4 py-2 font-semibold border-b-2 transition-colors flex items-center">
                     Penugasan TPAK
                     <span class="ml-2 px-2 py-0.5 bg-blue-900 text-white rounded-full text-xs">
@@ -53,6 +53,16 @@
                     </span>
                 </button>
                 @endif
+
+                {{-- TAB NOTIFIKASI --}}
+                <button @click="tab = 'notifikasi'"
+                    :class="tab === 'notifikasi' ? 'border-blue-900 text-blue-900' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                    class="px-4 py-2 font-semibold border-b-2 transition-colors flex items-center">
+                    Notifikasi
+                    <span class="ml-2 px-2 py-0.5 bg-red-600 text-white rounded-full text-xs">
+                        {{ $notifications->count() ?? 0 }}
+                    </span>
+                </button>
             </div>
         </div>
 
@@ -62,58 +72,58 @@
             <div x-show="tab === 'personal'">
                 {{-- Grid utama 3 kolom --}}
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                    
+
                     {{-- Kolom Kiri: Informasi KUM / Status Profil --}}
                     <div class="lg:col-span-2">
                         @if (($user->is_admin || $isTpak) && !$dosen)
-                            <div class="p-6 border rounded-lg bg-yellow-50 border-yellow-200 text-yellow-800 text-sm">
-                                <i class="fas fa-exclamation-triangle mr-2"></i>
-                                Anda terdaftar sebagai Admin/TPAK namun bukan Dosen. Pengajuan DUPAK hanya dapat dilakukan oleh Dosen. Hubungi Admin SDM untuk proses pengubahan jabatan apabila terdapat kesalahan data.
-                            </div>
+                        <div class="p-6 border rounded-lg bg-yellow-50 border-yellow-200 text-yellow-800 text-sm">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            Anda terdaftar sebagai Admin/TPAK namun bukan Dosen. Pengajuan DUPAK hanya dapat dilakukan oleh Dosen. Hubungi Admin SDM untuk proses pengubahan jabatan apabila terdapat kesalahan data.
+                        </div>
                         @elseif (!$user->is_admin && !$isTpak && !$dosen)
-                            <div class="p-6 border rounded-lg bg-red-50 border-red-200 text-red-800 text-sm text-center">
-                                <i class="fas fa-ban mr-2"></i> Anda tidak memiliki izin untuk mengakses halaman ini.
-                            </div>
+                        <div class="p-6 border rounded-lg bg-red-50 border-red-200 text-red-800 text-sm text-center">
+                            <i class="fas fa-ban mr-2"></i> Anda tidak memiliki izin untuk mengakses halaman ini.
+                        </div>
                         @else
-                            {{-- ALTERNATE FLOW: Tampilkan Peringatan Profil Belum Lengkap --}}
-                            @if($isProfileIncomplete)
-                                <div class="p-8 border rounded-lg bg-yellow-50 border-yellow-200 text-yellow-800 text-sm min-h-[250px] flex items-center">
-                                    <div class="flex items-start">
-                                        <i class="fas fa-exclamation-triangle mt-1 mr-4 text-2xl text-yellow-600 animate-pulse"></i>
-                                        <div>
-                                            <h4 class="font-semibold text-yellow-900 mb-2 text-base">Profil Belum Lengkap</h4>
-                                            <p class="text-yellow-700 leading-relaxed">
-                                                Data profil Anda belum lengkap di sistem. Untuk dapat mengajukan DUPAK baru, Anda wajib memiliki data di bawah ini:
-                                            </p>
-                                            <ul class="list-disc list-inside mt-3 text-yellow-700 space-y-1.5 font-medium">
-                                                <li>NIK / NIP pada akun Anda.</li>
-                                                <li>NIDN atau NIDK pada data Dosen.</li>
-                                                <li>Data Riwayat JFA yang aktif.</li>
-                                            </ul>
-                                            <p class="mt-4 text-yellow-700 text-xs italic">
-                                                *Silakan hubungi Admin SDM / Kepegawaian untuk melengkapi data tersebut.
-                                            </p>
-                                        </div>
-                                    </div>
+                        {{-- ALTERNATE FLOW: Tampilkan Peringatan Profil Belum Lengkap --}}
+                        @if($isProfileIncomplete)
+                        <div class="p-8 border rounded-lg bg-yellow-50 border-yellow-200 text-yellow-800 text-sm min-h-[250px] flex items-center">
+                            <div class="flex items-start">
+                                <i class="fas fa-exclamation-triangle mt-1 mr-4 text-2xl text-yellow-600 animate-pulse"></i>
+                                <div>
+                                    <h4 class="font-semibold text-yellow-900 mb-2 text-base">Profil Belum Lengkap</h4>
+                                    <p class="text-yellow-700 leading-relaxed">
+                                        Data profil Anda belum lengkap di sistem. Untuk dapat mengajukan DUPAK baru, Anda wajib memiliki data di bawah ini:
+                                    </p>
+                                    <ul class="list-disc list-inside mt-3 text-yellow-700 space-y-1.5 font-medium">
+                                        <li>NIK / NIP pada akun Anda.</li>
+                                        <li>NIDN atau NIDK pada data Dosen.</li>
+                                        <li>Data Riwayat JFA yang aktif.</li>
+                                    </ul>
+                                    <p class="mt-4 text-yellow-700 text-xs italic">
+                                        *Silakan hubungi Admin SDM / Kepegawaian untuk melengkapi data tersebut.
+                                    </p>
                                 </div>
+                            </div>
+                        </div>
+                        @else
+                        {{-- MAIN FLOW: Dosen dengan profil lengkap --}}
+                        @if($submissions['latest'])
+                        @include('partials.dupak.info-kum')
+                        @else
+                        <div class="p-10 border-2 border-dashed border-gray-300 text-center rounded-lg">
+                            <p class="text-gray-500">Belum ada pengajuan aktif.</p>
+                            @if($isMaxJfa)
+                            <div class="mt-4 p-3 bg-green-50 border border-green-300 text-green-800 rounded-md text-sm">
+                                <i class="fas fa-check-circle mr-1"></i>
+                                Anda telah mencapai jabatan tertinggi (Guru Besar). Tidak perlu pengajuan kenaikan jabatan lagi.
+                            </div>
                             @else
-                                {{-- MAIN FLOW: Dosen dengan profil lengkap --}}
-                                @if($submissions['latest'])
-                                    @include('partials.dupak.info-kum')
-                                @else
-                                    <div class="p-10 border-2 border-dashed border-gray-300 text-center rounded-lg">
-                                        <p class="text-gray-500">Belum ada pengajuan aktif.</p>
-                                        @if($isMaxJfa)
-                                            <div class="mt-4 p-3 bg-green-50 border border-green-300 text-green-800 rounded-md text-sm">
-                                                <i class="fas fa-check-circle mr-1"></i>
-                                                Anda telah mencapai jabatan tertinggi (Guru Besar). Tidak perlu pengajuan kenaikan jabatan lagi.
-                                            </div>
-                                        @else
-                                            <a href="{{ route('dupak.pengajuan.create', ['userId' => $user->id]) }}" class="mt-4 inline-block bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-950">Buat Pengajuan Baru</a>
-                                        @endif
-                                    </div>
-                                @endif
+                            <a href="{{ route('dupak.pengajuan.create', ['userId' => $user->id]) }}" class="mt-4 inline-block bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-950">Buat Pengajuan Baru</a>
                             @endif
+                        </div>
+                        @endif
+                        @endif
                         @endif
                     </div>
 
@@ -160,21 +170,21 @@
                     </div>
 
                     @if(!$user->is_admin && $submissions['has_pending'])
-                        @php
-                            $latestSub = $submissions['latest'];
-                            $isEditable = $latestSub && in_array($latestSub->status, ['Draft', 'Pending', 'Revisi']);
-                        @endphp
-                        @if($isEditable)
-                        <div class="mb-4 p-3 bg-yellow-50 border border-yellow-300 text-yellow-700 rounded flex items-center gap-2">
-                            <i class="fas fa-edit text-yellow-600"></i>
-                            <span>Lengkapi detail kegiatan pada pengajuan aktif Anda (Draft), lalu kirimkan untuk dinilai TPAK.</span>
-                        </div>
-                        @else
-                        <div class="mb-4 p-3 bg-blue-50 border border-blue-200 text-blue-700 rounded flex items-center gap-2">
-                            <i class="fas fa-info-circle text-blue-600"></i>
-                            <span>Pengajuan DUPAK Anda saat ini sedang dinilai oleh TPAK. Pembuatan pengajuan baru akan terbuka setelah penilaian selesai.</span>
-                        </div>
-                        @endif
+                    @php
+                    $latestSub = $submissions['latest'];
+                    $isEditable = $latestSub && in_array($latestSub->status, ['Draft', 'Pending', 'Revisi']);
+                    @endphp
+                    @if($isEditable)
+                    <div class="mb-4 p-3 bg-yellow-50 border border-yellow-300 text-yellow-700 rounded flex items-center gap-2">
+                        <i class="fas fa-edit text-yellow-600"></i>
+                        <span>Lengkapi detail kegiatan pada pengajuan aktif Anda (Draft), lalu kirimkan untuk dinilai TPAK.</span>
+                    </div>
+                    @else
+                    <div class="mb-4 p-3 bg-blue-50 border border-blue-200 text-blue-700 rounded flex items-center gap-2">
+                        <i class="fas fa-info-circle text-blue-600"></i>
+                        <span>Pengajuan DUPAK Anda saat ini sedang dinilai oleh TPAK. Pembuatan pengajuan baru akan terbuka setelah penilaian selesai.</span>
+                    </div>
+                    @endif
                     @endif
 
                     @if(!$user->is_admin && $isMaxJfa)
@@ -220,8 +230,8 @@
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <a href="{{ route('dupak.validasi.show', $tugas->pengajuan->id) }}"
-                                       class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-md text-sm transition">
-                                         Mulai Penilaian
+                                        class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-md text-sm transition">
+                                        Mulai Penilaian
                                     </a>
                                 </td>
                             </tr>
@@ -232,8 +242,66 @@
             </div>
             @endif
 
+            {{-- TAB NOTIFIKASI --}}
+            <div x-show="tab === 'notifikasi'" x-cloak>
+                <div class="space-y-4">
+                    @forelse ($notifications ?? [] as $notification)
+                    @php
+                    $urlTarget = $notification->link
+                    ?? $notification->url
+                    ?? $notification->data['url']
+                    ?? null;
+                    @endphp
+
+                    {{-- 1. Jika ada URL, pakai tag <a> agar UX hyperlink & hover-nya native --}}
+                    @if($urlTarget)
+                    <a href="{{ $urlTarget }}"
+                        class="p-4 rounded-lg border border-gray-200 bg-gray-50 hover:bg-blue-50/50 hover:border-blue-300 hover:shadow-md transition cursor-pointer flex items-start justify-between group block">
+                        {{-- 2. Jika tidak ada URL, pakai <div> dengan event Alpine --}}
+                        @else
+                        <div @click="tab = 'tpak'"
+                            class="p-4 rounded-lg border border-gray-200 bg-gray-50 hover:bg-blue-50/50 hover:border-blue-300 hover:shadow-md transition cursor-pointer flex items-start justify-between group">
+                            @endif
+
+                            <div class="flex items-start space-x-3">
+                                <div class="mt-1 text-blue-900 group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-bell text-lg"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-semibold text-gray-900">
+                                        {{ $notification->title ?? $notification->data['title'] ?? 'Pemberitahuan System' }}
+                                    </h4>
+                                    <p class="text-sm text-gray-600 mt-0.5">
+                                        {{ $notification->message ?? $notification->data['message'] ?? 'Tidak ada rincian pesan.' }}
+                                    </p>
+                                    <span class="text-xs text-gray-400 mt-2 inline-block">
+                                        {{ $notification->created_at ? $notification->created_at->diffForHumans() : '-' }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="text-xs font-semibold text-blue-900 group-hover:underline flex items-center space-x-1 shrink-0">
+                                <span>Lihat Detail</span>
+                                <i class="fas fa-chevron-right text-xs group-hover:translate-x-0.5 transition-transform"></i>
+                            </div>
+
+                            @if($urlTarget)
+                    </a>
+                    @else
+                </div>
+                @endif
+
+                @empty
+                <div class="p-10 border-2 border-dashed border-gray-200 text-center rounded-lg text-gray-500">
+                    <i class="fas fa-bell-slash text-3xl mb-2 text-gray-400"></i>
+                    <p class="text-sm">Belum ada notifikasi saat ini.</p>
+                </div>
+                @endforelse
+            </div>
         </div>
+
     </div>
+</div>
 </div>
 
 <script>

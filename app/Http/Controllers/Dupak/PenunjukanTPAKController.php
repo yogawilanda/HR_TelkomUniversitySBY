@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Dosen;
 use App\Models\Dupak\DetailPengajuan;
 use App\Models\Dupak\HasilEvaluasi;
+use App\Models\Dupak\NotifikasiDupakModel;
 use App\Models\Dupak\Pengajuan;
 use App\Models\Dupak\PenunjukanTPAKModel;
 use Carbon\Carbon;
@@ -30,9 +31,9 @@ class PenunjukanTPAKController extends Controller
             ->whereIn('dosens.id', function ($query) {
                 $query->select('dosen_id')
                     ->from('riwayat_jabatan_fungsional_akademiks')
-                    ->whereNull('tmt_selesai'); 
+                    ->whereNull('tmt_selesai');
             })
-            ->where('users.nama_lengkap', '!=', 'SYSTEM_MASTER') 
+            ->where('users.nama_lengkap', '!=', 'SYSTEM_MASTER')
             ->select('dosens.id', 'users.nama_lengkap')
             ->orderBy('users.nama_lengkap', 'asc')
             ->get();
@@ -112,7 +113,7 @@ class PenunjukanTPAKController extends Controller
             ->where('pengajuan_id', '!=', 9999)
             ->get()
             ->groupBy('pengajuan_id')
-            ->map(fn ($items) => $items->pluck('idDosenTpak')->toArray())
+            ->map(fn($items) => $items->pluck('idDosenTpak')->toArray())
             ->toArray();
 
         // 3. Ambil Riwayat Penunjukan TPAK
@@ -290,7 +291,7 @@ class PenunjukanTPAKController extends Controller
                 $finalStatuses = ['Diterima', 'Ditolak', 'Selesai'];
 
                 if (in_array($pengajuan->status, $finalStatuses)) {
-                    return redirect()->back()->with('error', 'Pengajuan sudah final ('.$pengajuan->status.'). Tidak dapat menambahkan TPAK lagi.');
+                    return redirect()->back()->with('error', 'Pengajuan sudah final (' . $pengajuan->status . '). Tidak dapat menambahkan TPAK lagi.');
                 }
 
                 if ($pengajuan->idDosen == $request->idDosenTpak) {
@@ -356,7 +357,7 @@ class PenunjukanTPAKController extends Controller
                 }
             }
 
-            // Simpan
+            // Simpan Data Penunjukan TPAK
             PenunjukanTPAKModel::create([
                 'pengajuan_id' => $pengajuanId,
                 'idDosenTpak' => $request->idDosenTpak,
@@ -365,19 +366,58 @@ class PenunjukanTPAKController extends Controller
                 'created_by' => Auth::id(),
             ]);
 
-            return redirect()->route('dupak.penunjukan_tpak.index')->with('success', 'TPAK berhasil ditunjuk.');
+            // =========================================================================
+            // PROSES KIRIM NOTIFIKASI VIA DB DUPAK
+            // =========================================================================
 
+            // 1. Ambil users_id langsung dari tabel dosens
+            $dosen = DB::connection('mysql')->table('dosens')->where('id', $request->idDosenTpak)->first();
+
+            if ($dosen) {
+                // 2. Ambil data User untuk penerima notifikasi
+                $userTpak = \App\Models\User::find($dosen->users_id);
+
+                if ($userTpak) {
+                    if ($isMandiri) {
+                        $pesan = "Anda telah ditunjuk sebagai Tim Penilai Angka Kredit (TPAK).";
+                        $urlTarget = '#';
+                    } else {
+                        $pengajuUser = DB::connection('mysql')
+                            ->table('users')
+                            ->join('dosens', 'users.id', '=', 'dosens.users_id')
+                            ->where('dosens.id', $pengajuan->idDosen)
+                            ->select('users.nama_lengkap')
+                            ->first();
+
+                        $namaPengaju = $pengajuUser->nama_lengkap ?? 'Dosen';
+                        $pesan = "Anda ditunjuk sebagai penilai DUPAK untuk {$namaPengaju}.";
+                        // $urlTarget = route('dupak.dashboard', $pengajuan->id);
+                        $urlTarget = route('dupak.validasi.show', $pengajuan->id);
+                    }
+
+                    // Send notifikasi pakai $userTpak
+                    NotifikasiDupakModel::send(
+                        $userTpak,
+                        'Penugasan Penilaian DUPAK',
+                        $pesan,
+                        $urlTarget
+                    );
+                }
+            }
+            // =========================================================================
+
+            return redirect()->route('dupak.penunjukan_tpak.index')->with('success', 'TPAK berhasil ditunjuk dan notifikasi telah dikirim.');
         } catch (\Exception $e) {
             Log::error('Gagal menyimpan penunjukan TPAK', [
                 'message' => $e->getMessage(),
-                'file' => $e->getFile().':'.$e->getLine(),
+                'file' => $e->getFile() . ':' . $e->getLine(),
                 'trace' => $e->getTraceAsString(),
                 'request' => $request->only(['pengajuan_id', 'idDosenTpak']),
             ]);
 
-            $debugMessage = config('app.debug') ? ' [DEBUG: '.$e->getMessage().' — '.get_class($e).']' : '';
+            $debugMessage = config('app.debug') ? ' [DEBUG: ' . $e->getMessage() . ' — ' . get_class($e) . ']' : '';
 
-            return redirect()->back()->with('error', 'Terjadi kesalahan teknis saat menyimpan penunjukan. Silakan coba lagi atau hubungi admin.'.$debugMessage);
+            return redirect()->back()->with('error', 'Terjadi kesalahan teknis saat menyimpan penunjukan. Silakan coba lagi atau hubungi admin.' . $debugMessage);
         }
     }
 
@@ -398,9 +438,9 @@ class PenunjukanTPAKController extends Controller
                 'penunjukan_id' => $id,
             ]);
 
-            $debugMessage = config('app.debug') ? ' [DEBUG: '.$e->getMessage().']' : '';
+            $debugMessage = config('app.debug') ? ' [DEBUG: ' . $e->getMessage() . ']' : '';
 
-            return redirect()->route('dupak.penunjukan_tpak.index')->with('error', 'Terjadi kesalahan teknis saat membatalkan penunjukan. Silakan coba lagi.'.$debugMessage);
+            return redirect()->route('dupak.penunjukan_tpak.index')->with('error', 'Terjadi kesalahan teknis saat membatalkan penunjukan. Silakan coba lagi.' . $debugMessage);
         }
     }
 }
