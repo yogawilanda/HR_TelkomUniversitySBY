@@ -370,37 +370,53 @@ class PenunjukanTPAKController extends Controller
             // PROSES KIRIM NOTIFIKASI VIA DB DUPAK
             // =========================================================================
 
-            // 1. Ambil users_id langsung dari tabel dosens
-            $dosen = DB::connection('mysql')->table('dosens')->where('id', $request->idDosenTpak)->first();
+            // 1. NOTIFIKASI UNTUK DOSEN TPAK (PENILAI)
+            $dosenTpak = DB::connection('mysql')->table('dosens')->where('id', $request->idDosenTpak)->first();
+            $userTpak = $dosenTpak ? \App\Models\User::find($dosenTpak->users_id) : null;
 
-            if ($dosen) {
-                // 2. Ambil data User untuk penerima notifikasi
-                $userTpak = \App\Models\User::find($dosen->users_id);
+            if ($userTpak) {
+                if ($isMandiri) {
+                    $pesanTpak = "Anda telah ditunjuk sebagai Tim Penilai Angka Kredit (TPAK).";
+                    $urlTargetTpak = '#';
+                } else {
+                    $pengajuUser = DB::connection('mysql')
+                        ->table('users')
+                        ->join('dosens', 'users.id', '=', 'dosens.users_id')
+                        ->where('dosens.id', $pengajuan->idDosen)
+                        ->select('users.nama_lengkap')
+                        ->first();
 
-                if ($userTpak) {
-                    if ($isMandiri) {
-                        $pesan = "Anda telah ditunjuk sebagai Tim Penilai Angka Kredit (TPAK).";
-                        $urlTarget = '#';
-                    } else {
-                        $pengajuUser = DB::connection('mysql')
-                            ->table('users')
-                            ->join('dosens', 'users.id', '=', 'dosens.users_id')
-                            ->where('dosens.id', $pengajuan->idDosen)
-                            ->select('users.nama_lengkap')
-                            ->first();
+                    $namaPengaju = $pengajuUser->nama_lengkap ?? 'Dosen';
+                    $pesanTpak = "Anda ditunjuk sebagai penilai DUPAK (Tim PAK) untuk {$namaPengaju}.";
+                    $urlTargetTpak = route('dupak.validasi.show', $pengajuan->id);
+                }
 
-                        $namaPengaju = $pengajuUser->nama_lengkap ?? 'Dosen';
-                        $pesan = "Anda ditunjuk sebagai penilai DUPAK untuk {$namaPengaju}.";
-                        // $urlTarget = route('dupak.dashboard', $pengajuan->id);
-                        $urlTarget = route('dupak.validasi.show', $pengajuan->id);
-                    }
+                // Kirim notifikasi ke TPAK
+                NotifikasiDupakModel::send(
+                    $userTpak,
+                    'Penugasan Penilaian DUPAK',
+                    $pesanTpak,
+                    $urlTargetTpak
+                );
+            }
 
-                    // Send notifikasi pakai $userTpak
+            // 2. NOTIFIKASI UNTUK DOSEN PENGAJU (Hanya jika BUKAN Penunjukan Mandiri)
+            if (! $isMandiri && isset($pengajuan)) {
+                $dosenPengaju = DB::connection('mysql')->table('dosens')->where('id', $pengajuan->idDosen)->first();
+                $userPengaju = $dosenPengaju ? \App\Models\User::find($dosenPengaju->users_id) : null;
+
+                // Pastikan user pengaju ada & ID-nya berbeda dari user TPAK (mencegah double notif ke user yang sama)
+                if ($userPengaju && (! $userTpak || $userPengaju->id !== $userTpak->id)) {
+                    $namaTpak = $userTpak->nama_lengkap ?? 'Tim Penilai';
+                    $pesanPengaju = "Pengajuan DUPAK telah memiliki Tim Penilai Angka Kredit: ({$namaTpak}). Silahkan melanjutkan mengisi Detail Pengajuan (Tambah Kegiatan)";
+                    $urlTargetPengaju = route('dupak.dashboard', $pengajuan->id);
+
+                    // Kirim notifikasi ke Pengaju
                     NotifikasiDupakModel::send(
-                        $userTpak,
-                        'Penugasan Penilaian DUPAK',
-                        $pesan,
-                        $urlTarget
+                        $userPengaju,
+                        'Penunjukan Penilai DUPAK',
+                        $pesanPengaju,
+                        $urlTargetPengaju
                     );
                 }
             }
