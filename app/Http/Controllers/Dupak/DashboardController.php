@@ -356,16 +356,16 @@ class DashboardController extends Controller
         $isMaxJfa = $this->isMaxJfa($dosen);
 
         // Fetch Notifikasi DB DUPAK
-        $notifications = NotifikasiDupakModel::where('notifiable_id', $user->id)
-            ->where('notifiable_type', get_class($user))
-            ->latest()
-            ->take(10)
-            ->get();
+        // $notifications = NotifikasiDupakModel::where('notifiable_id', $user->id)
+        //     ->where('notifiable_type', get_class($user))
+        //     ->latest()
+        //     ->take(10)
+        //     ->get();
 
-        $unreadCount = NotifikasiDupakModel::where('notifiable_id', $user->id)
-            ->where('notifiable_type', get_class($user))
-            ->whereNull('read_at')
-            ->count();
+        // $unreadCount = NotifikasiDupakModel::where('notifiable_id', $user->id)
+        //     ->where('notifiable_type', get_class($user))
+        //     ->whereNull('read_at')
+        //     ->count();
 
         $viewData = [
             'user' => $user,
@@ -409,8 +409,8 @@ class DashboardController extends Controller
             ],
             'kegiatanUtama' => $kegiatanUtama,
             'statistik' => $statistik,
-            'notifications' => $notifications,
-            'unreadCount' => $unreadCount,
+            // 'notifications' => $notifications,
+            // 'unreadCount' => $unreadCount,
         ];
 
         return view('dupak.dashboard', $viewData);
