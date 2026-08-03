@@ -201,52 +201,52 @@ class PengajuanController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-{
-    $user = Auth::user();
-    $dosen = Dosen::where('users_id', $user->id)->first();
+    {
+        $user = Auth::user();
+        $dosen = Dosen::where('users_id', $user->id)->first();
 
-    if (! $dosen) {
-        return redirect()->route('dupak.dashboard')->with('error', 'Akses ditolak. Anda bukan Dosen.');
-    }
+        if (! $dosen) {
+            return redirect()->route('dupak.dashboard')->with('error', 'Akses ditolak. Anda bukan Dosen.');
+        }
 
-    // Validasi pilihan JFA Tujuan
-    $validTargets = array_keys($this->getAvailableTargetJfa($dosen));
-    
-    $request->validate([
-        'jfaTujuan' => ['required', 'in:' . implode(',', $validTargets)],
-    ], [
-        'jfaTujuan.in' => 'Pilihan Jabatan Fungsional Tujuan tidak valid untuk jalur kenaikan Anda.',
-    ]);
+        // Validasi pilihan JFA Tujuan
+        $validTargets = array_keys($this->getAvailableTargetJfa($dosen));
 
-    $riwayat_jfa_aktif = RiwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
-        ->whereNull('tmt_selesai')
-        ->latest('tmt_mulai')
-        ->first();
+        $request->validate([
+            'jfaTujuan' => ['required', 'in:' . implode(',', $validTargets)],
+        ], [
+            'jfaTujuan.in' => 'Pilihan Jabatan Fungsional Tujuan tidak valid untuk jalur kenaikan Anda.',
+        ]);
 
-    if (! $riwayat_jfa_aktif) {
+        $riwayat_jfa_aktif = RiwayatJabatanFungsionalAkademik::where('dosen_id', $dosen->id)
+            ->whereNull('tmt_selesai')
+            ->latest('tmt_mulai')
+            ->first();
+
+        if (! $riwayat_jfa_aktif) {
+            return redirect()->route('dupak.dashboard')
+                ->with('error', 'Anda belum memiliki riwayat Jabatan Fungsional Akademik aktif.');
+        }
+
+        $today = Carbon::now();
+        $currentYear = date('Y');
+        $targetYear = $currentYear + 20;
+
+        $pengajuan = new Pengajuan;
+        $pengajuan->idDosen = $dosen->id;
+        $pengajuan->start = $today->format('Y-m-d');
+        $pengajuan->end = $today->copy()->addYears(20)->format('Y-m-d');
+        $pengajuan->TahunAjaranAjuanAwal = $currentYear . '/' . $currentYear + 1;
+        $pengajuan->TahunAjaranAjuanAkhir = $targetYear . '/' . $targetYear + 1;
+        $pengajuan->semesterAjuan = collect(['Ganjil', 'Genap'])->random();
+        $pengajuan->status = 'Pending';
+        $pengajuan->jfaAsal = $riwayat_jfa_aktif->ref_jfa_id;
+        $pengajuan->jfaTujuan = $request->jfaTujuan; // Diganti menjadi dinamis sesuai input form
+        $pengajuan->save();
+
         return redirect()->route('dupak.dashboard')
-            ->with('error', 'Anda belum memiliki riwayat Jabatan Fungsional Akademik aktif.');
+            ->with('success', 'Pengajuan DUPAK berhasil disimpan.');
     }
-
-    $today = Carbon::now();
-    $currentYear = date('Y');
-    $targetYear = $currentYear + 20;
-
-    $pengajuan = new Pengajuan;
-    $pengajuan->idDosen = $dosen->id;
-    $pengajuan->start = $today->format('Y-m-d');
-    $pengajuan->end = $today->copy()->addYears(20)->format('Y-m-d');
-    $pengajuan->TahunAjaranAjuanAwal = $currentYear.'/'.$currentYear + 1;
-    $pengajuan->TahunAjaranAjuanAkhir = $targetYear.'/'.$targetYear + 1;
-    $pengajuan->semesterAjuan = collect(['Ganjil', 'Genap'])->random();
-    $pengajuan->status = 'Pending';
-    $pengajuan->jfaAsal = $riwayat_jfa_aktif->ref_jfa_id;
-    $pengajuan->jfaTujuan = $request->jfaTujuan; // Diganti menjadi dinamis sesuai input form
-    $pengajuan->save();
-
-    return redirect()->route('dupak.dashboard')
-        ->with('success', 'Pengajuan DUPAK berhasil disimpan.');
-}
 
     /**
      * Kirim pengajuan dari status Draft/Pending ke Diajukan.
@@ -377,6 +377,30 @@ class PengajuanController extends Controller
 
     public function show(string $id)
     {
+        // --- RESTRIKSI AKSES MANUAL ---
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
+        }
+
+        $dosenLogin = Dosen::where('users_id', $user->id)->first();
+
+        // 1. Cek Pemilik Pengajuan
+        $isOwner = Pengajuan::where('id', $id)
+            ->where('idDosen', $dosenLogin?->id)
+            ->exists();
+
+        // 2. Cek Penunjukan TPAK khusus untuk pengajuan ini
+        $isTpakAssigned = PenunjukanTPAKModel::where('pengajuan_id', $id)
+            ->where('idDosenTpak', $dosenLogin?->id)
+            ->exists();
+
+        //  Restriksi manual tanpa menggunakan middleware : jika Bukan Admin, Bukan Pemilik, dan Bukan TPAK yang ditunjuk -> Tolak Akses
+        if (!$user->is_admin && !$isOwner && !$isTpakAssigned) {
+            abort(403, 'Akses ditolak! Anda tidak memiliki hak akses untuk melihat pengajuan ini.');
+        }
+        // ------------------------------
+
         // get riwayat jfa dosen
         $pengajuan = Pengajuan::with(['dosen', 'details.komponen.kegiatanUtama', 'details.evaluations'])->findOrFail($id);
 
@@ -399,8 +423,6 @@ class PengajuanController extends Controller
             // fallback: tetap coba dari relasi yang sudah ada
             $namaDosenPengaju = $pengajuan->dosen->user->nama_lengkap ?? ($pengajuan->dosen->user->nama ?? 'Nama Tidak Diketahui');
         }
-
-
 
         // Ambil ID detail yang sudah dinilai TPAK untuk pengajuan ini
         $evaluatedIds = HasilEvaluasi::join('detail_pengajuan', 'hasil_evaluasi.detail_pengajuan_id', '=', 'detail_pengajuan.id')
@@ -428,8 +450,6 @@ class PengajuanController extends Controller
             ->first();
 
         $targetKumVal = $targetKumRecord->kumTarget ?? 0;
-
-
 
         $currentTotalKum = $baseKum + $kumDisetujuiVal;
         $percent = $targetKumVal > 0 ? min(100, ($currentTotalKum / $targetKumVal) * 100) : 0;

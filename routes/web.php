@@ -647,7 +647,7 @@ Route::middleware(['auth',  \App\Http\Middleware\CekFlashUser::class])->group(fu
         // - penunjukan-tpak: dibatasi admin/SDM agar hanya TPAK tertentu yang bisa ditugaskan
 
         // Route::get('/notifikasi/{id}/read', [App\Http\Controllers\DupakNotifikasiController::class, 'markAsReadAndRedirect'])
-            // ->name('dupak.notifikasi.read');
+        // ->name('dupak.notifikasi.read');
 
         // Dashboard
         Route::get('/dashboard', [DashboardController::class, 'index'])
@@ -681,19 +681,18 @@ Route::middleware(['auth',  \App\Http\Middleware\CekFlashUser::class])->group(fu
         // Route::resource('detil_pengajuan', \App\Http\Controllers\Dupak\DetilPengajuanController::class);
 
         // route penunjukan_tpak, tanpa id, karena sistemnya SDM akan menunjuk TPAK berdasarkan kebutuhan, bukan berdasarkan pengajuan tertentu
-        Route::group(['prefix' => 'penunjukan-tpak', 'as' => 'penunjukan_tpak.'], function () {
-            // Admin/SDM yang boleh mengelola penunjukan TPAK
+        // Hapus "is_dosen":true dan "is_tpa":true jika Dosen/TPA biasa TIDAK boleh mengelola penunjukan TPAK
+        Route::group(['prefix' => 'penunjukan-tpak', 'as' => 'penunjukan_tpak.', 'middleware' => ['admin:{"is_admin":true|"and":{"bagian":"sumber daya manusia"|"range-level":[3|5]}|"range-level":[2|3]}']], function () {
             Route::get('/', [PenunjukanTPAKController::class, 'index'])->name('index');
             Route::post('/', [PenunjukanTPAKController::class, 'store'])->name('store');
             Route::delete('/{id}', [PenunjukanTPAKController::class, 'destroy'])->name('destroy');
             Route::get('/tambah_tpak_baru', [PenunjukanTPAKController::class, 'create_new_tpak'])->name('create_new_tpak');
-            // Route::post('/store', [\App\Http\Controllers\Dupak\TPAKController::class, 'store'])->name('store');
-            // Route::delete('/destroy/{id}', [\App\Http\Controllers\Dupak\PenunjukanTpakController::class, 'destroy'])->name('destroy');
         });
         // ->middleware(['admin:{"is_admin":true|"bagian":"sumber daya manusia"|"range-level":[3|5]}']);
 
         Route::get(
-            '/eligibilitas_dosen', [DashboardController::class, 'eligibilitas']
+            '/eligibilitas_dosen',
+            [DashboardController::class, 'eligibilitas']
         )->name('eligibilitas');
     });
 });
