@@ -19,7 +19,7 @@ class DupakUserSeeder extends Seeder
         $refJFA = RefJabatanFungsionalAkademik::all();
 
         $seedUsers = [
-            // a. Role: Dosen Yang Memiliki Data Absah
+            // a. Role: Dosen Yang Memiliki Data Absah (Eligible)
             [
                 'id' => 'dup-uid-dosen-0005',
                 'nama_lengkap' => 'Dosen Utama DUPAK (Valid)',
@@ -32,6 +32,7 @@ class DupakUserSeeder extends Seeder
                 'make_role_models' => [
                     'dosen' => true,
                     'has_complete_profile' => true,
+                    'tmt_years' => 3, // Safe eligible (> 2 tahun)
                 ],
             ],
 
@@ -89,6 +90,7 @@ class DupakUserSeeder extends Seeder
                 'make_role_models' => [
                     'dosen' => true,
                     'jfa_level' => 'Guru Besar',
+                    'tmt_years' => 4, // Safe eligible
                 ],
             ],
 
@@ -101,14 +103,32 @@ class DupakUserSeeder extends Seeder
                 'is_admin' => 1,
                 'tipe_pegawai' => 'Dosen',
                 'telepon' => '081234567898',
-                'password' => 'password123', // Password sesuai lampiran UAT
+                'password' => 'password123',
                 'make_role_models' => [
                     'dosen' => true,
-                    'has_complete_profile' => true, // Opsional: Diberi profil lengkap agar bisa test ajukan data juga
+                    'has_complete_profile' => true,
+                    'tmt_years' => 3, // Safe eligible
+                ],
+            ],
+
+            // g. Role: Dosen yang BELUM 2 Tahun (Khusus testing status Not Eligible)
+            [
+                'id' => 'dup-uid-dosen-0007',
+                'nama_lengkap' => 'Dosen Baru (Belum 2 Tahun)',
+                'email_institusi' => 'dosen.baru@telkomuniversity.ac.id',
+                'email_pribadi' => 'dosen.baru@local.test',
+                'is_admin' => 0,
+                'tipe_pegawai' => 'Dosen',
+                'telepon' => '081234567897',
+                'password' => '321',
+                'make_role_models' => [
+                    'dosen' => true,
+                    'has_complete_profile' => true,
+                    'tmt_years' => 1, // Not eligible (< 2 tahun)
                 ],
             ],
             
-            // Tambahan Tambahan (Admin SDM Asli tetap dipertahankan jika dibutuhkan)
+            // Admin SDM
             [
                 'id' => 'dup-uid-admin-0002',
                 'nama_lengkap' => 'Admin DUPAK (SDM)',
@@ -120,7 +140,8 @@ class DupakUserSeeder extends Seeder
                 'password' => '321',
                 'make_role_models' => [],
             ],
-            // g. Role: System Master Dummy (Khusus Penunjukan TPAK Mandiri ID 9999)
+
+            // h. Role: System Master Dummy
             [
                 'id' => 'dup-uid-system-master-0000',
                 'nama_lengkap' => 'SYSTEM_MASTER',
@@ -133,6 +154,7 @@ class DupakUserSeeder extends Seeder
                 'make_role_models' => [
                     'dosen' => true,
                     'has_complete_profile' => true,
+                    'tmt_years' => 5,
                 ],
             ],
         ];
@@ -215,13 +237,17 @@ class DupakUserSeeder extends Seeder
                         'keterangan' => 'Pengakuan internal SK YPT atas SK LLDIKTI.',
                     ]);
 
+                    // Ambil durasi tahun dari config seeder, default 3 tahun jika tidak diset
+                    $yearsAgo = $makeRole['tmt_years'] ?? 3;
+
                     RiwayatJabatanFungsionalAkademik::query()->updateOrCreate(
                         ['dosen_id' => $dosen->id],
                         [
                             'ref_jfa_id' => $targetJfa->id,
                             'sk_llkdikti_id' => $skLLDIKTI->id,
                             'sk_pengakuan_ypt_id' => $skYPT->id,
-                            'tmt_mulai' => now()->subYears(2),
+                            // Diberi buffer subDays(5) agar terhindar dari boundary case jam/detik
+                            'tmt_mulai' => now()->subYears($yearsAgo)->subDays(5),
                         ]
                     );
                 }

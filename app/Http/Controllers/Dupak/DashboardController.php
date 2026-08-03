@@ -15,6 +15,7 @@ use App\Models\RefJabatanFungsionalAkademik;
 use App\Models\RiwayatJabatanFungsionalAkademik;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -459,10 +460,60 @@ class DashboardController extends Controller
         return view('dupak.dashboard', $viewData);
     }
 
-    public function eligibilitas()
+    public function eligibilitas(Request $request)
     {
-        $jfas = RiwayatJabatanFungsionalAkademik::with(['dosen.pegawai', 'jfa'])
-            ->paginate(5);
+        $status = $request->input('status', 'all');
+        $search = $request->input('search');
+        $twoYearsAgo = Carbon::now()->subYears(2);
+
+        $query = RiwayatJabatanFungsionalAkademik::with(['dosen.pegawai', 'jfa']);
+
+        // 1. Search Nama / NIDN
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('dosen.pegawai', function ($sub) use ($search) {
+                    $sub->where('nama_lengkap', 'like', "%{$search}%");
+                })->orWhereHas('dosen', function ($sub) use ($search) {
+                    $sub->where('nidn', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        // 2. Filter Status Eligibilitas
+        if ($status === 'gb') {
+            // Filter Guru Besar / Profesor / Kode GB
+            $query->whereHas('jfa', function ($q) {
+                $q->where('nama_jabatan', 'like', '%guru besar%')
+                    ->orWhere('nama_jabatan', 'like', '%profesor%')
+                    ->orWhere('kode', 'GB');
+            });
+        } elseif ($status === 'eligible') {
+            // Bukan GB, TMT Mulai <= 2 tahun lalu, dan TMT Selesai belum lewat
+            $query->where('tmt_mulai', '<=', $twoYearsAgo)
+                ->where(function ($q) {
+                    $q->whereNull('tmt_selesai')
+                        ->orWhere('tmt_selesai', '>=', Carbon::now());
+                })
+                ->whereDoesntHave('jfa', function ($q) {
+                    $q->where('nama_jabatan', 'like', '%guru besar%')
+                        ->orWhere('nama_jabatan', 'like', '%profesor%')
+                        ->orWhere('kode', 'GB');
+                });
+        } elseif ($status === 'belum') {
+            // TMT Mulai > 2 tahun lalu ATAU TMT Selesai sudah lewat ATAU TMT Mulai null
+            $query->where(function ($q) use ($twoYearsAgo) {
+                $q->where('tmt_mulai', '>', $twoYearsAgo)
+                    ->orWhereNull('tmt_mulai')
+                    ->orWhere('tmt_selesai', '<', Carbon::now());
+            })->whereDoesntHave('jfa', function ($q) {
+                $q->where('nama_jabatan', 'like', '%guru besar%')
+                    ->orWhere('nama_jabatan', 'like', '%profesor%')
+                    ->orWhere('kode', 'GB');
+            });
+        }
+
+        // 3. Paginate + Append Query String
+        $jfas = $query->paginate(5)->withQueryString();
 
         return view('dupak.eligibilitas.index', compact('jfas'));
     }

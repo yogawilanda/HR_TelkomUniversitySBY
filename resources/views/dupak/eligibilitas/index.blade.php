@@ -1,7 +1,29 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="py-6" x-data="{ search: '', statusFilter: 'all' }">
+{{-- Modifikasi x-data untuk sinkronisasi dengan URL query string --}}
+<div class="py-6" x-data="{ 
+    search: '{{ request('search') }}', 
+    statusFilter: '{{ request('status', 'all') }}',
+    applyFilter() {
+        let url = new URL(window.location.href);
+        
+        if (this.search) {
+            url.searchParams.set('search', this.search);
+        } else {
+            url.searchParams.delete('search');
+        }
+        
+        if (this.statusFilter !== 'all') {
+            url.searchParams.set('status', this.statusFilter);
+        } else {
+            url.searchParams.delete('status');
+        }
+        
+        url.searchParams.set('page', 1); // Reset ke page 1
+        window.location.href = url.toString();
+    }
+}">
     <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
         {{-- Navigasi Kembali --}}
         <a href="{{ route('dupak.dashboard') }}" class="inline-flex items-center text-gray-500 hover:text-gray-700 mb-4 transition-colors">
@@ -29,12 +51,14 @@
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
                         <i class="fas fa-search"></i>
                     </span>
-                    <input type="text" x-model="search" placeholder="Cari nama dosen di halaman ini..." 
+                    {{-- Panggil applyFilter saat ditekan Enter --}}
+                    <input type="text" x-model="search" @keydown.enter="applyFilter()" placeholder="Cari nama dosen atau NIDN lalu tekan Enter..." 
                         class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-900 focus:border-blue-900">
                 </div>
 
                 <div class="w-full sm:w-48">
-                    <select x-model="statusFilter" class="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-900 focus:border-blue-900">
+                    {{-- Panggil applyFilter saat opsi select berubah --}}
+                    <select x-model="statusFilter" @change="applyFilter()" class="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-900 focus:border-blue-900">
                         <option value="all">Semua Status</option>
                         <option value="eligible">Eligible</option>
                         <option value="belum">Belum Eligible</option>
@@ -68,43 +92,30 @@
                                 $tmtMulai = $item->tmt_mulai ? \Carbon\Carbon::parse($item->tmt_mulai) : null;
                                 $targetEligible = $tmtMulai ? $tmtMulai->copy()->addYears(2) : null;
                                 
-                                // Cek Eligibilitas
                                 $isEligible = $tmtMulai && !$isExpired && !$isMaxJfa && now()->gte($targetEligible);
-                                
-                                // Masa kerja riil
                                 $masaKerja = $tmtMulai ? $tmtMulai->diff(now()) : null;
-                                
-                                // Kekurangan waktu jika belum 2 tahun
                                 $sisaWaktu = ($targetEligible && now()->lt($targetEligible)) ? now()->diff($targetEligible) : null;
-
-                                // Kategori untuk Filter Alpine.js
-                                $statusCategory = $isMaxJfa ? 'gb' : ($isEligible ? 'eligible' : 'belum');
                                 $namaDosen = $item->dosen?->pegawai?->nama_lengkap ?? '-';
                             @endphp
-                            <tr class="hover:bg-gray-50 transition-colors"
-                                x-show="(statusFilter === 'all' || statusFilter === '{{ $statusCategory }}') && ('{{ strtolower($namaDosen) }}'.includes(search.toLowerCase()))">
-                                
+                            {{-- Hapus x-show Alpine di baris TR --}}
+                            <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-4 py-4 text-center text-gray-500 font-medium">
                                     {{ $loop->iteration + ($jfas->currentPage() - 1) * $jfas->perPage() }}
                                 </td>
                                 
-                                {{-- Nama Dosen & Identitas --}}
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="font-semibold text-gray-900">{{ $namaDosen }}</div>
                                     <div class="text-xs text-gray-500">NIDN: {{ $item->dosen?->nidn ?? '-' }}</div>
                                 </td>
 
-                                {{-- JFA --}}
                                 <td class="px-6 py-4 text-gray-700 font-medium whitespace-nowrap">
                                     {{ $item->jfa?->nama_jabatan ?? '-' }}
                                 </td>
 
-                                {{-- TMT Mulai --}}
                                 <td class="px-6 py-4 text-center text-gray-600 whitespace-nowrap">
                                     {{ $tmtMulai ? $tmtMulai->format('d-m-Y') : '-' }}
                                 </td>
 
-                                {{-- Masa Kerja / Kekurangan Waktu --}}
                                 <td class="px-6 py-4 text-center whitespace-nowrap text-xs">
                                     @if($isMaxJfa)
                                         <span class="text-gray-400 italic">Jenjang Maksimal</span>
@@ -127,7 +138,6 @@
                                     @endif
                                 </td>
 
-                                {{-- Status Badges --}}
                                 <td class="px-6 py-4 text-center whitespace-nowrap">
                                     @if($isMaxJfa)
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-300">
@@ -148,7 +158,6 @@
                                     @endif
                                 </td>
 
-                                {{-- Quick Action --}}
                                 <td class="px-6 py-4 text-center whitespace-nowrap text-xs">
                                     @if($isEligible)
                                         <a href="{{ route('dupak.pengajuan.create', ['userId' => $item->dosen?->pegawai?->user_id]) }}" 
