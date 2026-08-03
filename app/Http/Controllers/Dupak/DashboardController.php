@@ -15,7 +15,7 @@ use App\Models\RefJabatanFungsionalAkademik;
 use App\Models\RiwayatJabatanFungsionalAkademik;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth; // <-- Tambahkan ini
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -48,12 +48,10 @@ class DashboardController extends Controller
             return null;
         }
 
-        // Prioritas 1: Jika ada pengajuan aktif/terbaru, ambil jfaTujuan langsung dari DB
         if ($personalSubmission && $personalSubmission->jfaTujuan) {
             return $personalSubmission->jfaTujuan;
         }
 
-        // Prioritas 2: Fallback ke Kenaikan Reguler (+1 tingkat)
         $keys = array_keys($this->aturanPengajuanJFA);
         $i = array_search($jfaAsal, $keys);
 
@@ -163,7 +161,6 @@ class DashboardController extends Controller
         $minimalKum = $refJfa?->kum ?? 0;
         $namaJabatanSaatIni = $refJfa?->nama_jabatan ?? 'Belum memiliki JFA';
 
-        // Passing $personalSubmission ke helper
         $jfaTujuan = $this->getJfaTujuan($jfaAsal, $personalSubmission);
         $jfaTujuanNama = $jfaTujuan ? ($this->aturanPengajuanJFA[$jfaTujuan] ?? 'Tidak Diketahui') : 'Jabatan Tertinggi';
 
@@ -174,7 +171,7 @@ class DashboardController extends Controller
             'namaJabatanSaatIni' => $namaJabatanSaatIni,
             'jfaTujuanNama' => $jfaTujuanNama,
             'progress' => $progress,
-            'jfaTujuan' => $jfaTujuan, // Tambahkan ini agar bisa dipakai di breakdown limit lampiran
+            'jfaTujuan' => $jfaTujuan,
         ];
     }
 
@@ -189,9 +186,8 @@ class DashboardController extends Controller
 
         $duaTahunLalu = Carbon::now()->subYears(2);
 
-        // Ambil JFA aktif dosen yang tmt_mulai >= 2 tahun lalu
         $riwayatJfaEligible = RiwayatJabatanFungsionalAkademik::with('jfa')
-            ->where('dosen_id', $dosenId) // Filter ke dosen yang sedang dicek
+            ->where('dosen_id', $dosenId)
             ->whereNotNull('tmt_mulai')
             ->where('tmt_mulai', '<=', $duaTahunLalu)
             ->where(function ($q) {
@@ -204,7 +200,6 @@ class DashboardController extends Controller
             return false;
         }
 
-        // Exclude Guru Besar / Profesor
         $namaJfa = strtolower($riwayatJfaEligible->jfa?->nama_jabatan ?? '');
         $kodeJfa = strtoupper($riwayatJfaEligible->jfa?->kode ?? '');
 
@@ -243,7 +238,6 @@ class DashboardController extends Controller
         $kumDisetujui = 0;
         $personalSubmission = null;
 
-        // 1. Dapatkan $personalSubmission & Hitung KUM dulu
         if ($dosen) {
             $personalSubmission = Pengajuan::where('idDosen', $dosen->id)->latest()->first();
 
@@ -267,7 +261,6 @@ class DashboardController extends Controller
             }
         }
 
-        // 2. Eksekusi $jfaData SETELAH $personalSubmission didapatkan
         $baseKum = (float) ($user->kum ?? 0);
         $jfaData = $this->getJfaAndKumData($dosen, $baseKum + $kumDisetujui, $personalSubmission);
         $progress = $jfaData['progress'];
@@ -331,7 +324,6 @@ class DashboardController extends Controller
             $riwayat = $this->getCurrentJFA($dosen);
             $jfaAsal = $riwayat?->ref_jfa_id;
 
-            // 3. Ambil jfaTujuan yang sudah dinamis dari $jfaData
             $jfaTujuan = $jfaData['jfaTujuan'];
 
             $targetJabatan = null;
@@ -392,33 +384,22 @@ class DashboardController extends Controller
 
         $isMaxJfa = $this->isMaxJfa($dosen);
 
-        // Fetch Notifikasi DB DUPAK
-        // $notifications = NotifikasiDupakModel::where('notifiable_id', $user->id)
-        //     ->where('notifiable_type', get_class($user))
-        //     ->latest()
-        //     ->take(10)
-        //     ->get();
+        // --- Cek eligibilitas dosen yang sedang login ---
+        $isEligible = $dosen ? $this->checkDosenEligibility($dosen->id) : false;
 
-        // $unreadCount = NotifikasiDupakModel::where('notifiable_id', $user->id)
-        //     ->where('notifiable_type', get_class($user))
-        //     ->whereNull('read_at')
-        //     ->count();
-
-        // --- Hitung Dosen Eligible (Tanpa Mengubah Model) ---
         $totalDosenEligible = 0;
         if ($user->is_admin) {
             $duaTahunLalu = Carbon::now()->subYears(2);
 
             $totalDosenEligible = RiwayatJabatanFungsionalAkademik::with('jfa')
                 ->whereNotNull('tmt_mulai')
-                ->where('tmt_mulai', '<=', $duaTahunLalu) // Minimal 2 tahun masa kerja
+                ->where('tmt_mulai', '<=', $duaTahunLalu)
                 ->where(function ($q) {
                     $q->whereNull('tmt_selesai')
                         ->orWhere('tmt_selesai', '>', now());
                 })
                 ->get()
                 ->reject(function ($item) {
-                    // Exclude Guru Besar / Profesor
                     $namaJfa = strtolower($item->jfa?->nama_jabatan ?? '');
                     $kodeJfa = strtoupper($item->jfa?->kode ?? '');
 
@@ -439,6 +420,7 @@ class DashboardController extends Controller
             'totalSeluruhPengajuan' => $totalSeluruhPengajuan,
             'totalDosenEligible' => $totalDosenEligible,
             'isMaxJfa' => $isMaxJfa,
+            'isEligible' => $isEligible, // <--- SUDAH DITAMBAHKAN
             'kum' => [
                 'current' => $progress['current'],
                 'pending_kum' => number_format($kumPengajuan, 2),
@@ -472,8 +454,6 @@ class DashboardController extends Controller
             ],
             'kegiatanUtama' => $kegiatanUtama,
             'statistik' => $statistik,
-            // 'notifications' => $notifications,
-            // 'unreadCount' => $unreadCount,
         ];
 
         return view('dupak.dashboard', $viewData);
@@ -481,10 +461,6 @@ class DashboardController extends Controller
 
     public function eligibilitas()
     {
-        // $jfas = RiwayatJabatanFungsionalAkademik::with(['jfa', 'dosen.pegawai', 'sk_dikti', 'sk_ypt'])->get();
-
-
-        // Mengambil 10 atau 15 data per halaman
         $jfas = RiwayatJabatanFungsionalAkademik::with(['dosen.pegawai', 'jfa'])
             ->paginate(5);
 

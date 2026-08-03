@@ -113,13 +113,34 @@
                         @else
                         <div class="p-10 border-2 border-dashed border-gray-300 text-center rounded-lg">
                             <p class="text-gray-500">Belum ada pengajuan aktif.</p>
+
+                            {{-- CHECK 1: Apakah sudah Guru Besar --}}
                             @if($isMaxJfa)
                             <div class="mt-4 p-3 bg-green-50 border border-green-300 text-green-800 rounded-md text-sm">
                                 <i class="fas fa-check-circle mr-1"></i>
                                 Anda telah mencapai jabatan tertinggi (Guru Besar). Tidak perlu pengajuan kenaikan jabatan lagi.
                             </div>
+
+                            {{-- CHECK 2: Apakah BELUM Eligible (Sesuaikan variabel dari Controller) --}}
+                            @elseif(isset($isEligible) && !$isEligible)
+                            <div class="mt-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm inline-block text-left max-w-lg">
+                                <div class="flex items-center gap-2 font-semibold mb-1">
+                                    <i class="fas fa-times-circle text-red-600"></i>
+                                    <span>Belum Eligible untuk Pengajuan Baru</span>
+                                </div>
+                                <p class="text-xs text-red-600 leading-relaxed">
+                                    Masa kerja/TMT jabatan Anda belum memenuhi syarat minimal untuk mengajukan kenaikan jabatan fungsional berikutnya.
+                                </p>
+                                <button disabled class="mt-3 px-4 py-2 bg-gray-300 text-gray-500 rounded cursor-not-allowed text-xs font-medium">
+                                    <i class="fas fa-lock mr-1"></i> Buat Pengajuan Baru
+                                </button>
+                            </div>
+
+                            {{-- CHECK 3: Jika lolos semua baru tampilkan Tombol Aktif --}}
                             @else
-                            <a href="{{ route('dupak.pengajuan.create', ['userId' => $user->id]) }}" class="mt-4 inline-block bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-950">Buat Pengajuan Baru</a>
+                            <a href="{{ route('dupak.pengajuan.create', ['userId' => $user->id]) }}" class="mt-4 inline-block bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-950 text-sm font-medium">
+                                Buat Pengajuan Baru
+                            </a>
                             @endif
                         </div>
                         @endif
@@ -261,11 +282,8 @@
                     ?? null;
                     @endphp
 
-                    {{-- Dinamis render Tag HTML sesuai kondisi --}}
-                    <{{ $urlTarget ? 'a' : 'div' }} 
-                        @if($urlTarget) href="{{ $urlTarget }}" @else @click="tab = 'tpak'" @endif
-                        class="p-4 rounded-lg border border-gray-200 bg-gray-50 hover:bg-blue-50/50 hover:border-blue-300 hover:shadow-md transition cursor-pointer flex items-start justify-between group block">
-                        
+                    @if($urlTarget)
+                    <a href="{{ $urlTarget }}" class="p-4 rounded-lg border border-gray-200 bg-gray-50 hover:bg-blue-50/50 hover:border-blue-300 hover:shadow-md transition cursor-pointer flex items-start justify-between group block">
                         <div class="flex items-start space-x-3">
                             <div class="mt-1 text-blue-900 group-hover:scale-110 transition-transform">
                                 <i class="fas fa-bell text-lg"></i>
@@ -287,8 +305,32 @@
                             <span>Lihat Detail</span>
                             <i class="fas fa-chevron-right text-xs group-hover:translate-x-0.5 transition-transform"></i>
                         </div>
+                    </a>
+                    @else
+                    <div @click="tab = 'tpak'" class="p-4 rounded-lg border border-gray-200 bg-gray-50 hover:bg-blue-50/50 hover:border-blue-300 hover:shadow-md transition cursor-pointer flex items-start justify-between group block">
+                        <div class="flex items-start space-x-3">
+                            <div class="mt-1 text-blue-900 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-bell text-lg"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-900">
+                                    {{ $notification->title ?? $notification->data['title'] ?? 'Pemberitahuan System' }}
+                                </h4>
+                                <p class="text-sm text-gray-600 mt-0.5">
+                                    {{ $notification->message ?? $notification->data['message'] ?? 'Tidak ada rincian pesan.' }}
+                                </p>
+                                <span class="text-xs text-gray-400 mt-2 inline-block">
+                                    {{ isset($notification->created_at) ? $notification->created_at->diffForHumans() : '-' }}
+                                </span>
+                            </div>
+                        </div>
 
-                    </{{ $urlTarget ? 'a' : 'div' }}>
+                        <div class="text-xs font-semibold text-blue-900 group-hover:underline flex items-center space-x-1 shrink-0">
+                            <span>Lihat Detail</span>
+                            <i class="fas fa-chevron-right text-xs group-hover:translate-x-0.5 transition-transform"></i>
+                        </div>
+                    </div>
+                    @endif
 
                     @empty
                     <div class="p-10 border-2 border-dashed border-gray-200 text-center rounded-lg text-gray-500">
