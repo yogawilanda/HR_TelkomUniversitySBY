@@ -78,7 +78,7 @@
                             <th scope="col" class="px-6 py-3 text-center">TMT Mulai</th>
                             <th scope="col" class="px-6 py-3 text-center">Masa Kerja / Kekurangan Waktu</th>
                             <th scope="col" class="px-6 py-3 text-center">Status Eligibilitas</th>
-                            <th scope="col" class="px-6 py-3 text-center">Aksi</th>
+                            <!-- <th scope="col" class="px-6 py-3 text-center">Aksi</th> -->
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200 text-sm">
@@ -158,7 +158,7 @@
                                     @endif
                                 </td>
 
-                                <td class="px-6 py-4 text-center whitespace-nowrap text-xs">
+                                <!-- <td class="px-6 py-4 text-center whitespace-nowrap text-xs">
                                     @if($isEligible)
                                         <a href="{{ route('dupak.pengajuan.create', ['userId' => $item->dosen?->pegawai?->user_id]) }}" 
                                            class="inline-flex items-center px-2.5 py-1.5 bg-blue-900 text-white font-medium rounded hover:bg-blue-950 transition-colors">
@@ -167,7 +167,7 @@
                                     @else
                                         <span class="text-gray-400 italic">-</span>
                                     @endif
-                                </td>
+                                </td> -->
                             </tr>
                         @empty
                             <tr>
