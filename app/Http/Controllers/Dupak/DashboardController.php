@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Dosen;
 use App\Models\Dupak\DetailPengajuan;
 use App\Models\Dupak\HasilEvaluasi;
+use App\Models\Dupak\NotifikasiDupakModel;
 use App\Models\Dupak\Pengajuan;
 use App\Models\Dupak\PenunjukanTPAKModel;
 use App\Models\Dupak\RefKegiatanUtama;
@@ -14,8 +15,7 @@ use App\Models\RefJabatanFungsionalAkademik;
 use App\Models\RiwayatJabatanFungsionalAkademik;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Dupak\NotifikasiDupakModel; // <-- Tambahkan ini
+use Illuminate\Support\Facades\Auth; // <-- Tambahkan ini
 
 class DashboardController extends Controller
 {
@@ -176,6 +176,43 @@ class DashboardController extends Controller
             'progress' => $progress,
             'jfaTujuan' => $jfaTujuan, // Tambahkan ini agar bisa dipakai di breakdown limit lampiran
         ];
+    }
+
+    /**
+     * Cek eligibilitas dosen berdasarkan riwayat JFA aktif
+     */
+    private function checkDosenEligibility($dosenId)
+    {
+        if (!$dosenId) {
+            return false;
+        }
+
+        $duaTahunLalu = Carbon::now()->subYears(2);
+
+        // Ambil JFA aktif dosen yang tmt_mulai >= 2 tahun lalu
+        $riwayatJfaEligible = RiwayatJabatanFungsionalAkademik::with('jfa')
+            ->where('dosen_id', $dosenId) // Filter ke dosen yang sedang dicek
+            ->whereNotNull('tmt_mulai')
+            ->where('tmt_mulai', '<=', $duaTahunLalu)
+            ->where(function ($q) {
+                $q->whereNull('tmt_selesai')
+                    ->orWhere('tmt_selesai', '>', now());
+            })
+            ->first();
+
+        if (!$riwayatJfaEligible) {
+            return false;
+        }
+
+        // Exclude Guru Besar / Profesor
+        $namaJfa = strtolower($riwayatJfaEligible->jfa?->nama_jabatan ?? '');
+        $kodeJfa = strtoupper($riwayatJfaEligible->jfa?->kode ?? '');
+
+        $isGuruBesar = str_contains($namaJfa, 'guru besar')
+            || str_contains($namaJfa, 'profesor')
+            || $kodeJfa === 'GB';
+
+        return !$isGuruBesar;
     }
 
     public function index()
@@ -367,6 +404,31 @@ class DashboardController extends Controller
         //     ->whereNull('read_at')
         //     ->count();
 
+        // --- Hitung Dosen Eligible (Tanpa Mengubah Model) ---
+        $totalDosenEligible = 0;
+        if ($user->is_admin) {
+            $duaTahunLalu = Carbon::now()->subYears(2);
+
+            $totalDosenEligible = RiwayatJabatanFungsionalAkademik::with('jfa')
+                ->whereNotNull('tmt_mulai')
+                ->where('tmt_mulai', '<=', $duaTahunLalu) // Minimal 2 tahun masa kerja
+                ->where(function ($q) {
+                    $q->whereNull('tmt_selesai')
+                        ->orWhere('tmt_selesai', '>', now());
+                })
+                ->get()
+                ->reject(function ($item) {
+                    // Exclude Guru Besar / Profesor
+                    $namaJfa = strtolower($item->jfa?->nama_jabatan ?? '');
+                    $kodeJfa = strtoupper($item->jfa?->kode ?? '');
+
+                    return str_contains($namaJfa, 'guru besar')
+                        || str_contains($namaJfa, 'profesor')
+                        || $kodeJfa === 'GB';
+                })
+                ->count();
+        }
+
         $viewData = [
             'user' => $user,
             'dosen' => $dosen,
@@ -375,6 +437,7 @@ class DashboardController extends Controller
             'hasNoPengajuan' => $hasNoPengajuan,
             'totalPengajuanMandiri' => $totalPengajuanMandiri,
             'totalSeluruhPengajuan' => $totalSeluruhPengajuan,
+            'totalDosenEligible' => $totalDosenEligible,
             'isMaxJfa' => $isMaxJfa,
             'kum' => [
                 'current' => $progress['current'],
@@ -414,5 +477,17 @@ class DashboardController extends Controller
         ];
 
         return view('dupak.dashboard', $viewData);
+    }
+
+    public function eligibilitas()
+    {
+        // $jfas = RiwayatJabatanFungsionalAkademik::with(['jfa', 'dosen.pegawai', 'sk_dikti', 'sk_ypt'])->get();
+
+
+        // Mengambil 10 atau 15 data per halaman
+        $jfas = RiwayatJabatanFungsionalAkademik::with(['dosen.pegawai', 'jfa'])
+            ->paginate(5);
+
+        return view('dupak.eligibilitas.index', compact('jfas'));
     }
 }

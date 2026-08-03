@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-
 <x-dupak.popup-tambah-kegiatan :kegiatanUtama="$kegiatanUtama" :pengajuanId="$submissions['latest']->id ?? null" />
 
 <div class="py-6" x-data="{ tab: 'personal' }">
@@ -24,6 +23,10 @@
             <div class="p-4 border rounded-lg border-yellow-100 bg-white shadow-sm">
                 <span class="text-xs font-semibold text-yellow-600 uppercase">Perlu Validasi</span>
                 <div class="text-2xl font-bold text-yellow-900">{{ $statistik['pending'] ?? 0 }}</div>
+            </div>
+            <div class="p-4 border rounded-lg border-emerald-100 bg-white shadow-sm">
+                <span class="text-xs font-semibold text-emerald-600 uppercase">Dosen Eligible</span>
+                <div class="text-2xl font-bold text-emerald-900">{{ $totalDosenEligible ?? 0 }}</div>
             </div>
         </div>
         @endif
@@ -60,7 +63,7 @@
                     class="px-4 py-2 font-semibold border-b-2 transition-colors flex items-center">
                     Notifikasi
                     <span class="ml-2 px-2 py-0.5 bg-red-600 text-white rounded-full text-xs">
-                        {{ $notifications->count() ?? 0 }}
+                        {{ count($notifications ?? []) }}
                     </span>
                 </button>
             </div>
@@ -70,7 +73,6 @@
 
             {{-- TAB PERSONAL --}}
             <div x-show="tab === 'personal'">
-                {{-- Grid utama 3 kolom --}}
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
                     {{-- Kolom Kiri: Informasi KUM / Status Profil --}}
@@ -85,7 +87,6 @@
                             <i class="fas fa-ban mr-2"></i> Anda tidak memiliki izin untuk mengakses halaman ini.
                         </div>
                         @else
-                        {{-- ALTERNATE FLOW: Tampilkan Peringatan Profil Belum Lengkap --}}
                         @if($isProfileIncomplete)
                         <div class="p-8 border rounded-lg bg-yellow-50 border-yellow-200 text-yellow-800 text-sm min-h-[250px] flex items-center">
                             <div class="flex items-start">
@@ -107,7 +108,6 @@
                             </div>
                         </div>
                         @else
-                        {{-- MAIN FLOW: Dosen dengan profil lengkap --}}
                         @if($submissions['latest'])
                         @include('partials.dupak.info-kum')
                         @else
@@ -159,13 +159,21 @@
                                 Kelola TPAK
                             </a>
                         </div>
+
+                        <div class="p-6 border rounded-lg bg-white shadow-sm border-l-4 border-l-blue-900">
+                            <h3 class="text-lg font-medium">Eligibiilitas Dosen</h3>
+                            <p class="text-gray-600 mb-4 text-sm">Melihat Data Dosen Yang Eligibel Untuk Pengajuan DUPAK</p>
+                            <a href="{{ route('dupak.eligibilitas') }}" class="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-950 text-sm inline-block">
+                                Daftar Eligibilitas Dosen
+                            </a>
+                        </div>
                         @endif
                     </div>
                 </div>
 
                 {{-- Daftar Pengajuan --}}
                 <div class="mt-10">
-                    <div class="flex justify-between items-center mb-6 ">
+                    <div class="flex justify-between items-center mb-6">
                         <h3 class="text-xl font-semibold">Daftar Pengajuan DUPAK</h3>
                     </div>
 
@@ -253,55 +261,46 @@
                     ?? null;
                     @endphp
 
-                    {{-- 1. Jika ada URL, pakai tag <a> agar UX hyperlink & hover-nya native --}}
-                    @if($urlTarget)
-                    <a href="{{ $urlTarget }}"
+                    {{-- Dinamis render Tag HTML sesuai kondisi --}}
+                    <{{ $urlTarget ? 'a' : 'div' }} 
+                        @if($urlTarget) href="{{ $urlTarget }}" @else @click="tab = 'tpak'" @endif
                         class="p-4 rounded-lg border border-gray-200 bg-gray-50 hover:bg-blue-50/50 hover:border-blue-300 hover:shadow-md transition cursor-pointer flex items-start justify-between group block">
-                        {{-- 2. Jika tidak ada URL, pakai <div> dengan event Alpine --}}
-                        @else
-                        <div @click="tab = 'tpak'"
-                            class="p-4 rounded-lg border border-gray-200 bg-gray-50 hover:bg-blue-50/50 hover:border-blue-300 hover:shadow-md transition cursor-pointer flex items-start justify-between group">
-                            @endif
-
-                            <div class="flex items-start space-x-3">
-                                <div class="mt-1 text-blue-900 group-hover:scale-110 transition-transform">
-                                    <i class="fas fa-bell text-lg"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-sm font-semibold text-gray-900">
-                                        {{ $notification->title ?? $notification->data['title'] ?? 'Pemberitahuan System' }}
-                                    </h4>
-                                    <p class="text-sm text-gray-600 mt-0.5">
-                                        {{ $notification->message ?? $notification->data['message'] ?? 'Tidak ada rincian pesan.' }}
-                                    </p>
-                                    <span class="text-xs text-gray-400 mt-2 inline-block">
-                                        {{ $notification->created_at ? $notification->created_at->diffForHumans() : '-' }}
-                                    </span>
-                                </div>
+                        
+                        <div class="flex items-start space-x-3">
+                            <div class="mt-1 text-blue-900 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-bell text-lg"></i>
                             </div>
-
-                            <div class="text-xs font-semibold text-blue-900 group-hover:underline flex items-center space-x-1 shrink-0">
-                                <span>Lihat Detail</span>
-                                <i class="fas fa-chevron-right text-xs group-hover:translate-x-0.5 transition-transform"></i>
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-900">
+                                    {{ $notification->title ?? $notification->data['title'] ?? 'Pemberitahuan System' }}
+                                </h4>
+                                <p class="text-sm text-gray-600 mt-0.5">
+                                    {{ $notification->message ?? $notification->data['message'] ?? 'Tidak ada rincian pesan.' }}
+                                </p>
+                                <span class="text-xs text-gray-400 mt-2 inline-block">
+                                    {{ isset($notification->created_at) ? $notification->created_at->diffForHumans() : '-' }}
+                                </span>
                             </div>
+                        </div>
 
-                            @if($urlTarget)
-                    </a>
-                    @else
-                </div>
-                @endif
+                        <div class="text-xs font-semibold text-blue-900 group-hover:underline flex items-center space-x-1 shrink-0">
+                            <span>Lihat Detail</span>
+                            <i class="fas fa-chevron-right text-xs group-hover:translate-x-0.5 transition-transform"></i>
+                        </div>
 
-                @empty
-                <div class="p-10 border-2 border-dashed border-gray-200 text-center rounded-lg text-gray-500">
-                    <i class="fas fa-bell-slash text-3xl mb-2 text-gray-400"></i>
-                    <p class="text-sm">Belum ada notifikasi saat ini.</p>
+                    </{{ $urlTarget ? 'a' : 'div' }}>
+
+                    @empty
+                    <div class="p-10 border-2 border-dashed border-gray-200 text-center rounded-lg text-gray-500">
+                        <i class="fas fa-bell-slash text-3xl mb-2 text-gray-400"></i>
+                        <p class="text-sm">Belum ada notifikasi saat ini.</p>
+                    </div>
+                    @endforelse
                 </div>
-                @endforelse
             </div>
-        </div>
 
+        </div>
     </div>
-</div>
 </div>
 
 <script>

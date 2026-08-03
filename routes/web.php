@@ -691,6 +691,10 @@ Route::middleware(['auth',  \App\Http\Middleware\CekFlashUser::class])->group(fu
             // Route::delete('/destroy/{id}', [\App\Http\Controllers\Dupak\PenunjukanTpakController::class, 'destroy'])->name('destroy');
         });
         // ->middleware(['admin:{"is_admin":true|"bagian":"sumber daya manusia"|"range-level":[3|5]}']);
+
+        Route::get(
+            '/eligibilitas_dosen', [DashboardController::class, 'eligibilitas']
+        )->name('eligibilitas');
     });
 });
 
