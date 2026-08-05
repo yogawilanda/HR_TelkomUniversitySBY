@@ -28,7 +28,7 @@ class ValidasiController extends Controller
             ->exists();
     }
 
-/**
+    /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -46,7 +46,7 @@ class ValidasiController extends Controller
             $assignedPengajuanIds = PenunjukanTPAKModel::where('idDosenTpak', $tpakDosenId)
                 ->pluck('pengajuan_id')
                 ->toArray();
-            
+
             // Query pengajuan dengan eager loading details dan komponen
             // update: tambah mengambil data dari model dosen juga.
             $query = Pengajuan::with(['details.komponen', 'dosen'])
@@ -68,7 +68,7 @@ class ValidasiController extends Controller
         // Ambil semua pengajuan_id yang ditampilkan
         $allPengajuanIds = $pengajuanList->pluck('id')->toArray();
 
-// Ambil semua detail per pengajuan untuk ditampilkan di accordion
+        // Ambil semua detail per pengajuan untuk ditampilkan di accordion
         // Include evaluasi juga agar status display bisa benar
         $allDetailsMap = [];
         $detailPengajuan = \App\Models\Dupak\DetailPengajuan::whereIn('pengajuan_id', $allPengajuanIds)
@@ -88,7 +88,7 @@ class ValidasiController extends Controller
             $evaluationsByDetail = $evaluations->toArray();
         }
 
-// Group detail by pengajuan_id - tetap preserve semua detail, tidak perlu filter!
+        // Group detail by pengajuan_id - tetap preserve semua detail, tidak perlu filter!
         foreach ($detailPengajuan as $detail) {
             $pid = $detail->pengajuan_id;
             if (!isset($allDetailsMap[$pid])) {
@@ -126,11 +126,13 @@ class ValidasiController extends Controller
         // Mapping progress per pengajuan (berdasarkan detail yang sudah di-evaluasi)
         $progressMap = [];
         foreach ($allDetailsMap as $pid => $details) {
-            $detailIds = array_map(function($d) { return $d->id; }, $details);
+            $detailIds = array_map(function ($d) {
+                return $d->id;
+            }, $details);
             $evaluated = array_intersect($detailIds, $evaluatedIds);
             $totalDetail = count($detailIds);
             $evaluatedCount = count($evaluated);
-            
+
             $progressMap[$pid] = [
                 'evaluated' => $evaluatedCount === $totalDetail && $totalDetail > 0,
                 'percent' => $totalDetail > 0 ? round(($evaluatedCount / $totalDetail) * 100) : 0,
@@ -153,6 +155,42 @@ class ValidasiController extends Controller
     /**
      * Display the specified resource.
      */
+    // public function show($id)
+    // {
+    //     $pengajuan = Pengajuan::with(['details.komponen', 'dosen'])->findOrFail($id);
+
+    //     if (!$this->isAuthorizedTpak($pengajuan->id)) {
+    //         abort(403, 'Anda tidak memiliki akses untuk menilai pengajuan ini.');
+    //     }
+
+    //     $nidnDosenPengaju = $pengajuan->dosen?->nidn;
+    //     // dd($nidnDosenPengaju);
+
+    //     $detailIds = $pengajuan->details->pluck('id')->toArray();
+
+    //     $myEvaluations = HasilEvaluasi::whereIn('detail_pengajuan_id', $detailIds)
+    //         ->where('idUserPemeriksa', Auth::id())
+    //         ->get()
+    //         ->keyBy('detail_pengajuan_id');
+
+    //     $otherEvaluations = HasilEvaluasi::whereIn('detail_pengajuan_id', $detailIds)
+    //         ->where('idUserPemeriksa', '!=', Auth::id())
+    //         ->get()
+    //         ->groupBy('detail_pengajuan_id');
+
+    //     // Fetch the PenunjukanTPAKModel for overall notes
+    //     $tpakDosen = Dosen::where('users_id', Auth::id())->first();
+    //     $penunjukan = null;
+    //     if ($tpakDosen) {
+    //         $penunjukan = PenunjukanTPAKModel::where('pengajuan_id', $pengajuan->id)
+    //             ->where('idDosenTpak', $tpakDosen->id)
+    //             ->first();
+    //     }
+    //     $overallNotes = $penunjukan->catatan ?? ''; // Pass this to the view
+
+    //     return view('dupak.validasi.show', compact('pengajuan', 'myEvaluations', 'otherEvaluations', 'overallNotes'));
+    // }
+
     public function show($id)
     {
         $pengajuan = Pengajuan::with(['details.komponen', 'dosen'])->findOrFail($id);
@@ -161,9 +199,6 @@ class ValidasiController extends Controller
             abort(403, 'Anda tidak memiliki akses untuk menilai pengajuan ini.');
         }
 
-        $nidnDosenPengaju = $pengajuan->dosen?->nidn;
-        // dd($nidnDosenPengaju);
-
         $detailIds = $pengajuan->details->pluck('id')->toArray();
 
         $myEvaluations = HasilEvaluasi::whereIn('detail_pengajuan_id', $detailIds)
@@ -171,12 +206,12 @@ class ValidasiController extends Controller
             ->get()
             ->keyBy('detail_pengajuan_id');
 
+        // Ambil evaluasi dari anggota Tim PAK lain
         $otherEvaluations = HasilEvaluasi::whereIn('detail_pengajuan_id', $detailIds)
             ->where('idUserPemeriksa', '!=', Auth::id())
             ->get()
             ->groupBy('detail_pengajuan_id');
-        
-        // Fetch the PenunjukanTPAKModel for overall notes
+
         $tpakDosen = Dosen::where('users_id', Auth::id())->first();
         $penunjukan = null;
         if ($tpakDosen) {
@@ -184,7 +219,7 @@ class ValidasiController extends Controller
                 ->where('idDosenTpak', $tpakDosen->id)
                 ->first();
         }
-        $overallNotes = $penunjukan->catatan ?? ''; // Pass this to the view
+        $overallNotes = $penunjukan->catatan ?? '';
 
         return view('dupak.validasi.show', compact('pengajuan', 'myEvaluations', 'otherEvaluations', 'overallNotes'));
     }

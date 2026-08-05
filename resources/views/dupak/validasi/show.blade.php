@@ -103,20 +103,32 @@
                                 <tbody class="divide-y divide-gray-100">
                                     @forelse($pengajuan->details as $index => $detail)
                                     @php
-                                        $eval = $myEvaluations[$detail->id] ?? null;
-                                        $scoreVal = $eval ? round(($eval->nilai_angka_kredit / max(0.01, $detail->angka_kredit_total)) * 100) : 100;
-                                        $did = $detail->id;
-                                        $currentFlag = $eval->status_evaluasi ?? 'Pending';
+                                    $eval = $myEvaluations[$detail->id] ?? null;
+                                    $scoreVal = $eval ? round(($eval->nilai_angka_kredit / max(0.01, $detail->angka_kredit_total)) * 100) : 100;
+                                    $did = $detail->id;
 
-                                        // Dynamic Classes Logic (Struktur asli Anda dipertahankan)
-                                        $flagClass = [
-                                            'OK' => 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100',
-                                            'Doubt' => 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100',
-                                            'Rejected' => 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100',
-                                            'Pending' => 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100',
-                                            'Verified' => '',
-                                        ][$currentFlag] ?? 'bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100'; 
-                                        // Fallback jika value di luar list
+                                    // Ambil evaluasi tim PAK lain untuk detail ini
+                                    $others = $otherEvaluations->get($did, collect());
+                                    $hasOtherEvaluated = $others->isNotEmpty();
+
+                                    // 1. Ambil dari $eval milik user login
+                                    // 2. Jika null, ambil dari TPAK lain yang paling baru
+                                    // 3. Jika belum ada sama sekali, fallback ke scoreVal (100% = OK)
+                                    if ($eval && $eval->status_evaluasi) {
+                                    $currentFlag = $eval->status_evaluasi;
+                                    } elseif ($hasOtherEvaluated) {
+                                    $lastOther = $others->last();
+                                    $currentFlag = $lastOther->status_evaluasi ?? 'OK';
+                                    } else {
+                                    $currentFlag = ($scoreVal >= 100) ? 'OK' : (($scoreVal > 0) ? 'Doubt' : 'Rejected');
+                                    }
+
+                                    $flagClass = [
+                                    'OK' => 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100',
+                                    'Doubt' => 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100',
+                                    'Rejected' => 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100',
+                                    'Pending' => 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100',
+                                    ][$currentFlag] ?? 'bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100';
                                     @endphp
                                     <tr class="hover:bg-blue-50/30 transition-colors group">
                                         <td class="px-4 py-6 text-center text-gray-400 font-bold">{{ $index + 1 }}</td>
@@ -131,13 +143,31 @@
                                                     @endif
                                                 </div>
                                                 <p class="text-gray-500 italic leading-relaxed">{{ $detail->deskripsi_kegiatan }}</p>
+
+                                                {{-- Badge Penilaian Tim PAK Lain (Implementasi Rule 5) --}}
+                                                <div class="mt-2 flex flex-wrap gap-2">
+                                                    @if($hasOtherEvaluated)
+                                                    @foreach($others as $otherEval)
+                                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                                        <i class="fas fa-user-check text-blue-500"></i>
+                                                        TPAK Lain: <strong>{{ $otherEval->status_evaluasi }}</strong> ({{ number_format($otherEval->nilai_angka_kredit, 2) }} AK)
+                                                    </span>
+                                                    @endforeach
+                                                    @else
+                                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[10px] font-medium bg-gray-50 text-gray-400 border border-gray-100">
+                                                        <i class="fas fa-clock"></i> Tim PAK lain belum menilai
+                                                    </span>
+                                                    @endif
+                                                </div>
                                             </div>
                                         </td>
+
                                         <td class="px-4 py-6 text-center">
                                             <span class="px-3 py-1 bg-gray-100 text-gray-800 font-black rounded-lg ak-diajukan" data-ak="{{ $detail->angka_kredit_total }}">
                                                 {{ number_format($detail->angka_kredit_total, 2) }}
                                             </span>
                                         </td>
+
                                         <td class="px-4 py-6 text-center">
                                             <input type="number" name="scores[{{ $did }}]" id="score_{{ $did }}" data-did="{{ $did }}" value="{{ $scoreVal }}"
                                                 class="w-16 p-2 border-2 border-gray-100 rounded-xl text-center font-black focus:border-blue-500 focus:ring-0 transition-all outline-none">
@@ -145,6 +175,7 @@
                                                 <span id="score_calc_{{ $did }}">0.00</span> AK
                                             </div>
                                         </td>
+
                                         <td class="px-6 py-6 text-center">
                                             <button type="button" onclick="showStatusModal('{{ $did }}')" class="w-full py-3 px-4 rounded-xl border-2 font-black text-[11px] uppercase tracking-widest transition-all {{ $flagClass }} flex items-center justify-between">
                                                 <span id="current_status_text_{{ $did }}">{{ $currentFlag }}</span>
@@ -154,7 +185,6 @@
                                                 Nilai: <span id="status_score_{{ $did }}">{{ $scoreVal }}%</span>
                                             </div>
 
-                                            {{-- Inputs Hidden --}}
                                             <input type="hidden" name="flags[{{ $did }}]" id="flag_{{ $did }}" value="{{ $currentFlag }}">
                                             <input type="hidden" id="notes_{{ $did }}" name="notes[{{ $did }}]" value="{{ $eval->catatan ?? '' }}">
                                         </td>
@@ -212,6 +242,25 @@
 @section('script')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Map status berdasarkan bobot persentase
+        function getStatusFromScore(score) {
+            const numScore = parseFloat(score) || 0;
+            if (numScore >= 100) return 'OK';
+            if (numScore > 0) return 'Doubt';
+            return 'Rejected';
+        }
+
+        // Return class CSS tombol berdasarkan status
+        function getStatusClass(status) {
+            const flagClasses = {
+                'OK': 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100',
+                'Doubt': 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100',
+                'Rejected': 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100',
+                'Pending': 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100',
+            };
+            return flagClasses[status] || flagClasses['Pending'];
+        }
+
         // Fungsi hitung per baris
         function calculateItem(did) {
             const input = document.getElementById('score_' + did);
@@ -252,13 +301,45 @@
             document.getElementById('totalApproved').textContent = totalDisetujui.toFixed(2);
         }
 
-        // Event Listeners untuk input skor
+        // Update UI baris (Status text, badge score, hidden inputs, & button class)
+        function updateRowUI(did, score, flag, notes) {
+            const scoreInput = document.getElementById('score_' + did);
+            const flagInput = document.getElementById('flag_' + did);
+            const notesInput = document.getElementById('notes_' + did);
+            const statusTextSpan = document.getElementById('current_status_text_' + did);
+            const statusButton = statusTextSpan?.closest('button');
+            const statusScoreSpan = document.getElementById('status_score_' + did);
+
+            if (scoreInput) scoreInput.value = score;
+            if (flagInput) flagInput.value = flag;
+            if (notesInput) notesInput.value = notes;
+            if (statusScoreSpan) statusScoreSpan.textContent = score + '%';
+            if (statusTextSpan) statusTextSpan.textContent = flag;
+
+            if (statusButton) {
+                statusButton.className = 'w-full py-3 px-4 rounded-xl border-2 font-black text-[11px] uppercase tracking-widest transition-all flex items-center justify-between ' + getStatusClass(flag);
+            }
+
+            calculateItem(did);
+            refreshTotals();
+        }
+
+        // Event Listeners untuk input skor (Real-time sync ke UI & Status)
         document.querySelectorAll('input[name^="scores"]').forEach(input => {
+            const did = input.dataset.did;
+
             input.addEventListener('input', () => {
-                calculateItem(input.dataset.did);
-                refreshTotals();
+                let scoreVal = parseFloat(input.value) || 0;
+                if (scoreVal > 100) input.value = 100;
+                if (scoreVal < 0) input.value = 0;
+
+                const autoStatus = getStatusFromScore(input.value);
+                const currentNotes = document.getElementById('notes_' + did)?.value || '';
+
+                updateRowUI(did, input.value, autoStatus, currentNotes);
             });
-            calculateItem(input.dataset.did); // Initial calculation
+
+            calculateItem(did); // Initial calculation
         });
 
         refreshTotals();
@@ -271,10 +352,18 @@
             const modal = document.getElementById('statusModal');
             const flagEl = document.getElementById('flag_' + did);
             const notesEl = document.getElementById('notes_' + did);
+            const scoreEl = document.getElementById('score_' + did);
 
             document.getElementById('modalDid').textContent = 'Detail ID: ' + did;
-            document.getElementById('modalStatus').value = flagEl.value;
-            document.getElementById('modalNotes').value = notesEl.value;
+
+            // Penentuan status awal modal yang presisi
+            let currentFlag = flagEl ? flagEl.value : 'Pending';
+            if (!['OK', 'Doubt', 'Rejected'].includes(currentFlag)) {
+                currentFlag = getStatusFromScore(scoreEl?.value || 100);
+            }
+
+            document.getElementById('modalStatus').value = currentFlag;
+            document.getElementById('modalNotes').value = notesEl ? notesEl.value : '';
 
             modal.classList.remove('hidden');
             modal.style.opacity = '0';
@@ -300,20 +389,19 @@
             const status = document.getElementById('modalStatus').value;
             const notes = document.getElementById('modalNotes').value;
 
+            // Default score map jika memilih via preset dropdown modal
             const scoreMap = {
                 'OK': 100,
                 'Doubt': 50,
-                'Rejected': 0,
-                'Pending': 100
+                'Rejected': 0
             };
             const score = scoreMap[status] ?? 100;
             const pengajuanId = "{{ $pengajuan->id }}";
-            
+
             const url = "{{ route('dupak.validasi.detail.save', ['pengajuan' => ':pengajuanId', 'detail' => ':did']) }}"
                 .replace(':pengajuanId', pengajuanId)
                 .replace(':did', did);
-            
-            // Ambil tombol simpan modal untuk disable sementara
+
             const saveBtn = document.querySelector('#statusModal button:last-child');
             if (saveBtn) {
                 saveBtn.disabled = true;
@@ -328,7 +416,7 @@
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
                     body: JSON.stringify({
-                        score,
+                        score: score,
                         flag: status,
                         note: notes
                     })
@@ -354,46 +442,14 @@
                 hideStatusModal();
             }
         };
-
-        function updateRowUI(did, score, flag, notes) {
-            const scoreInput = document.getElementById('score_' + did);
-            const flagInput = document.getElementById('flag_' + did);
-            const notesInput = document.getElementById('notes_' + did);
-            const statusTextSpan = document.getElementById('current_status_text_' + did);
-            const statusButton = statusTextSpan?.closest('button');
-            const statusScoreSpan = document.getElementById('status_score_' + did);
-
-            if (scoreInput) scoreInput.value = score;
-            if (flagInput) flagInput.value = flag;
-            if (notesInput) notesInput.value = notes;
-            if (statusScoreSpan) statusScoreSpan.textContent = score + '%';
-            if (statusTextSpan) statusTextSpan.textContent = flag;
-
-            if (statusButton) {
-                const flagClasses = {
-                    'OK': 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100',
-                    'Doubt': 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100',
-                    'Rejected': 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100',
-                    'Pending': 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100',
-                };
-
-                // Reset classes but keep base classes
-                statusButton.className = 'w-full py-3 px-4 rounded-xl border-2 font-black text-[11px] uppercase tracking-widest transition-all flex items-center justify-between ' + flagClasses[flag];
-            }
-
-            calculateItem(did);
-            refreshTotals();
-        }
     });
 
     function toggleProfile() {
         const content = document.getElementById('profileContent');
         const chevron = document.getElementById('profileChevron');
 
-        // Toggle class hidden milik Tailwind
         content.classList.toggle('hidden');
-        
-        // Putar ikon panah
+
         if (content.classList.contains('hidden')) {
             chevron.style.transform = 'rotate(180deg)';
         } else {
