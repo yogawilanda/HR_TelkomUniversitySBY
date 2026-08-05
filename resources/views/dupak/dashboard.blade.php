@@ -1,9 +1,57 @@
 @extends('layouts.app')
 
 @section('content')
+<div x-data="{ tab: 'personal', showImageModal: true }">
 <x-dupak.popup-tambah-kegiatan :kegiatanUtama="$kegiatanUtama" :pengajuanId="$submissions['latest']->id ?? null" />
 
-<div class="py-6" x-data="{ tab: 'personal' }">
+{{-- Modal Pop-up Gambar (Dismissible) --}}
+{{-- Modal Pop-up Gambar (Dismissible & Responsive) --}}
+<div x-show="showImageModal" 
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-150"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     @keydown.escape.window="showImageModal = false"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/75 backdrop-blur-sm"
+     x-cloak>
+    
+    {{-- Backdrop (Klik luar untuk close) --}}
+    <div class="fixed inset-0" @click="showImageModal = false"></div>
+
+    {{-- Container Modal --}}
+    <div class="relative bg-white rounded-xl shadow-2xl overflow-hidden max-w-4xl w-full max-h-[90vh] flex flex-col z-10">
+        
+        {{-- Header & Tombol Close (X) di Atas --}}
+        <div class="flex items-center justify-between px-4 py-3 bg-gray-100 border-b border-gray-200 shrink-0">
+            <span class="text-sm font-semibold text-gray-700">Panduan / Informasi DUPAK</span>
+            <button @click="showImageModal = false" 
+                    type="button"
+                    class="text-gray-400 hover:text-gray-700 hover:bg-gray-200 rounded-lg p-1.5 transition-colors focus:outline-none">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+
+        {{-- Container Gambar (Responsive & Auto Scroll jika terlalu panjang) --}}
+        <div class="p-4 overflow-y-auto flex-1 bg-gray-50 flex items-center justify-center">
+            <img src="{{ asset('images/info_dupak.png') }}" 
+                 alt="Panduan DUPAK" 
+                 class="w-auto h-auto max-w-full max-h-[70vh] object-contain rounded shadow-sm">
+        </div>
+
+        {{-- Footer --}}
+        <div class="px-4 py-3 bg-white border-t border-gray-100 flex justify-end shrink-0">
+            <button @click="showImageModal = false" 
+                    type="button"
+                    class="px-4 py-2 bg-gray-800 hover:bg-gray-900 text-white text-xs font-semibold rounded-lg transition">
+                Tutup
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="py-6">
     <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
         <a href="{{ route('dashboard') }}" class="inline-flex items-center text-gray-500 hover:text-gray-700 mb-2">
             <i class="fas fa-arrow-left mr-2"></i> Kembali
@@ -356,4 +404,5 @@
         }
     });
 </script>
+</div>
 @endsection
