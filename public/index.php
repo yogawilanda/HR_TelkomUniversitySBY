@@ -1,5 +1,10 @@
 <?php
 
+// Trik agar Laravel mengenali subfolder /dupak dan tidak membuang prefix ke root
+if (isset($_SERVER['SCRIPT_NAME'])) {
+    $_SERVER['SCRIPT_NAME'] = str_replace('/public/index.php', '/index.php', $_SERVER['SCRIPT_NAME']);
+}
+
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 
