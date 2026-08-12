@@ -68,8 +68,10 @@
                         max="150"></x-itxt>
 
                     <x-islc lbl="Jenis Kelamin" nm="jenis_kelamin">
-                        <option value="Laki-laki" {{ old('jenis_kelamin')=='Laki-laki'?'selected':null }}>Laki-laki</option>
-                        <option value="Perempuan" {{ old('jenis_kelamin')=='Perempuan'?'selected':null }}>Perempuan</option>
+                        <option value="Laki-laki" {{ old('jenis_kelamin') == 'Laki-laki' ? 'selected' : null }}>Laki-laki
+                        </option>
+                        <option value="Perempuan" {{ old('jenis_kelamin') == 'Perempuan' ? 'selected' : null }}>Perempuan
+                        </option>
                     </x-islc>
 
                     <div class="flex flex-col xl:flex-row justify-between w-full gap-3">
@@ -91,11 +93,21 @@
                 @php
                     $selectedType = old('tipe_pegawai', request('type') ?? 'Dosen');
                 @endphp
-                <x-islc lbl="Tipe Pegawai" nm="tipe_pegawai" id="tipe_pegawai" required>
+                <x-islc lbl="Tipe Pegawai" nm="tipe_pegawai" onchange="changeTypePegawai(this)" id="tipe_pegawai" required>
                     <option value="" disabled>-- Pilih Tipe --</option>
-                    <option value="Dosen" {{ $selectedType === 'Dosen' ? 'selected' : '' }}>Dosen</option>
-                    <option value="TPA" {{ $selectedType === 'Tpa' ? 'selected' : '' }}>TPA</option>
+                    <option value="Dosen" {{ $selectedType === 'Dosen' ? 'selected' : '' }}>
+                        Dosen</option>
+                    <option value="TPA" {{ $selectedType === 'Tpa' ? 'selected' : '' }}>TPA
+                    </option>
                 </x-islc>
+
+
+                <x-itxt lbl="Nomor Unik Pendidik dan Tenaga Kependidikan (NUPTK)" plc="86546854655" fill="data-dosen"
+                    id="nuptk" nm="nuptk" max="30" :req=true></x-itxt>
+                <x-itxt lbl="Nomor Induk Dosen Nasional (NIDN)" plc="86546854655" nm="nidn" max="30"
+                    fill="data-dosen" id="nidn" :req=true></x-itxt>
+
+
 
                 <x-islc lbl="Status Kepegawaian" nm="status_kepegawaian">
                     {{-- {{ dd($status_pegawai_options) }} --}}
@@ -192,6 +204,32 @@
             `;
             }
 
+            window.changeTypePegawai = function(elemen) {
+                if (elemen.value === "Dosen") {
+                    window.show_data_dosen();
+                } else {
+                    window.hide_data_dosen();
+                }
+            };
+
+            window.hide_data_dosen = function() {
+                console.log(document.querySelectorAll('.data-dosen'));
+
+                document.querySelectorAll('.data-dosen').forEach(e => {
+                    e.style.display = "none";
+                    console.log("hide");
+                });
+            };
+
+            window.show_data_dosen = function() {
+                console.log(document.querySelectorAll('.data-dosen'));
+
+                document.querySelectorAll('.data-dosen').forEach(e => {
+                    e.style.display = "";
+                    console.log("show");
+                });
+            };
+
             function addContact(data = {}) {
                 container.insertAdjacentHTML('beforeend', contactTemplate(index, data));
                 index++;
@@ -261,24 +299,24 @@
                 });
             }
 
-            function showHideByType(type) {
-                if (type === 'Dosen') {
-                    dataDosen.classList.remove('hidden');
-                    dataTPA.classList.add('hidden');
-                    setSectionRequired(dataDosen, true);
-                    setSectionRequired(dataTPA, false);
-                } else if (type === 'TPA') {
-                    dataTPA.classList.remove('hidden');
-                    dataDosen.classList.add('hidden');
-                    setSectionRequired(dataTPA, true);
-                    setSectionRequired(dataDosen, false);
-                } else {
-                    dataTPA.classList.add('hidden');
-                    dataDosen.classList.add('hidden');
-                    setSectionRequired(dataTPA, false);
-                    setSectionRequired(dataDosen, false);
-                }
-            }
+            // function showHideByType(type) {
+            //     if (type === 'Dosen') {
+            //         dataDosen.classList.remove('hidden');
+            //         dataTPA.classList.add('hidden');
+            //         setSectionRequired(dataDosen, true);
+            //         setSectionRequired(dataTPA, false);
+            //     } else if (type === 'TPA') {
+            //         dataTPA.classList.remove('hidden');
+            //         dataDosen.classList.add('hidden');
+            //         setSectionRequired(dataTPA, true);
+            //         setSectionRequired(dataDosen, false);
+            //     } else {
+            //         dataTPA.classList.add('hidden');
+            //         dataDosen.classList.add('hidden');
+            //         setSectionRequired(dataTPA, false);
+            //         setSectionRequired(dataDosen, false);
+            //     }
+            // }
 
             function filterStatusOptions(type) {
                 statusOptions.forEach(({

@@ -23,13 +23,24 @@
 @section('page-name')
     <div
         class="flex flex-col md:flex-row items-center gap-[11.749480247497559px] self-stretch px-1 pt-[14.686850547790527px] pb-[13.952507972717285px]">
-        <div class="flex w-full flex-col gap-[2.9373700618743896px] grow">
+        {{-- <div class="flex w-full flex-col gap-[2.9373700618743896px] grow">
             <div class="flex items-center gap-[5.874740123748779px] self-stretch">
                 <span class="font-medium text-2xl leading-[20.56159019470215px] text-[#101828]">
                     Ubah Data Pegawai
+                    Tipe Pegawai: Dosen
                 </span>
             </div>
-        </div>
+        </div> --}}
+        <div class="flex w-full flex-col gap-1">
+    <h1 class="text-2xl font-semibold text-gray-900">
+        Ubah Data Pegawai
+    </h1>
+
+    <p class="text-sm text-gray-500">
+        Tipe Pegawai:
+        <span class="font-medium text-blue-600">{{$user->tipe_pegawai}}</span>
+    </p>
+</div>
         <div class="flex items-center w-full justify-end gap-[11.749480247497559px]">
             {{-- <x-export-csv-tb target_id="pegawaiTable"></x-export-csv-tb> --}}
         </div>
@@ -37,15 +48,17 @@
 @endsection
 
 @section('content-base')
-    <x-form route="{{ (session('account')['is_admin'] || isset(session('account')['role']['sumber daya manusia'])) && $user['id'] != session('account')['id']
-                        ? route('manage.pegawai.update', ['id_user' => $user->id])
-                        : route('profile.update', ['id_user' => session('account')['id']]) }}">
+    <x-form
+        route="{{ (session('account')['is_admin'] || isset(session('account')['role']['sumber daya manusia'])) &&
+        $user['id'] != session('account')['id']
+            ? route('manage.pegawai.update', ['id_user' => $user->id])
+            : route('profile.update', ['id_user' => session('account')['id']]) }}">
 
 
         {{-- Data Diri --}}
         <div class="flex flex-col gap-8 w-full max-w-100 mx-auto rounded-md border p-3">
             <h2 class="text-lg font-semibold text-black text-center">Data Diri Pegawai</h2>
-
+            {{-- {{ dd($user) }} --}}
             <div class="grid md:grid-cols-2 gap-8">
                 {{-- Kolom Kiri --}}
                 <div class="flex flex-col gap-4">
@@ -60,6 +73,7 @@
 
                     <x-itxt type="textarea" lbl="Alamat" plc="Jl. Telekomunikasi No. 1, Bandung" nm="alamat"
                         max="300" fill="flex-grow" val="{{ $user->alamat }}"></x-itxt>
+
                 </div>
 
                 {{-- Kolom Kanan --}}
@@ -86,6 +100,12 @@
                         <x-itxt type="date" fill="flex-1" lbl="Tanggal Lahir" nm="tgl_lahir" max="2025-10-27"
                             rules="none" val="{{ \Carbon\Carbon::parse($user->tgl_lahir)->format('Y-m-d') }}"></x-itxt>
                     </div>
+                    @if($user->is_SdmOrAdmin==true && $user->tipe_pegawai=='Dosen')
+                        <x-itxt lbl="Nomor Unik Pendidik dan Tenaga Kependidikan (NUPTK)" plc="86546854655" fill="data-dosen"
+                            id="nuptk" nm="nuptk" max="30" val="{{ $user->data_dosen->nuptk }}" :req=true></x-itxt>
+                        <x-itxt lbl="Nomor Induk Dosen Nasional (NIDN)" plc="86546854655" nm="nidn" max="30"
+                            fill="data-dosen" id="nidn" val="{{ $user->data_dosen->nidn }}" :req=true ></x-itxt>
+                    @endif
                 </div>
             </div>
         </div>
@@ -135,9 +155,10 @@
                 ],
                 [
                     'key' => 'L7',
-                    'label' => 'Apakah secara visual sistem dapat digunakan dengan baik di perangkat/browser yang Anda pakai?',
+                    'label' =>
+                        'Apakah secara visual sistem dapat digunakan dengan baik di perangkat/browser yang Anda pakai?',
                     'type' => 'scale',
-                    'labels' => ['Sangat Bermasalah', 'Sangat Baik']
+                    'labels' => ['Sangat Bermasalah', 'Sangat Baik'],
                 ],
                 [
                     'key' => 'L5',
@@ -149,12 +170,11 @@
                     'key' => 'L6',
                     'label' => 'Apa kendala utama yang Anda alami?',
                     'type' => 'text',
-                ]
-
+                ],
             ];
         @endphp
 
-        <x-question-testing route="{{ route('testing', ['kode' => '1T3', 'nama_fitur' => 'ubah data pegawai']) }}" page="{{ session('testing') }}"
-            fitur_code="1T3" :config="$testingQuestions" />
+        <x-question-testing route="{{ route('testing', ['kode' => '1T3', 'nama_fitur' => 'ubah data pegawai']) }}"
+            page="{{ session('testing') }}" fitur_code="1T3" :config="$testingQuestions" />
     @endif
 @endpush

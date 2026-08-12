@@ -1,17 +1,22 @@
-@props(['type' => null, 'nama' => null, 'sorting' => false])
-    {{-- {{ dd(request()->all()[$nama]) }} --}}
+@props(['type' => null, 'nama' => null, 'sorting' => false, 'addClass' => null])
+{{-- {{ dd(request()->all()[$nama]) }} --}}
 @php
     $url_value_for_this_select = request()->all()[$nama] ?? null;
     $default_select = $type;
-    $normalisasi_select = $url_value_for_this_select==null ? $default_select : 'select';
+    $normalisasi_select = $url_value_for_this_select == null ? $default_select : 'select';
     $type = $normalisasi_select;
 @endphp
 
 <th data-field="{{ $nama }}"
-    data-filter-control="{{ $type }}"
+    {{-- visibilitas --}}
+    @if ($type == null) data-filter-control="input"
+    @elseif($type == 'hide') data-filter-control="input"
+    @else data-filter-control="{{ $type }}" @endif
+
+
     @if ($url_value_for_this_select) data-filter-default="{{ $url_value_for_this_select }}" @endif
     @if ($sorting) data-sortable="true" @endif
-    class="px-6 py-4 text-[13px] font-bold text-[#1d1d1f] uppercase tracking-tight @if ($sorting) sortable @endif">
+    class="px-6 py-4 text-[13px] font-bold text-[#1d1d1f] uppercase {{ $addClass }} tracking-tight @if ($sorting) sortable @endif">
     <div class="flex items-center justify-center gap-1">
         <span>{{ $slot }}</span>
         @if ($sorting)
