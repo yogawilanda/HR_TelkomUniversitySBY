@@ -97,7 +97,7 @@
                     {{-- {{ dd($formation) }} --}}
                     <x-tb-cl id="{{ $formation->id }}">
                         <x-tb-cl-fill clsText="text-center">
-                            <p id="level">{{ $formation->level_data->singkatan_level }}</p>
+                            <p id="level">{{ $formation->level_id->singkatan_level }}</p>
                         </x-tb-cl-fill>
                         <x-tb-cl-fill>
                             <p class="text-wrap" id="nama_formasi">{{ $formation->nama_formasi }}</p>

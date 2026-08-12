@@ -75,7 +75,7 @@ class AuthenticatedSessionController extends Controller
                 $role['is_admin'] = true;
             }
 
-            $active_bagian = Pengawakan::with(['formasi.level_data', 'formasi.bagian'])->where('users_id', $user->id)
+            $active_bagian = Pengawakan::with(['formasi.level_id', 'formasi.bagian'])->where('users_id', $user->id)
                 ->where(function ($query) {
                     $query->where('tmt_selesai', '>=', Carbon::now())
                         ->orWhereNull('tmt_selesai');
@@ -84,17 +84,17 @@ class AuthenticatedSessionController extends Controller
             // dd($active_bagian!=null);
             if ($active_bagian != null) {
                 foreach ($active_bagian as $item) {
-                    $role[strtolower($item->formasi->bagian->position_name)] = ['level' => strtolower($item->formasi->level_data->urut)];
+                    $role[strtolower($item->formasi->bagian->position_name)] = ['level' => strtolower($item->formasi->level_id->urut)];
                 }
             }
 
             $max_level = $active_bagian->sortBy(function ($item) {
-                return $item->formasi->level_data->urut ?? 0;
+                return $item->formasi->level_id->urut ?? 0;
             })
                 ->first();
 
             if ($max_level) {
-                $role['top-level'] = strtolower($max_level->formasi->level_data->urut);
+                $role['top-level'] = strtolower($max_level->formasi->level_id->urut);
             }
 
             $dosen = Dosen::where('users_id', $user->id)->first();

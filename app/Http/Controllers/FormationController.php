@@ -91,7 +91,7 @@ class FormationController extends Controller
             'bagian',
         ])->findOrFail($idFormasi);
         $formation_target['atasan'] = $formation_target->atasan_formation()->first();
-        $formation_target['level_data'] = $formation_target->level_id()->first();
+        $formation_target['level_id'] = $formation_target->level_id()->first();
         $formation_target['bagian_data'] = $formation_target->bagian()->first();
         // dd($fakultas);
 

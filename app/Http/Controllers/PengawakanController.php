@@ -392,11 +392,11 @@ class PengawakanController extends Controller
     {
         if ($this->onlyOwnerAdminAndSdm($id_user) == true) {
             $user = (new ProfileController)->based_user_data($id_user);
-            $user['pengawakans'] = Pengawakan::with(['formasi.bagian', 'formasi.level_data', 'sk_ypt'])
+            $user['pengawakans'] = Pengawakan::with(['formasi.bagian', 'formasi.level_id', 'sk_ypt'])
                 ->where('users_id', $id_user)
                 ->orderBy('tmt_mulai', 'desc')
                 ->get();
-            $user['pengawakans_aktif'] = Pengawakan::with(['formasi.bagian', 'formasi.level_data', 'sk_ypt'])
+            $user['pengawakans_aktif'] = Pengawakan::with(['formasi.bagian', 'formasi.level_id', 'sk_ypt'])
                 ->where('users_id', $id_user)
                 ->where(function ($q) {
                     $q->whereNull('tmt_selesai')

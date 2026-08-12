@@ -305,7 +305,7 @@ class UserSeeder extends Seeder
 
         $make_pengawakan_sdm = null;
         if ($data['Sdm'] == 1) {
-            $find_sdm_bagian = Formation::with(['bagian', 'level_data'])
+            $find_sdm_bagian = Formation::with(['bagian', 'level_id'])
                 ->whereHas('bagian', function ($q) {
                     $q->where('position_name', 'Sumber Daya manusia');
                 })
