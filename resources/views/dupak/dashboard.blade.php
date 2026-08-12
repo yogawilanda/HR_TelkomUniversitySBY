@@ -5,7 +5,6 @@
 <x-dupak.popup-tambah-kegiatan :kegiatanUtama="$kegiatanUtama" :pengajuanId="$submissions['latest']->id ?? null" />
 
 {{-- Modal Pop-up Gambar (Dismissible) --}}
-{{-- Modal Pop-up Gambar (Dismissible & Responsive) --}}
 <div x-show="showImageModal" 
      x-transition:enter="transition ease-out duration-200"
      x-transition:enter-start="opacity-0"
